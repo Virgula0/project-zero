@@ -1,0 +1,98 @@
+name: Unity Build And Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  buildForWindowsAndLinuxAndOSX:
+    name: Build for ${{ matrix.targetPlatform }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        targetPlatform:
+          - StandaloneOSX # intel osx
+          - StandaloneWindows64 # Build a Windows 64-bit standalone.
+          - StandaloneLinux64 # Build a Linux 64-bit standalone.
+    outputs:
+      buildVersion: ${{ steps.buildStep.outputs.buildVersion }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-${{ matrix.targetPlatform }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-${{ matrix.targetPlatform }}-
+            Library-
+
+      - uses: game-ci/unity-builder@v4
+        id: buildStep
+        env:
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: ${{ matrix.targetPlatform }}
+          versioning: Semantic
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Build-${{ matrix.targetPlatform }}
+          path: build/${{ matrix.targetPlatform }}
+
+  uploadAllArtifacts:
+    name: Upload All Builds as Single Pre-Release
+    runs-on: ubuntu-latest
+    needs: buildForWindowsAndLinuxAndOSX
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download OSX Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Build-StandaloneOSX
+          path: StandaloneOSX
+
+      - name: Download Windows Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Build-StandaloneWindows64
+          path: StandaloneWindows64
+
+      - name: Download Linux Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Build-StandaloneLinux64
+          path: StandaloneLinux64
+
+      - name: Read version from build output
+        id: version-step
+        run: |
+          echo "VERSION=$(cat version)" >> $GITHUB_ENV
+
+      - name: Zip
+        run: |  
+              zip -r StandaloneOSX.zip StandaloneOSX  
+              zip -r StandaloneWindows64.zip StandaloneWindows64  
+              zip -r StandaloneLinux64.zip StandaloneLinux64  
+
+      - name: Create a Pre-Release with All Artifacts
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: "${{ env.VERSION }}-pre-${{ github.run_number }}"
+          name: "${{ env.VERSION }}-pre-${{ github.run_number }}"
+          draft: false
+          prerelease: true
+          artifacts: |
+            StandaloneOSX.zip
+            StandaloneWindows64.zip
+            StandaloneLinux64.zip
