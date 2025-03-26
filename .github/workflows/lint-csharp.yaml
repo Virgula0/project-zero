@@ -1,0 +1,37 @@
+name: C# Linter
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - ready_for_review
+      - synchronize
+
+jobs:
+  lint:
+    if: github.event.pull_request.draft != true
+
+    name: Run C# Linter
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.200'  
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Run Linter (dotnet format)
+        run: |
+             cd Assets/Scripts 
+             # only checks for formatting issues, if any the run fail
+             dotnet format --verify-no-changes --verbosity diagnostic 
