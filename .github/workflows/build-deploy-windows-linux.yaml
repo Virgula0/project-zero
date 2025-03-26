@@ -82,7 +82,7 @@ jobs:
       - name: Read version from build output
         id: version-step
         run: |
-          echo "VERSION=$(cat build/StandaloneOSX/version)" >> $GITHUB_ENV
+          echo "VERSION=$(cat version)" >> $GITHUB_ENV
 
       - name: Create a Pre-Release with All Artifacts
         uses: ncipollo/release-action@v1
