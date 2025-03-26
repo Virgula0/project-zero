@@ -30,4 +30,4 @@ jobs:
       - name: Run Linter (dotnet format)
         run: | 
              # only checks for formatting issues, if any the run fail
-             dotnet format --include Assests/Scripts --verify-no-changes --verbosity diagnostic 
+             dotnet format --include Assets/Scripts --verify-no-changes --verbosity diagnostic 
