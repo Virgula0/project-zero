@@ -19,9 +19,9 @@ jobs:
       fail-fast: false
       matrix:
         targetPlatform:
-          - StandaloneOSX  # intel osx
-          - StandaloneWindows64  # Build a Windows 64-bit standalone.
-          - StandaloneLinux64  # Build a Linux 64-bit standalone.
+          - StandaloneOSX # intel osx
+          - StandaloneWindows64 # Build a Windows 64-bit standalone.
+          - StandaloneLinux64 # Build a Linux 64-bit standalone.
     outputs:
       buildVersion: ${{ steps.buildStep.outputs.buildVersion }}
     steps:
@@ -61,23 +61,28 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Download All Build Artifacts
-
-      - uses: actions/download-artifact@v4
+      - name: Download OSX Artifact
+        uses: actions/download-artifact@v4
         with:
-          name: build/StandaloneOSX
+          name: Build-StandaloneOSX
+          path: StandaloneOSX
 
-      - uses: actions/download-artifact@v4
+      - name: Download Windows Artifact
+        uses: actions/download-artifact@v4
         with:
-          name: build/StandaloneWindows64
+          name: Build-StandaloneWindows64
+          path: StandaloneWindows64
 
-      - uses: actions/download-artifact@v4
+      - name: Download Linux Artifact
+        uses: actions/download-artifact@v4
         with:
-          name: build/StandaloneLinux64
+          name: Build-StandaloneLinux64
+          path: StandaloneLinux64
 
-      - name: Read version from file
-        id: read_version
-        run: echo "VERSION=$(cat version)" >> $GITHUB_ENV
+      - name: Read version from build output
+        id: version-step
+        run: |
+          echo "VERSION=$(cat build/StandaloneOSX/version)" >> $GITHUB_ENV
 
       - name: Create a Pre-Release with All Artifacts
         uses: ncipollo/release-action@v1
@@ -88,6 +93,6 @@ jobs:
           draft: false
           prerelease: true
           artifacts: |
-            StandaloneOSX
-            StandaloneWindows64
-            StandaloneLinux64
+            StandaloneOSX/*
+            StandaloneWindows64/*
+            StandaloneLinux64/*
