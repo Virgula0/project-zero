@@ -1,103 +1,168 @@
+# Project Zero
 
-# project-zero
-Game developed for the course Game Development at Unifi.
-  
+**Game developed for the Game Development course at Unifi.**
+
 ## Brief Description:
-[Project Zero] is a top down 2D shooter with a focus on [] and fast gameplay. Some examples of similar games that are already on the market are Hotline Miami 1 & 2, Door Kickers and Nuclear Throne.
-  
+[Project Zero] is a top-down 2D shooter that focuses on parrying, shooting, and fast-paced gameplay. Similar games include *Hotline Miami 1 & 2*, *Door Kickers*, and *Nuclear Throne*.
+
 ## Setting:
+The game is set in the near future, aboard a space station orbiting Jupiter. A twisted competition, similar to a Hunger Games scenario, is played and streamed to the Metanet (or Hypernet, if we want a more serious tone). You are one of the competitors, and your objective is to survive, escape, and collect as much cash as possible. To succeed, you’ll need to paint the station red with blood.
 
-The game is set in a non-too-far future, in a space station orbiting Jupiter where a sort of Hunger Game is played [how much is played and when is not important] and streamed to the Metanet [Hypernet if we don't want to be funny]. You are one of the competitors and, of course, your objective is to survive and get out with a lot of cash. Of course in order to succede you'll have to paint the station red.
-  
 ## Game Mechanics:
-  
-### Movement:
-The movement is going to be standard top down movemnt, `WASD` for moving across the screen while aiming with the mouse. There's no jump. The player will be able to dash a small distance by pressing [Shift], [the dash direction is dictated by the mouse direction.]
-  
-### Weapons:
-Weapons are divided in two macro categories `Primary` and `Secondary`, enemies can be equipped with whatever Primary weapon, but with only a subset of Secondaries. The description of the two categories are:
 
- **Primary:**
-Primary weapons are the exlusive damage dealer and subdivide in:
-- Ranged: Ranged weapons can hit from long range, but have very limited ammunitions  
+### Movement:
+- **Movement:** Standard top-down movement, using `WASD` for movement and the mouse to aim.
+- **Dash:** Press [Shift] to dash a short distance. The dash direction is determined by the mouse pointer.
+- **Jump:** There is no jump mechanic.
+
+### Weapons:
+Weapons are divided into **Primary** and **Secondary** categories. Enemies can use any **Primary** weapon but are limited to a subset of **Secondary** weapons.
+
+#### Primary Weapons:
+Primary weapons are your main damage-dealers, and they are subdivided into **Ranged** and **Melee** weapons.
+
+##### Ranged Weapons:
+Ranged weapons are effective at long range but have limited ammunition.
 
 **List of Ranged Weapons:**
 
-`Pistol` -> firing rate: high, stopping power: low, mag size: 15, base spread: low, kill on throw: no
+- **Pistol**:  
+  - Firing Rate: High  
+  - Stopping Power: Low  
+  - Magazine Size: 15  
+  - Base Spread: Low  
+  - Kill on Throw: No
+  
+- **SMG**:  
+  - Firing Rate: Very High  
+  - Stopping Power: Very Low  
+  - Magazine Size: 50  
+  - Base Spread: High  
+  - Kill on Throw: No
+  
+- **Assault Rifle**:  
+  - Firing Rate: High  
+  - Stopping Power: Medium  
+  - Magazine Size: 30  
+  - Base Spread: Medium  
+  - Kill on Throw: No
+  
+- **Shotgun**:  
+  - Firing Rate: Low  
+  - Stopping Power: Very High  
+  - Magazine Size: 9  
+  - Base Spread: High  
+  - Kill on Throw: No (4 pellets per shot)
+  
+- **Laser Rifle**:  
+  - Fire Rate: Continuous  
+  - Stopping Power: None  
+  - Magazine Size: 300  
+  - Base Spread: None  
+  - Kill on Throw: No (single beam, ammo depletes at 1 every 0.5s)
 
-`SMG` -> firing rate: very high, stopping power: very low, mag size: 50, base spread: high, kill on throw: no
-
-`Assault Rifle `-> firing rate: high, stopping power: medium, mag size: 30, base spread: medium, kill on throw: no
-
-`Shotgun` -> firing rate: low, stopping power: very high, mag size: 9, base spread: high, kill on throw: no (4 pellets per shot)
-
-`Laser Rifle` -> fire rate: continous, stopping power: none, mag size: 300, base spread: none, kill on throw: no (single beam that damage the enemies, ammo depletes at a 1 every 0.5s)
-
-- Melee: Melee weapons can only hit at close range, they do not require ammo and can parry the enemy's melee attacks by pressing [Left Click]
-
-Parry will be timed. The user need to be skilled enough and get the correct timing for parrying the enemy. Once an enemy as parried, it is vulnerable for X seconds and attacking the enemy within this time range will inflict a lot of damage rather than normal.
+##### Melee Weapons:
+Melee weapons are effective only at close range, don’t require ammunition, and can parry enemy melee attacks with [Left Click].  
+**Parry mechanic:** Timing is key. If you successfully parry, the enemy becomes vulnerable for a short period, allowing you to deal increased damage.
 
 **List of Melee Weapons:**
 
-`Knife` -> range: low, swing speed: high, kill on throw: yes, parry difficulty: high
-
-`Sword` -> range: medium, swing speed: medium, kill on throw: yes, parry difficulty: medium
+- **Knife**:  
+  - Range: Low  
+  - Swing Speed: High  
+  - Kill on Throw: Yes  
+  - Parry Difficulty: High
   
-**Secondary:**
-Secondary are basically items that can be used pressing [Q], they subdivide in:
-- Throwables: Throwables objects that can deal damage, stun, or immobilize. They can have more than one use.
+- **Sword**:  
+  - Range: Medium  
+  - Swing Speed: Medium  
+  - Kill on Throw: Yes  
+  - Parry Difficulty: Medium
+
+#### Secondary Weapons:
+Secondary weapons are items activated with [Q]. They are subdivided into **Throwables** and **Usables**.
+
+##### Throwables:
+Throwables can deal damage, stun, or immobilize enemies. Some can be used multiple times.
 
 **List of Throwables:**
 
-`Granade` -> deals damage in a radius. charges: 1
-Flashbang -> stuns the enemeies for 0.75s in a big radius. charges: 2
+- **Grenade**:  
+  - Effect: Deals damage in a radius  
+  - Charges: 1
 
-`Throwing Knives` -> fast projectile that deal damage to the enemy, can be shot between the firing animation of the Primary. charges: 8
+- **Flashbang**:  
+  - Effect: Stuns enemies for 0.75s in a large radius  
+  - Charges: 2
 
-`PBH (Pocket Black Hole)` -> once thrown attract to his position all the enemies in a big radius, the enemies are stunned while attracted. charges: 1
+- **Throwing Knives**:  
+  - Effect: Fast projectiles dealing damage to enemies. Can be used between primary weapon shots  
+  - Charges: 8
 
-[`Stasis Module` -> for 1.5s in a small radius all enemies inside it or that enter it will be slowed. chrages: 2]
+- **PBH (Pocket Black Hole)**:  
+  - Effect: Attracts all enemies in a large radius and stuns them  
+  - Charges: 1
 
-[`M.A.D` -> enemies cuaght in the medium radius, loose aggro on the player and gain it on each other. charges: 1 (we will have to add a friendly fire enabler)]
+- **Stasis Module**:  
+  - Effect: Slows enemies in a small radius for 1.5s  
+  - Charges: 2
 
-[`Mine` -> can be placed, and if anyone (player included) steps on it it will detonate. charges: 1]
+- **M.A.D.**:  
+  - Effect: Enemies lose aggro on the player and gain aggro on each other in a medium radius  
+  - Charges: 1
 
-[`Wall-B` -> when thrown creates a small wall. charges: 1]
+- **Mine**:  
+  - Effect: Detonates if any entity steps on it (including the player)  
+  - Charges: 1
 
-- Usables: Usables are objects that can apply a status or do an action. They can have more than one use.
+- **Wall-B**:  
+  - Effect: Creates a small wall when thrown  
+  - Charges: 1
 
-**List of Consumable:**
+##### Usables:
+Usables are items that apply status effects or perform actions. They can also be used multiple times.
 
-`Teleport` -> when used it teleports the player to the cursor position. charges: 3 [, rechargable: yes]
+**List of Usables:**
 
-`ReflectO` -> when used it make the player immune for 2 seconds [and reflect the bullets back]. charges: 1
+- **Teleport**:  
+  - Effect: Teleports the player to the cursor’s position  
+  - Charges: 3 (Rechargeable)
 
-`Speed` -> when used it enhance the player speed for 15 seconds. charges: 1
+- **ReflectO**:  
+  - Effect: Grants the player immunity for 2 seconds and reflects bullets back  
+  - Charges: 1
 
-`Flak Vest` -> when equipped protect the player from a bullet, charges: 1
+- **Speed**:  
+  - Effect: Increases player speed for 15 seconds  
+  - Charges: 1
 
-### Levels
+- **Flak Vest**:  
+  - Effect: Reduces damage from a bullet  
+  - Charges: 1
 
-Levels are handcrafted and can be divided into multiple areas. An area is basically a new scene. In the level are gonna be present enemies that patrols predefined paths or that guard a predefined point. Guns and equipment is spawned in special object called "E-Box" that may also allow the player to refill a weapon's ammo [indicatively the ammo that can be gathered is equal to 500]. The player will be spawned in the map and the exit is going to be on the other side of the map. The exit of the level or of the area is activated once a certain number of enemies has been killed. If you die before reaching the next level the all level will restarting loosing the equipment.
+### Levels:
+Levels are handcrafted and consist of multiple areas (scenes). Each area contains enemies that patrol predefined paths or guard specific points. Weapons and equipment spawn in special objects called **E-Boxes**, which also allow players to refill ammo (max ammo: 500). The player begins at one end of the map, and the exit is located on the opposite side. The exit unlocks after a certain number of enemies are defeated. If the player dies before reaching the exit, the level resets, and all equipment is lost.
 
-### Enemies
+### Enemies:
+Enemies are categorized into four types:
 
-Enemies are divided in 4 types
+- **Goon**:  
+  Basic enemy, killed with a single shot from any damage-dealing weapon. Equipped with any primary weapon but only grenades as a secondary.
 
-**Goon:** The goon is the base enemy it can be killed by one shot of every DD (Damage Dealing) weapon. It can be equipped with any primary weapon but with only granades for secondaries.
+- **Fat Guy**:  
+  A large enemy that can withstand low-stopping power guns for a period before dying. Like the Goon, it can be equipped with any primary weapon, but only grenades as a secondary. It can patrol or guard a point.
 
-**Fat Guy:** The Fat Guy is a big enemy that can withstand the damage of low stopping power guns for a variable period of time before dying. Like the goon it can be equipped with any primary weapon, but can only have granades as a secondary. Still like the goon it can patrol a certain path or guard a certain point.
-
-**Dog:** Dogs are rush enemies, their only weapon is a bite melee weapon, and they will rush the player anytime they see it. They're fast. Like the other moving enemies they can patrol a path or guard a point.
+- **Dog**:  
+  Fast, melee-based enemies that rush the player on sight. They can patrol or guard a point.
 
 ### Reward System:
-
-Every kill will grant a set amount of points, if multiple kills happen one after the other the points gathered will be multiplied by a increasing value (that will increase every bunch of kills). At the end of the level the points gathered will be combined with the time of completion of the level and will be returned the final score for the level, this score will be saved.
+- **Scoring:** Every kill earns points. If multiple kills happen consecutively, the points will multiply with a bonus. At the end of the level, the total points are combined with the time taken to complete the level, resulting in a final score. This score is saved for comparison.
 
 ### UI
-#### Main Menu
-The main menu has a animated background, three buttons: Start, Options and Quit.
-Start -> starts the game.
-Stats -> It shows the best 10 scores.
-Options -> opens the option UI.
-Quit -> return to the OS.
+
+#### Main Menu:
+The main menu has an animated background and three buttons:
+1. **Start**: Starts the game.
+2. **Stats**: Shows the top 10 scores.
+3. **Options**: Opens the options UI.
+4. **Quit**: Exits the game and returns to the operating system.
