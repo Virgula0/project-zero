@@ -28,7 +28,6 @@ jobs:
           dotnet-version: '9.0.200'  
 
       - name: Run Linter (dotnet format)
-        run: |
-             cd Assets/Scripts 
+        run: | 
              # only checks for formatting issues, if any the run fail
-             dotnet format --verify-no-changes --verbosity diagnostic 
+             dotnet format --include Assests/Scripts --verify-no-changes --verbosity diagnostic 
