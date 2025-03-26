@@ -81,6 +81,10 @@ jobs:
         with:
           name: build/StandaloneLinux64
 
+      - name: Read version from file
+        id: read_version
+        run: echo "VERSION=$(cat version)" >> $GITHUB_ENV
+
       - name: Create a Pre-Release with All Artifacts
         uses: ncipollo/release-action@v1
         with:
