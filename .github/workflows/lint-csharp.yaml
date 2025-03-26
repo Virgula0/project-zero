@@ -27,7 +27,5 @@ jobs:
         with:
           dotnet-version: '9.0.200' # dotnet --version
 
-      - name: Run Linter (dotnet format)
-        run: | 
-             # only checks for formatting issues, if any the run fail
-             dotnet format --include Assets/Scripts --verify-no-changes --verbosity diagnostic 
+      - name: Run Formatter
+        run: find Assets/Scripts -name "*.cs" | xargs dotnet format --verify-no-changes --verbosity diagnostic
