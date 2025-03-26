@@ -51,11 +51,10 @@ jobs:
           targetPlatform: ${{ matrix.targetPlatform }}
           versioning: Semantic
 
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v3
         with:
           name: Build-${{ matrix.targetPlatform }}
-          path: ${{ steps.buildStep.outputs.buildOutput }}  # Adjust to point to the correct build directory
+          path: build/${{ matrix.targetPlatform }}
 
   uploadAllArtifacts:
     name: Upload All Builds as Single Pre-Release
@@ -66,15 +65,21 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download All Build Artifacts
+
+      # first
         uses: actions/download-artifact@v3
         with:
-          name: Build-StandaloneOSX
+          name: build/StandaloneOSX
+
+      # second
       - uses: actions/download-artifact@v3
         with:
-          name: Build-StandaloneWindows64
+          name: build/StandaloneWindows64
+
+      # third
       - uses: actions/download-artifact@v3
         with:
-          name: Build-StandaloneLinux64
+          name: build/StandaloneLinux64
 
       - name: Create a Pre-Release with All Artifacts
         uses: ncipollo/release-action@v1
@@ -85,6 +90,6 @@ jobs:
           draft: false
           prerelease: true
           artifacts: |
-            Build-StandaloneOSX
-            Build-StandaloneWindows64
-            Build-StandaloneLinux64
+            StandaloneOSX
+            StandaloneWindows64
+            StandaloneLinux64
