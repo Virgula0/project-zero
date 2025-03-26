@@ -23,7 +23,7 @@ jobs:
           - StandaloneWindows64 # Build a Windows 64-bit standalone.
           - StandaloneLinux64 # Build a Linux 64-bit standalone.
     outputs:
-      buildOutput: ${{ steps.buildStep.outputs.buildOutput }}
+      buildVersion: ${{ steps.buildStep.outputs.buildVersion }}
     steps:
 
       - uses: actions/checkout@v4
@@ -51,7 +51,7 @@ jobs:
           targetPlatform: ${{ matrix.targetPlatform }}
           versioning: Semantic
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: Build-${{ matrix.targetPlatform }}
           path: build/${{ matrix.targetPlatform }}
