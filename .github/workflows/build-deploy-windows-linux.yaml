@@ -12,17 +12,18 @@ on:
       - synchronize
 
 jobs:
-  buildForWindowsAndLinux:
+  buildForWindowsAndLinuxAndOSX:
     name: Build for ${{ matrix.targetPlatform }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         targetPlatform:
+          - StandaloneOSX # intel osx
           - StandaloneWindows64 # Build a Windows 64-bit standalone.
           - StandaloneLinux64 # Build a Linux 64-bit standalone.
     outputs:
-      buildVersion: ${{ steps.buildStep.outputs.buildVersion }}
+      buildOutput: ${{ steps.buildStep.outputs.buildOutput }}
     steps:
 
       - uses: actions/checkout@v4
@@ -50,7 +51,40 @@ jobs:
           targetPlatform: ${{ matrix.targetPlatform }}
           versioning: Semantic
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
         with:
           name: Build-${{ matrix.targetPlatform }}
-          path: build/${{ matrix.targetPlatform }}
+          path: ${{ steps.buildStep.outputs.buildOutput }}  # Adjust to point to the correct build directory
+
+  uploadAllArtifacts:
+    name: Upload All Builds as Single Pre-Release
+    runs-on: ubuntu-latest
+    needs: buildForWindowsAndLinuxAndOSX
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download All Build Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: Build-StandaloneOSX
+      - uses: actions/download-artifact@v3
+        with:
+          name: Build-StandaloneWindows64
+      - uses: actions/download-artifact@v3
+        with:
+          name: Build-StandaloneLinux64
+
+      - name: Create a Pre-Release with All Artifacts
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: "${{ env.VERSION }}-pre-${{ github.run_number }}"
+          name: "${{ env.VERSION }}-pre-${{ github.run_number }}"
+          draft: false
+          prerelease: true
+          artifacts: |
+            Build-StandaloneOSX
+            Build-StandaloneWindows64
+            Build-StandaloneLinux64
