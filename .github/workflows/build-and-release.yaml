@@ -84,6 +84,12 @@ jobs:
         run: |
           echo "VERSION=$(cat version)" >> $GITHUB_ENV
 
+      - name: Zip
+        run: |  
+              zip -r StandaloneOSX.zip StandaloneOSX  
+              zip -r StandaloneWindows64.zip StandaloneWindows64  
+              zip -r StandaloneLinux64.zip StandaloneLinux64  
+
       - name: Create a Pre-Release with All Artifacts
         uses: ncipollo/release-action@v1
         with:
@@ -93,6 +99,6 @@ jobs:
           draft: false
           prerelease: true
           artifacts: |
-            StandaloneOSX/*
-            StandaloneWindows64/*
-            StandaloneLinux64/*
+            StandaloneOSX.zip
+            StandaloneWindows64.zip
+            StandaloneLinux64.zip
