@@ -1,4 +1,4 @@
-name: Unity Windows Build
+name: Unity Build And Deploy
 
 on:
   push:
@@ -43,7 +43,9 @@ jobs:
       - uses: game-ci/unity-builder@v4
         id: buildStep
         env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+            UNITY_LICENSE: ${{ secrets.UNITY_SERIAL }}
+            UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+            UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           targetPlatform: ${{ matrix.targetPlatform }}
           versioning: Semantic
