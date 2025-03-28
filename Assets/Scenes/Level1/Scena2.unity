@@ -247,7 +247,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1574381597}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!20 &1574381599
 Camera:
   m_ObjectHideFlags: 0
@@ -428,7 +428,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Scena 1
+  m_Text: Scena 2
 --- !u!222 &2024288482
 CanvasRenderer:
   m_ObjectHideFlags: 0

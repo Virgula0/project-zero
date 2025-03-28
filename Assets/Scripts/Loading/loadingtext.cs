@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class loadingtext : MonoBehaviour {
@@ -8,7 +6,6 @@ public class loadingtext : MonoBehaviour {
     private RectTransform rectComponent;
     private Image imageComp;
 
-    public float speed = 200f;
     public Text text;
     public Text textNormal;
     private const float FullFill = 1f;
@@ -21,32 +18,11 @@ public class loadingtext : MonoBehaviour {
         imageComp.fillAmount = 0.0f;
     }
         
-    void Update()
+    public void UpdateLoadingProgress(int progress)
     {
-        // Only update if the fill amount is not full
-        if (imageComp.fillAmount != FullFill)
-        {
-            // Increase fill amount based on deltaTime and speed
-            imageComp.fillAmount += Time.deltaTime * speed;
-            
-            // Convert fill amount to percentage
-            int fillPercentage = (int)(imageComp.fillAmount * 100);
-            
-            // Update the text based on the current fill percentage
-            if (fillPercentage > 0 && fillPercentage <= 33)
-            {
-                textNormal.text = "Loading...";
-            }
-            // Additional conditions for other ranges can be added here if needed
-
-            text.text = fillPercentage + "%";
-        }
-        else
-        {
-            // Reset fill amount and text when full
-            imageComp.fillAmount = ResetFill;
-            text.text = "0%";
-        }
+        // Increase fill amount based on deltaTime and speed
+        imageComp.fillAmount += Time.deltaTime * progress;
+        text.text = progress + "%";
     }
 
 }
