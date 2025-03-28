@@ -6,8 +6,11 @@ public class loadingtext : MonoBehaviour {
     private RectTransform rectComponent;
     private Image imageComp;
 
-    public Text text;
-    public Text textNormal;
+    [SerializeField]
+    private Text text;
+
+    [SerializeField]
+    private Text textNormal;
     private const float FullFill = 1f;
     private const float ResetFill = 0f;
 
