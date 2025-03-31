@@ -2,17 +2,20 @@ using UnityEngine;
 
 public class GunSccript : MonoBehaviour
 {
-    [SerializeField] private float fireRate;
-    [SerializeField] private int magCap;
+    [SerializeField] private float fireRate = 0.5f; // in seconds, 0.5 seconds between each shot
+    [SerializeField] private int magCap = 10;
     [SerializeField] private float bulletSpeed;
     [SerializeField] private float spread;
 
     private int ammoCount;
-    private float timer = 0;
+    private float timer; // timer counts the timer elapsed from the last shot, in seconds
+
+    private bool messageSpawned = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        this.timer = this.fireRate;
         this.ammoCount = this.magCap;
     }
 
@@ -20,28 +23,34 @@ public class GunSccript : MonoBehaviour
     void Update()
     {
         if(Input.GetKeyDown(KeyCode.R)){
-            Debug.Log("DENTRO R");
             Reload();
+            return;
         }
-        if(Input.GetMouseButton(0) && timer <= 0){
+
+        if(Input.GetMouseButton(0) && (timer >= fireRate) && ammoCount > 0){
             Shoot();
+        }else if (ammoCount <= 0 && !messageSpawned){ // for debugging purposes, this else statement can be removed later
+            Debug.Log("No ammo, need to reload, press R!");
+            messageSpawned = true; // avoid spam on console
         }
-        timer -= Time.deltaTime;
+        
+        timer += Time.deltaTime;
     }
 
     private void Shoot(){
-        if(ammoCount < 1){
-            Debug.Log("YOU NEED TO RELOAD! PRESS R!");
-            return;
-        }
+        timer = 0;
         ammoCount -= 1;
         Debug.Log("BAM!");
         Debug.Log(ammoCount + "/" + magCap);
-
     }
 
     private void Reload(){
-        timer = fireRate;
+        if (this.ammoCount == this.magCap){
+            Debug.Log("Already loaded");
+            return;
+        }
+        Debug.Log("Reloaded");
+        messageSpawned = false;
         this.ammoCount = this.magCap;
     }
 }
