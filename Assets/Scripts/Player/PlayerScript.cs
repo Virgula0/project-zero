@@ -1,6 +1,4 @@
-using System.Threading;
 using UnityEngine;
-using UnityEngine.InputSystem.iOS;
 
 public class PlayerScript : MonoBehaviour
 {
