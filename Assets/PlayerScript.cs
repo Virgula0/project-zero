@@ -1,3 +1,4 @@
+using System.Threading;
 using UnityEngine;
 using UnityEngine.InputSystem.iOS;
 
@@ -36,7 +37,8 @@ public class PlayerScript : MonoBehaviour
     }
 
     private void Movement(){
-        playerRb.linearVelocity = new Vector2(moveDirection.x * moveSpeed, moveDirection.y * moveSpeed);
+        float time = Time.deltaTime;
+        playerRb.linearVelocity = new Vector2(moveDirection.x * moveSpeed * time, moveDirection.y * moveSpeed * time);
     }
 
     private void LookAt(){
