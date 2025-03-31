@@ -1,15 +1,17 @@
+using System;
 using UnityEngine;
 
 public class GunSccript : MonoBehaviour
 {
     [SerializeField] private float fireRate = 0.5f; // in seconds, 0.5 seconds between each shot
     [SerializeField] private int magCap = 10;
-    [SerializeField] private float bulletSpeed;
-    [SerializeField] private float spread;
+    [SerializeField] private int numberOfReloads = 5; // total bullets available can be seen as numberOfReloads*magCap
 
+    private float bulletSpeed;
+    private float spread;
+    
     private int ammoCount;
     private float timer; // timer counts the timer elapsed from the last shot, in seconds
-
     private bool messageSpawned = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -22,9 +24,9 @@ public class GunSccript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.R)){
+        
+        if(Input.GetKeyDown(KeyCode.R) && this.numberOfReloads > 0){
             Reload();
-            return;
         }
 
         if(Input.GetMouseButton(0) && (timer >= fireRate) && ammoCount > 0){
@@ -50,6 +52,7 @@ public class GunSccript : MonoBehaviour
             return;
         }
         Debug.Log("Reloaded");
+        Debug.Log($"Number of reloads available -> {--this.numberOfReloads}");
         messageSpawned = false;
         this.ammoCount = this.magCap;
     }
