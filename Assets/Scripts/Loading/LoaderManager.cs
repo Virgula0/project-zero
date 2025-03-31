@@ -51,7 +51,7 @@ public class DirectorySceneLoader : MonoBehaviour
 
             foreach (var op in asyncOperations)
             {
-                script.UpdateLoadingProgress((int)Math.Round(op.progress*100)); // upload progress on the graphics
+                script.UpdateLoadingProgress((float)op.progress); // upload progress on the graphics
 
                 if (op.progress < 0.9f)
                 {
@@ -60,7 +60,7 @@ public class DirectorySceneLoader : MonoBehaviour
                 }
             }
 
-            yield return null;  // Update status each frame
+            yield return new WaitForSeconds(1);  // Update status each frame
         }
 
         Debug.Log("All scenes loaded. Activating the first scene: " + firstSceneName);

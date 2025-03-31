@@ -9,11 +9,6 @@ public class loadingtext : MonoBehaviour {
     [SerializeField]
     private Text text;
 
-    [SerializeField]
-    private Text textNormal;
-    private const float FullFill = 1f;
-    private const float ResetFill = 0f;
-
     // Use this for initialization
     void Start () {
         rectComponent = GetComponent<RectTransform>();
@@ -21,11 +16,10 @@ public class loadingtext : MonoBehaviour {
         imageComp.fillAmount = 0.0f;
     }
         
-    public void UpdateLoadingProgress(int progress)
+    public void UpdateLoadingProgress(float progress)
     {
         // Increase fill amount based on deltaTime and speed
-        imageComp.fillAmount += Time.deltaTime * progress;
-        text.text = progress + "%";
+        imageComp.fillAmount =  progress;
+        text.text = (int)(progress * 100) + "%";
     }
-
 }

@@ -546,7 +546,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   text: {fileID: 590584145}
-  textNormal: {fileID: 959121198}
 --- !u!114 &763286024
 MonoBehaviour:
   m_ObjectHideFlags: 0
