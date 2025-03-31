@@ -4,7 +4,7 @@ using UnityEngine.InputSystem.iOS;
 
 public class PlayerScript : MonoBehaviour
 {
-    public float moveSpeed;
+    public float moveSpeed = 1500f;
     public Rigidbody2D playerRb;
 
     private Vector2 moveDirection;
