@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Video;
 
 public class MenuButtons : MonoBehaviour
 {
@@ -23,5 +24,18 @@ public class MenuButtons : MonoBehaviour
 
     public void ClickStart(){
         ClickSound();
+    }
+
+    public void ClickOptions(){
+        ClickSound();
+    }
+
+    public void ClickLeaderBoard(){
+        ClickSound();
+    }
+
+    public void ClickExit(){
+        ClickSound();
+        Application.Quit();
     }
 }
