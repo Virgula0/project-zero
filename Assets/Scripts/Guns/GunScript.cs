@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class GunSccript : MonoBehaviour
+public class GunScript : MonoBehaviour , IGun
 {
     [SerializeField] private float fireRate = 0.5f; // in seconds, 0.5 seconds between each shot
     [SerializeField] private int magCap = 10;
@@ -24,7 +24,29 @@ public class GunSccript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        Logic();
+    }
+
+    public void Shoot(){
+        timer = 0;
+        ammoCount -= 1;
+        Debug.Log("BAM!");
+        Debug.Log(ammoCount + "/" + magCap);
+    }
+
+    public void Reload(){
+        if (this.ammoCount == this.magCap){
+            Debug.Log("Already loaded");
+            return;
+        }
+        Debug.Log("Reloaded");
+        Debug.Log($"Number of reloads available -> {--this.numberOfReloads}");
+        messageSpawned = false;
+        this.ammoCount = this.magCap;
+    }
+
+    public void Logic()
+    {
         if(Input.GetKeyDown(KeyCode.R) && this.numberOfReloads > 0){
             Reload();
         }
@@ -37,23 +59,5 @@ public class GunSccript : MonoBehaviour
         }
         
         timer += Time.deltaTime;
-    }
-
-    private void Shoot(){
-        timer = 0;
-        ammoCount -= 1;
-        Debug.Log("BAM!");
-        Debug.Log(ammoCount + "/" + magCap);
-    }
-
-    private void Reload(){
-        if (this.ammoCount == this.magCap){
-            Debug.Log("Already loaded");
-            return;
-        }
-        Debug.Log("Reloaded");
-        Debug.Log($"Number of reloads available -> {--this.numberOfReloads}");
-        messageSpawned = false;
-        this.ammoCount = this.magCap;
     }
 }
