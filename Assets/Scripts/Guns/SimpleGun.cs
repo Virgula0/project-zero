@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class GunScript : MonoBehaviour , IGun
+public class SimpleGun : MonoBehaviour , IGun
 {
     private readonly float fireRate = 0.5f; // in seconds, 0.5 seconds between each shot
     private readonly int magCap = 10;

@@ -7,59 +7,78 @@ public class WeaponManager : MonoBehaviour
     private bool messageSpawned = false;
     private float timer; // timer counts the timer elapsed from the last shot, in seconds
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-
-    }
+    private readonly float WeaponDeloadTimeInSeconds = 10; //deload weapon after N seconds if no ammo 
 
     // this will be invoked externally
-    public void LoadNewGun(IGun weapon){
-        if (weapon == null){
+    public void LoadNewGun(IGun weapon)
+    {
+        if (weapon == null)
+        {
             throw new NullReferenceException("GUN LOAD CANNOT BE NULL, THE PASSED REFERENCE TO WEAPON MANAGER IS NULL");
         }
 
         // must be done whatever a new gun gets loaded
-        this.currentLoadedWeapon = weapon;
-        
+        currentLoadedWeapon = weapon;
+
         // we're allowed to shoot at te beginning 
-        this.timer = float.PositiveInfinity; 
-        this.currentLoadedWeapon.Setup();
+        timer = float.PositiveInfinity;
+        currentLoadedWeapon.Setup();
     }
 
-    // this will be invoked externally
-    public void UnloadCurrentGun(){
-        if (this.currentLoadedWeapon == null){
+    private void UnloadCurrentGun()
+    {
+        if (currentLoadedWeapon == null)
+        {
             throw new NullReferenceException("GUN CANNOT BE DELOADED IF NO ONE HAS BEEN LOADED");
         }
 
-        this.currentLoadedWeapon = null;
-        this.timer = 0;
+        Debug.Log("Weapon deloaded");
+        currentLoadedWeapon = null;
+        timer = 0;
     }
 
     // Update is called once per frame
     void Update()
     {
-         // we do nothing if we do not have a loaded weapon already
-        if (this.currentLoadedWeapon == null){
+        // we do nothing if we do not have a loaded weapon already
+        if (currentLoadedWeapon == null)
+        {
             return;
         }
 
-        if (Input.GetKeyDown(KeyCode.R) && this.currentLoadedWeapon.GetNumberOfReloads() > 0){
-            this.currentLoadedWeapon.Reload();
+        // if after WeaponDeloadTimeInSeconds seconds there is a weapon equipped but without any bullet we deload it 
+        if (timer >= WeaponDeloadTimeInSeconds && 
+            currentLoadedWeapon.GetNumberOfReloads() * currentLoadedWeapon.GetMegCap() <= 0)
+        {
+            UnloadCurrentGun();
+            return;
         }
 
-        if (Input.GetMouseButton(0) && 
-            (this.timer >= this.currentLoadedWeapon.GetFireRate()) && 
-            this.currentLoadedWeapon.GetAmmoCount() > 0)
+        // if left button is pressed, let an user to leave the weapon
+        if (Input.GetMouseButton((int)Utils.Enums.MouseButtons.RightButton))
         {
-            this.timer = 0;
-            this.currentLoadedWeapon.Shoot();
-        }else if (this.currentLoadedWeapon.GetAmmoCount() <= 0 && !messageSpawned){ // for debugging purposes, this else statement can be removed later
+            UnloadCurrentGun();
+            return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.R) && currentLoadedWeapon.GetNumberOfReloads() > 0)
+        {
+            currentLoadedWeapon.Reload();
+        }
+
+        if (Input.GetMouseButton((int)Utils.Enums.MouseButtons.LeftButton) &&
+            timer >= currentLoadedWeapon.GetFireRate() &&
+            currentLoadedWeapon.GetAmmoCount() > 0)
+        {
+            timer = 0;
+            currentLoadedWeapon.Shoot();
+        }
+        else if (currentLoadedWeapon.GetAmmoCount() <= 0 && !messageSpawned)
+        { // for debugging purposes, this else statement can be removed later
             Debug.Log("No ammo, need to reload, press R!");
             messageSpawned = true; // avoid spam on console
         }
-        
+
         timer += Time.deltaTime;
     }
 }
