@@ -2,8 +2,6 @@ using UnityEngine;
 
 public class GunScript : MonoBehaviour , IGun
 {
-
-    private GameObject weapon;
     private readonly float fireRate = 0.5f; // in seconds, 0.5 seconds between each shot
     private readonly int magCap = 10;
     private int numberOfReloads = 5; // total bullets available can be seen as numberOfReloads*magCap
