@@ -2,8 +2,10 @@ using UnityEngine;
 
 public class WeaponSpawner : MonoBehaviour
 {
-    [SerializeField] private GameObject prefabToSpawn; // Assign your prefab in the Inspector
-    [SerializeField] private Camera mainCamera; // Assign your main camera in the Inspector
+
+    // this code will be changed, it's just for testing purposes.
+    [SerializeField] private GameObject prefabToSpawn;
+    [SerializeField] private Camera mainCamera; 
 
     void Start()
     {
