@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class GunScript : MonoBehaviour , IGun
@@ -9,11 +8,6 @@ public class GunScript : MonoBehaviour , IGun
     private readonly int magCap = 10;
     private int numberOfReloads = 5; // total bullets available can be seen as numberOfReloads*magCap
     private int ammoCount;
-
-    GunScript(GameObject obj){
-        // weapon contains the reference of the actual game object for performing operations on
-        this.weapon = obj; 
-    }
 
     public void Setup()
     {

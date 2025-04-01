@@ -45,11 +45,11 @@ public class WeaponManager : MonoBehaviour
             return;
         }
 
-        if(Input.GetKeyDown(KeyCode.R) && this.currentLoadedWeapon.GetNumberOfReloads() > 0){
+        if (Input.GetKeyDown(KeyCode.R) && this.currentLoadedWeapon.GetNumberOfReloads() > 0){
             this.currentLoadedWeapon.Reload();
         }
 
-        if(Input.GetMouseButton(0) && 
+        if (Input.GetMouseButton(0) && 
             (this.timer >= this.currentLoadedWeapon.GetFireRate()) && 
             this.currentLoadedWeapon.GetAmmoCount() > 0)
         {
