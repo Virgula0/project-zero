@@ -3,7 +3,6 @@
 // Another component will be responsable for calling this methods and let them actually work in the scene
 public interface IGun
 {
-    void Logic();
     void Shoot();
     void Reload();
 }

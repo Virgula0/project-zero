@@ -24,7 +24,18 @@ public class GunScript : MonoBehaviour , IGun
     // Update is called once per frame
     void Update()
     {
-        Logic();
+        if(Input.GetKeyDown(KeyCode.R) && this.numberOfReloads > 0){
+            Reload();
+        }
+
+        if(Input.GetMouseButton(0) && (timer >= fireRate) && ammoCount > 0){
+            Shoot();
+        }else if (ammoCount <= 0 && !messageSpawned){ // for debugging purposes, this else statement can be removed later
+            Debug.Log("No ammo, need to reload, press R!");
+            messageSpawned = true; // avoid spam on console
+        }
+        
+        timer += Time.deltaTime;
     }
 
     public void Shoot(){
@@ -45,19 +56,4 @@ public class GunScript : MonoBehaviour , IGun
         this.ammoCount = this.magCap;
     }
 
-    public void Logic()
-    {
-        if(Input.GetKeyDown(KeyCode.R) && this.numberOfReloads > 0){
-            Reload();
-        }
-
-        if(Input.GetMouseButton(0) && (timer >= fireRate) && ammoCount > 0){
-            Shoot();
-        }else if (ammoCount <= 0 && !messageSpawned){ // for debugging purposes, this else statement can be removed later
-            Debug.Log("No ammo, need to reload, press R!");
-            messageSpawned = true; // avoid spam on console
-        }
-        
-        timer += Time.deltaTime;
-    }
 }
