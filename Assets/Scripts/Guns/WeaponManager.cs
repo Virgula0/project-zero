@@ -9,6 +9,10 @@ public class WeaponManager : MonoBehaviour
 
     private readonly float WeaponDeloadTimeInSeconds = 10; //deload weapon after N seconds if no ammo 
 
+    private Sprite defaultPlayerSprite;
+
+    [SerializeField] SpriteRenderer playerSpriteRenderer;
+
     // this will be invoked externally
     public void LoadNewGun(IGun weapon)
     {
@@ -17,12 +21,16 @@ public class WeaponManager : MonoBehaviour
             throw new NullReferenceException("GUN LOAD CANNOT BE NULL, THE PASSED REFERENCE TO WEAPON MANAGER IS NULL");
         }
 
+        if(playerSpriteRenderer == null){
+           throw new NullReferenceException("PLAYER SPRITE RENDERER CANNOT BE NULL, THE PASSED REFERENCE TO THE PLAYER SPRITE RENDERER IS NULL"); 
+        }
         // must be done whatever a new gun gets loaded
         currentLoadedWeapon = weapon;
 
         // we're allowed to shoot at te beginning 
         timer = float.PositiveInfinity;
         currentLoadedWeapon.Setup();
+        playerSpriteRenderer.sprite = weapon.GetEquippedSprite();
     }
 
     private void UnloadCurrentGun()
@@ -35,6 +43,12 @@ public class WeaponManager : MonoBehaviour
         Debug.Log("Weapon deloaded");
         currentLoadedWeapon = null;
         timer = 0;
+        playerSpriteRenderer.sprite = defaultPlayerSprite;
+    }
+
+    void Start()
+    {
+        this.defaultPlayerSprite = playerSpriteRenderer.sprite;
     }
 
     // Update is called once per frame
