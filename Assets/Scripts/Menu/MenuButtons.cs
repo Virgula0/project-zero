@@ -1,41 +1,54 @@
-using TMPro;
+using System;
+using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.Video;
 
 public class MenuButtons : MonoBehaviour
 {
     [SerializeField] private AudioSource positiveClick;
     [SerializeField] private AudioSource onHoverEffect;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [SerializeField] private GameObject mainMenu;
+    [SerializeField] private GameObject optionSubmenu;
+    [SerializeField] private GameObject leaderboardSubmenu;
+
+    private IEnumerator ClickSound(){
+        positiveClick.Play();
+        yield return new WaitForSeconds(positiveClick.clip.length); // Wait for the clip to finish
+    }
+    
+    private IEnumerator ClickSoundAndSwitch(GameObject toSwitch)
     {
-        this.positiveClick = GetComponents<AudioSource>()[0];
-        this.onHoverEffect = GetComponents<AudioSource>()[1];
+        yield return ClickSound(); // Wait for the clip to finish playing
+        gameObject.SetActive(false); // Now disable the current menu
+        toSwitch.SetActive(true);    // Activate the target menu
     }
 
-    private void ClickSound(){
-        this.positiveClick.Play();
+    private void SwitchSubMenu(GameObject toSwitch)
+    {
+        StartCoroutine(ClickSoundAndSwitch(toSwitch));
     }
 
     public void OnHoverEffect(){
-        this.onHoverEffect.Play();
+        onHoverEffect.Play();
     }
 
     public void ClickStart(){
-        ClickSound();
+        StartCoroutine(ClickSound());
     }
 
     public void ClickOptions(){
-        ClickSound();
+        SwitchSubMenu(optionSubmenu);
     }
 
     public void ClickLeaderBoard(){
-        ClickSound();
+        SwitchSubMenu(leaderboardSubmenu);
+    }
+
+    public void ClickBack(){
+        SwitchSubMenu(mainMenu);
     }
 
     public void ClickExit(){
-        ClickSound();
+        StartCoroutine(ClickSound());
         Application.Quit();
     }
 }
