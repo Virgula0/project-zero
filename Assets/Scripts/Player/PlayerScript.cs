@@ -4,10 +4,7 @@ public class PlayerScript : MonoBehaviour
 {
     public float moveSpeed = 1500f;
     public Rigidbody2D playerRb;
-
     private Vector2 moveDirection;
-    private Vector2 mousePos;
-
     private SpriteRenderer playerSprite;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created

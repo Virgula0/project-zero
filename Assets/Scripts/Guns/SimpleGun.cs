@@ -7,6 +7,8 @@ public class SimpleGun : MonoBehaviour , IGun
     private int numberOfReloads = 5; // total bullets available can be seen as numberOfReloads*magCap
     private int ammoCount;
 
+    [SerializeField] private Sprite equippedSprite;
+
     public void Setup()
     {
         this.ammoCount = this.magCap;
@@ -46,5 +48,9 @@ public class SimpleGun : MonoBehaviour , IGun
     public int GetAmmoCount()
     {
         return this.ammoCount;
+    }
+
+    public Sprite GetEquippedSprite(){
+        return this.equippedSprite;
     }
 }
