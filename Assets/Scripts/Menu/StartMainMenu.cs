@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using Assets.Scripts.Common;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Assets.Scripts.Menu
