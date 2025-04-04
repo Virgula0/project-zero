@@ -30,7 +30,7 @@ public class PlayerScript : MonoBehaviour
     }
 
     private void Movement(){
-        playerRb.linearVelocity = new Vector2(moveDirection.x * moveSpeed * Time.deltaTime, moveDirection.y * moveSpeed * Time.deltaTime);
+        playerRb.linearVelocity = new Vector2(moveDirection.x * moveSpeed * Time.fixedDeltaTime , moveDirection.y * moveSpeed * Time.fixedDeltaTime); // in fixed updates you may want to use fixed deltaTime instead of deltatime
     }
 
     private void LookAt(){
@@ -58,6 +58,6 @@ public class PlayerScript : MonoBehaviour
 
         // Apply rotation (z-axis in 2D)
         float rotationSpeed = 10f;
-        transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0f, 0f, angle), Time.deltaTime * rotationSpeed);
+        transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0f, 0f, angle), Time.fixedDeltaTime * rotationSpeed);
     }
 }

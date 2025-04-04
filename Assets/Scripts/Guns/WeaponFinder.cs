@@ -11,7 +11,7 @@ public class WeaponFinder : MonoBehaviour
     void Start()
     {
         this.mng = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_MANAGER_TAG).GetComponent<WeaponManager>();
-        this.weapon = GetComponentInParent<SimpleGun>();
+        this.weapon = GetComponentInParent<IGun>();
         this.gameObjectRef = transform.parent.gameObject;
     }
 

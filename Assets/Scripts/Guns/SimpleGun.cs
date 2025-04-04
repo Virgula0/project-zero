@@ -36,7 +36,9 @@ public class SimpleGun : MonoBehaviour , IGun
 
     public void Shoot(){
         ammoCount -= 1;
-        Instantiate(this.bulletPrefab, playerObject.transform.position, Quaternion.identity); // shoot passing the player position!
+        GameObject bullet = Instantiate(this.bulletPrefab, playerObject.transform.position, Quaternion.identity); // shoot passing the player position!
+        SingleBulletScript bulletScript = bullet.GetComponent<SingleBulletScript>();
+        bulletScript.Initialize(playerObject.layer); // Pass the shooter's layer to avoid autocollision, this is useful to use the same script for the enemies too and avoids the autocollision with the player when the shooter is the player and not an enemy.
         Debug.Log("BAM!");
         Debug.Log(ammoCount + "/" + magCap);
     }
