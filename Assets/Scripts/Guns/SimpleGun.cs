@@ -11,9 +11,14 @@ public class SimpleGun : MonoBehaviour , IGun
 
     [SerializeField] private Sprite equippedSprite;
     [SerializeField] private GameObject bulletPrefab;
+    private GameObject playerObject;
 
     public void Setup()
     {
+        this.ammoCount = this.magCap;
+    }
+
+    void Start(){
         if (equippedSprite == null){
             throw new NullReferenceException("EQUIPPED SPRITE FOR WEAPON" + this.ToString() + " IS NULL");
         }
@@ -21,12 +26,17 @@ public class SimpleGun : MonoBehaviour , IGun
         if (bulletPrefab == null){
             throw new NullReferenceException("BULLET PREFAB FOR WEAPON " + this.ToString() + " IS NULL");
         }
-        
-        this.ammoCount = this.magCap;
+
+        playerObject = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
+
+        if (playerObject == null){
+            throw new NullReferenceException("PLAYER OBJECT IS NULL IN CONCRETE GUN COMPONENT");
+        }
     }
 
     public void Shoot(){
         ammoCount -= 1;
+        Instantiate(this.bulletPrefab, playerObject.transform.position, Quaternion.identity); // shoot passing the player position!
         Debug.Log("BAM!");
         Debug.Log(ammoCount + "/" + magCap);
     }

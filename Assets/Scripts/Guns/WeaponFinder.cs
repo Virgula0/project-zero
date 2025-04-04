@@ -1,5 +1,6 @@
 using UnityEngine;
 
+/* This script must be a component of each different weapon */
 public class WeaponFinder : MonoBehaviour
 {
     private WeaponManager mng;
@@ -9,7 +10,7 @@ public class WeaponFinder : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        this.mng = GameObject.FindGameObjectWithTag("WeaponManager").GetComponent<WeaponManager>();
+        this.mng = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_MANAGER_TAG).GetComponent<WeaponManager>();
         this.weapon = GetComponentInParent<SimpleGun>();
         this.gameObjectRef = transform.parent.gameObject;
     }
@@ -22,6 +23,7 @@ public class WeaponFinder : MonoBehaviour
             Debug.Log("You got a weapon!");
             mng.LoadNewGun(weapon);
             Destroy(this.gameObjectRef);
+            //this.gameObjectRef.SetActive(false);
         }
     }
 }
