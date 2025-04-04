@@ -1,3 +1,5 @@
+using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class SimpleGun : MonoBehaviour , IGun
@@ -8,9 +10,18 @@ public class SimpleGun : MonoBehaviour , IGun
     private int ammoCount;
 
     [SerializeField] private Sprite equippedSprite;
+    [SerializeField] private GameObject bulletPrefab;
 
     public void Setup()
     {
+        if (equippedSprite == null){
+            throw new NullReferenceException("EQUIPPED SPRITE FOR WEAPON" + this.ToString() + " IS NULL");
+        }
+
+        if (bulletPrefab == null){
+            throw new NullReferenceException("BULLET PREFAB FOR WEAPON " + this.ToString() + " IS NULL");
+        }
+        
         this.ammoCount = this.magCap;
     }
 

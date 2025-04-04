@@ -7,11 +7,11 @@ public class WeaponManager : MonoBehaviour
     private bool messageSpawned = false;
     private float timer; // timer counts the timer elapsed from the last shot, in seconds
 
-    private readonly float WeaponDeloadTimeInSeconds = 10; //deload weapon after N seconds if no ammo 
+    [SerializeField] SpriteRenderer playerSpriteRenderer;
 
     private Sprite defaultPlayerSprite;
 
-    [SerializeField] SpriteRenderer playerSpriteRenderer;
+    
 
     // this will be invoked externally
     public void LoadNewGun(IGun weapon)
@@ -57,14 +57,6 @@ public class WeaponManager : MonoBehaviour
         // we do nothing if we do not have a loaded weapon already
         if (currentLoadedWeapon == null)
         {
-            return;
-        }
-
-        // if after WeaponDeloadTimeInSeconds seconds there is a weapon equipped but without any bullet we deload it 
-        if (timer >= WeaponDeloadTimeInSeconds && 
-            currentLoadedWeapon.GetNumberOfReloads() * currentLoadedWeapon.GetMegCap() <= 0)
-        {
-            UnloadCurrentGun();
             return;
         }
 
