@@ -10,6 +10,7 @@ namespace Utils {
 
         public enum ObjectLayers {
             Player = 3,
+            Wall = 6,
         }
     }
 

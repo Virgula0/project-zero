@@ -49,7 +49,10 @@ public class BulletScript : MonoBehaviour
         {
             Debug.Log("BULLET GOT THE PLAYER");
             // Optionally, add additional behavior here before destroying the bullet
+        } if (collision.gameObject.layer == (int)Utils.Enums.ObjectLayers.Wall) {
+            Debug.Log("BULLET GOT THE WALL");
         }
+
         Debug.Log("BULLET DESTROYED");
         Destroy(gameObject); // Destroy the bullet when it collides with any object
     }
