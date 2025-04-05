@@ -31,8 +31,8 @@ public class SingleBulletScript : MonoBehaviour
         float moveDistance = speed * Time.fixedDeltaTime;
         
         // Create collision mask that ignores the shooter's layer
-            int shooterLayerValue = (int)Mathf.Pow(2, shooterLayer);
-            LayerMask finalHitLayers = hitLayers - shooterLayerValue; // exclude the player layer
+        int shooterLayerValue = (int)Mathf.Pow(2, shooterLayer);
+        LayerMask finalHitLayers = hitLayers - shooterLayerValue; // exclude the player layer
 
         // Cast a ray ahead of the bullet's path
         RaycastHit2D hit = Physics2D.Raycast(transform.position, moveDirection, moveDistance + collisionBuffer, finalHitLayers.value, -Mathf.Infinity, Mathf.Infinity);
