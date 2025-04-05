@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class SingleBulletScript : MonoBehaviour
@@ -51,7 +52,7 @@ public class SingleBulletScript : MonoBehaviour
         // Destroy bullet if it exits camera view
         if (IsOutsideCameraView())
         {
-            Debug.Log("outside of viewable area, despawning bullet");
+            Debug.Log("Outside of viewable area, despawning bullet");
             Destroy(gameObject);
         }
     }
@@ -67,17 +68,16 @@ public class SingleBulletScript : MonoBehaviour
     /// Handles collision effects and logging
     private void HandleHit(Collider2D collider)
     {
-        if (collider.gameObject.layer == (int)Utils.Enums.ObjectLayers.Player)
-        {
+        switch (collider.gameObject.layer){
+            case (int)Utils.Enums.ObjectLayers.Player:
             Debug.Log("Hit Player");
-        }
-        else if (collider.gameObject.layer == (int)Utils.Enums.ObjectLayers.Wall)
-        {
+            break;
+            case (int)Utils.Enums.ObjectLayers.Wall:
             Debug.Log("Hit Wall");
-        }
-        else if (collider.gameObject.layer == (int)Utils.Enums.ObjectLayers.Enemy)
-        {
+            break;
+            case (int)Utils.Enums.ObjectLayers.Enemy:
             Debug.Log("Hit Enemy");
+            break;
         }
     }
 }

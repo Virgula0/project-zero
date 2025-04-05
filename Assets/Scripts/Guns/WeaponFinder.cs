@@ -11,7 +11,7 @@ public class WeaponFinder : MonoBehaviour
     void Start()
     {
         this.mng = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_MANAGER_TAG).GetComponent<WeaponManager>();
-        this.weapon = GetComponentInParent<IGun>();
+        this.weapon = GetComponentInParent<IGun>(); // in parent, the concrete script of the gun which implements Igun must be present
         this.gameObjectRef = transform.parent.gameObject;
     }
 
@@ -20,10 +20,9 @@ public class WeaponFinder : MonoBehaviour
         Debug.Log("Collision detected with: " + collision.gameObject.name);
         if (collision.gameObject.layer == (int)Utils.Enums.ObjectLayers.Player)
         {
-            Debug.Log("You got a weapon!");
+            Debug.Log("You got a weapon! " + gameObject.name);
             mng.LoadNewGun(weapon);
-            Destroy(this.gameObjectRef);
-            //this.gameObjectRef.SetActive(false);
+            Destroy(this.gameObjectRef); // remove from the ground. Warning, the gun reference object in the scene will not exist anymore. 
         }
     }
 }
