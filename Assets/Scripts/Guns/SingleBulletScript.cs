@@ -34,7 +34,7 @@ public class SingleBulletScript : MonoBehaviour
             LayerMask finalHitLayers = hitLayers - shooterLayerValue; // exclude the player layer
 
         // Cast a ray ahead of the bullet's path
-        RaycastHit2D hit = Physics2D.Raycast( transform.position, moveDirection, moveDistance + collisionBuffer, finalHitLayers.value, -Mathf.Infinity, Mathf.Infinity);
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, moveDirection, moveDistance + collisionBuffer, finalHitLayers.value, -Mathf.Infinity, Mathf.Infinity);
 
         // Handle collision detection
         if (hit.collider != null)
@@ -74,6 +74,10 @@ public class SingleBulletScript : MonoBehaviour
         else if (collider.gameObject.layer == (int)Utils.Enums.ObjectLayers.Wall)
         {
             Debug.Log("Hit Wall");
+        }
+        else if (collider.gameObject.layer == (int)Utils.Enums.ObjectLayers.Enemy)
+        {
+            Debug.Log("Hit Enemy");
         }
     }
 }

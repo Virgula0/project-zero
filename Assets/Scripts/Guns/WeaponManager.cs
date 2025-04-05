@@ -11,8 +11,6 @@ public class WeaponManager : MonoBehaviour
 
     private Sprite defaultPlayerSprite;
 
-    
-
     // this will be invoked externally
     public void LoadNewGun(IGun weapon)
     {

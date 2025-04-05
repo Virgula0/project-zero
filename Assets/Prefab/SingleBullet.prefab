@@ -135,7 +135,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hitLayers:
     serializedVersion: 2
-    m_Bits: 72
+    m_Bits: 200
   collisionBuffer: 0.1
 --- !u!50 &-4418541594312772592
 Rigidbody2D:

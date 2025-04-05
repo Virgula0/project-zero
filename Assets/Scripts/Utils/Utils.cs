@@ -11,6 +11,7 @@ namespace Utils {
         public enum ObjectLayers {
             Player = 3,
             Wall = 6,
+            Enemy = 7,
         }
     }
 
@@ -18,6 +19,5 @@ namespace Utils {
         public const string PLAYER_TAG = "PlayerTag";
         public const string WEAPON_MANAGER_TAG = "WeaponManager";                        
     }
-
 }
 
