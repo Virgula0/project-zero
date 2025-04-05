@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 51009557131821527}
+  - component: {fileID: 268333706202078969}
   m_Layer: 7
   m_Name: Enemy
   m_TagString: Untagged
@@ -33,6 +34,33 @@ Transform:
   - {fileID: 5941480272114807944}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!50 &268333706202078969
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330904898042256459}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 0.0001
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 1
+  m_SleepingMode: 1
+  m_CollisionDetection: 1
+  m_Constraints: 7
 --- !u!1 &370571594820534572
 GameObject:
   m_ObjectHideFlags: 0
@@ -177,9 +205,9 @@ GameObject:
   m_Component:
   - component: {fileID: 7972053951486340420}
   - component: {fileID: 7377124870197433496}
-  m_Layer: 3
-  m_Name: WeaponManager
-  m_TagString: WeaponManager
+  m_Layer: 7
+  m_Name: EnemyWeaponManager
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -211,3 +239,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af15f443bcdf1db48a45a831017cf7b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerSpriteRenderer: {fileID: 0}
