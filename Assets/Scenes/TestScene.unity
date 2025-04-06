@@ -285,8 +285,9 @@ GameObject:
   - component: {fileID: 413461875}
   - component: {fileID: 413461874}
   - component: {fileID: 413461873}
+  - component: {fileID: 413461877}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: UI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -379,6 +380,67 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &413461877
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 413461872}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 033ac8a8e3f7f984696880c43e6e8fad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bulletsText: {fileID: 483074276}
+  reloadsText: {fileID: 625753675}
+  pointsText: {fileID: 0}
+  levelText: {fileID: 0}
+--- !u!1 &419679768
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 419679769}
+  - component: {fileID: 419679770}
+  m_Layer: 3
+  m_Name: MockWM
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &419679769
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 419679768}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 817477179}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &419679770
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 419679768}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82a2bfd6b8de1194b90d2d38733f0515, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ui: {fileID: 413461875}
 --- !u!1 &483074276
 GameObject:
   m_ObjectHideFlags: 0
@@ -436,7 +498,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 5
+  m_text: 0
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ee8ed19be4923714ea982b09384ba0a2, type: 2}
   m_sharedMaterial: {fileID: -5211825169297281792, guid: ee8ed19be4923714ea982b09384ba0a2, type: 2}
@@ -572,7 +634,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 4
+  m_text: 0
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ee8ed19be4923714ea982b09384ba0a2, type: 2}
   m_sharedMaterial: {fileID: -5211825169297281792, guid: ee8ed19be4923714ea982b09384ba0a2, type: 2}
@@ -664,7 +726,7 @@ GameObject:
   - component: {fileID: 690396818}
   - component: {fileID: 690396820}
   m_Layer: 5
-  m_Name: AmmoCounter
+  m_Name: AmmoBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -820,6 +882,7 @@ Transform:
   m_Children:
   - {fileID: 1361807651}
   - {fileID: 1107021627}
+  - {fileID: 419679769}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &817477180
