@@ -18,8 +18,9 @@ public class WeaponManager : MonoBehaviour
             throw new NullReferenceException("GUN LOAD CANNOT BE NULL, THE PASSED REFERENCE TO WEAPON MANAGER IS NULL");
         }
 
-        if(playerSpriteRenderer == null){
-           throw new NullReferenceException("PLAYER SPRITE RENDERER CANNOT BE NULL, THE PASSED REFERENCE TO THE PLAYER SPRITE RENDERER IS NULL"); 
+        if (playerSpriteRenderer == null)
+        {
+            throw new NullReferenceException("PLAYER SPRITE RENDERER CANNOT BE NULL, THE PASSED REFERENCE TO THE PLAYER SPRITE RENDERER IS NULL");
         }
         // must be done whatever a new gun gets loaded
         currentLoadedWeapon = weapon;

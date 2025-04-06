@@ -6,12 +6,14 @@ public class SingleBulletScript : MonoBehaviour
     private const float speed = 150f;    // Bullet travel speed in units per second
     private Vector2 moveDirection;       // Normalized direction vector for bullet movement
     private bool isPlayer = false;
-    
+
     [SerializeField] private LayerMask hitLayers; // Layers that can be hit by the bullet
     [SerializeField] private float collisionBuffer = 0.1f; // Small distance buffer to prevent edge-case misses
 
-    public void Initialize(GameObject player){
-        if (player.layer == (int)Utils.Enums.ObjectLayers.Player){
+    public void Initialize(GameObject player)
+    {
+        if (player.layer == (int)Utils.Enums.ObjectLayers.Player)
+        {
             isPlayer = true;
         }
     }
@@ -42,10 +44,13 @@ public class SingleBulletScript : MonoBehaviour
         LayerMask finalHitLayers;
 
         // If it is the player that is shooting create collision mask that ignores the shooter's layer
-        if (isPlayer){
+        if (isPlayer)
+        {
             int shooterLayerValue = (int)Mathf.Pow(2, (int)Utils.Enums.ObjectLayers.Player);
             finalHitLayers = hitLayers - shooterLayerValue; // exclude the player layer
-        }else{
+        }
+        else
+        {
             int shooterLayerValue = (int)Mathf.Pow(2, (int)Utils.Enums.ObjectLayers.Enemy);
             finalHitLayers = hitLayers - shooterLayerValue; // exclude the enemy layer
         }
