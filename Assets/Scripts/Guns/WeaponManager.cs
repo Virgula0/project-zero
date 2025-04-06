@@ -4,7 +4,6 @@ using UnityEngine;
 public class WeaponManager : MonoBehaviour
 {
     private IGun currentLoadedWeapon;
-    private bool messageSpawned = false;
     private float timer; // timer counts the timer elapsed from the last shot, in seconds
 
     [SerializeField] SpriteRenderer playerSpriteRenderer;
@@ -12,7 +11,7 @@ public class WeaponManager : MonoBehaviour
     private Sprite defaultPlayerSprite;
 
     // this will be invoked externally
-    public void LoadNewGun(IGun weapon)
+    public void LoadNewGun(IGun weapon, GameObject shooter)
     {
         if (weapon == null)
         {
@@ -27,7 +26,7 @@ public class WeaponManager : MonoBehaviour
 
         // we're allowed to shoot at te beginning 
         timer = float.PositiveInfinity;
-        currentLoadedWeapon.Setup();
+        currentLoadedWeapon.Setup(shooter);
         playerSpriteRenderer.sprite = weapon.GetEquippedSprite();
     }
 
@@ -76,11 +75,6 @@ public class WeaponManager : MonoBehaviour
         {
             timer = 0;
             currentLoadedWeapon.Shoot();
-        }
-        else if (currentLoadedWeapon.GetAmmoCount() <= 0 && !messageSpawned)
-        { // for debugging purposes, this else statement can be removed later
-            Debug.Log("No ammo, need to reload, press R!");
-            messageSpawned = true; // avoid spam on console
         }
 
         timer += Time.deltaTime;

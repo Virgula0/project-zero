@@ -5,7 +5,7 @@ using UnityEngine;
 
 public interface IGun
 {
-    void Setup();
+    void Setup(GameObject player);
     void Shoot();
     void Reload();
     int GetAmmoCount();

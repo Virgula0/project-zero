@@ -1,4 +1,3 @@
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class SingleBulletScript : MonoBehaviour
@@ -6,33 +5,50 @@ public class SingleBulletScript : MonoBehaviour
     private Camera playerCamera;         // Reference to main camera for viewport checks
     private const float speed = 150f;    // Bullet travel speed in units per second
     private Vector2 moveDirection;       // Normalized direction vector for bullet movement
+    private bool isPlayer = false;
     
     [SerializeField] private LayerMask hitLayers; // Layers that can be hit by the bullet
     [SerializeField] private float collisionBuffer = 0.1f; // Small distance buffer to prevent edge-case misses
-    private LayerMask shooterLayer; // Layer of the entity that fired this bullet
 
-    // Initializes the bullet with the shooter's layer to prevent self-collision
-    public void Initialize(LayerMask shooterLayer)
-    {
-        this.shooterLayer = shooterLayer;
+    public void Initialize(GameObject player){
+        if (player.layer == (int)Utils.Enums.ObjectLayers.Player){
+            isPlayer = true;
+        }
     }
 
     void Start()
     {
         // Camera reference for viewport calculations
-        playerCamera = Camera.main;
-        // Calculate initial direction towards mouse position
-        Vector2 mousePosition = playerCamera.ScreenToWorldPoint(Input.mousePosition);
-        moveDirection = (mousePosition - (Vector2)transform.position).normalized;
+        playerCamera = Camera.main; // needed for both player and UI
+
+        // If is the player that is shooting
+        if (isPlayer)
+        {
+            // Calculate initial direction towards mouse position
+            Vector2 mousePosition = playerCamera.ScreenToWorldPoint(Input.mousePosition);
+            moveDirection = (mousePosition - (Vector2)transform.position).normalized;
+            return;
+        }
+
+        Debug.Log("Enemy is shooting!!");
+        // otherwise move direction is calculated around the player position
+        GameObject pp = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
+        moveDirection = ((Vector2)pp.transform.position - (Vector2)transform.position).normalized;
     }
 
     void FixedUpdate()
     {
         float moveDistance = speed * Time.fixedDeltaTime;
-        
-        // Create collision mask that ignores the shooter's layer
-        int shooterLayerValue = (int)Mathf.Pow(2, shooterLayer);
-        LayerMask finalHitLayers = hitLayers - shooterLayerValue; // exclude the player layer
+        LayerMask finalHitLayers;
+
+        // If it is the player that is shooting create collision mask that ignores the shooter's layer
+        if (isPlayer){
+            int shooterLayerValue = (int)Mathf.Pow(2, (int)Utils.Enums.ObjectLayers.Player);
+            finalHitLayers = hitLayers - shooterLayerValue; // exclude the player layer
+        }else{
+            int shooterLayerValue = (int)Mathf.Pow(2, (int)Utils.Enums.ObjectLayers.Enemy);
+            finalHitLayers = hitLayers - shooterLayerValue; // exclude the enemy layer
+        }
 
         // Cast a ray ahead of the bullet's path
         RaycastHit2D hit = Physics2D.Raycast(transform.position, moveDirection, moveDistance + collisionBuffer, finalHitLayers.value, -Mathf.Infinity, Mathf.Infinity);
@@ -43,7 +59,7 @@ public class SingleBulletScript : MonoBehaviour
             HandleHit(hit.collider);
             transform.position = hit.point;  // Move bullet to exact impact point
             Destroy(gameObject);             // Remove bullet from game
-            return;                  
+            return;
         }
 
         // Move bullet forward if no collision detected
@@ -61,23 +77,23 @@ public class SingleBulletScript : MonoBehaviour
     private bool IsOutsideCameraView()
     {
         Vector2 viewportPos = playerCamera.WorldToViewportPoint(transform.position);
-        // Returns true if position is outside [0,1] range in either axis
         return viewportPos.x < 0 || viewportPos.x > 1 || viewportPos.y < 0 || viewportPos.y > 1;
     }
 
     /// Handles collision effects and logging
     private void HandleHit(Collider2D collider)
     {
-        switch (collider.gameObject.layer){
+        switch (collider.gameObject.layer)
+        {
             case (int)Utils.Enums.ObjectLayers.Player:
-            Debug.Log("Hit Player");
-            break;
+                Debug.Log("Hit Player");
+                break;
             case (int)Utils.Enums.ObjectLayers.Wall:
-            Debug.Log("Hit Wall");
-            break;
+                Debug.Log("Hit Wall");
+                break;
             case (int)Utils.Enums.ObjectLayers.Enemy:
-            Debug.Log("Hit Enemy");
-            break;
+                Debug.Log("Hit Enemy");
+                break;
         }
     }
 }

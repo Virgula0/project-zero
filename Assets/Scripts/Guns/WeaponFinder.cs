@@ -22,14 +22,14 @@ public class WeaponFinder : MonoBehaviour
         {
             case (int)Utils.Enums.ObjectLayers.Player:
                 Debug.Log("You got a weapon! " + gameObject.name);
-                playerManager.LoadNewGun(weapon);
+                playerManager.LoadNewGun(weapon, collision.gameObject);
                 Destroy(this.gameObjectRef);
                 break;
             case (int)Utils.Enums.ObjectLayers.Enemy:
                 // get the manager of the enemy which callided with the gun
                 EnemyWeaponManager manager = collision.gameObject.transform.parent.GetComponentInChildren<EnemyWeaponManager>();
                 Debug.Log("Enemy got a weapon! " + gameObject.name);
-                manager.LoadNewGun(weapon);
+                manager.LoadNewGun(weapon, collision.gameObject);
                 Destroy(this.gameObjectRef);
                 break;
         }

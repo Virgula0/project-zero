@@ -17,7 +17,9 @@ namespace Utils {
 
     public class Const {   
         public const string PLAYER_TAG = "PlayerTag";
-        public const string WEAPON_MANAGER_TAG = "WeaponManager";                        
+        public const string WEAPON_MANAGER_TAG = "WeaponManager";            
+        public const string ENEMY_TAG = "PlayerTag";
+            
     }
 }
 

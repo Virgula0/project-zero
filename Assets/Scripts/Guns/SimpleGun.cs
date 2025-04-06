@@ -1,5 +1,4 @@
 using System;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class SimpleGun : MonoBehaviour , IGun
@@ -8,14 +7,15 @@ public class SimpleGun : MonoBehaviour , IGun
     private readonly int magCap = 10;
     private int numberOfReloads = 5; // total bullets available can be seen as numberOfReloads*magCap
     private int ammoCount;
-
     [SerializeField] private Sprite equippedSprite;
     [SerializeField] private GameObject bulletPrefab;
-    private GameObject playerObject;
 
-    public void Setup()
+    private GameObject shooterObject;
+
+    public void Setup(GameObject player)
     {
         this.ammoCount = this.magCap;
+        shooterObject = player;
     }
 
     void Start(){
@@ -26,19 +26,13 @@ public class SimpleGun : MonoBehaviour , IGun
         if (bulletPrefab == null){
             throw new NullReferenceException("BULLET PREFAB FOR WEAPON " + this.ToString() + " IS NULL");
         }
-
-        playerObject = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
-
-        if (playerObject == null){
-            throw new NullReferenceException("PLAYER OBJECT IS NULL IN CONCRETE GUN COMPONENT");
-        }
     }
 
     public void Shoot(){
         ammoCount -= 1;
-        GameObject bullet = Instantiate(this.bulletPrefab, playerObject.transform.position, Quaternion.identity); // shoot passing the player position!
+        GameObject bullet = Instantiate(bulletPrefab, shooterObject.transform.position, Quaternion.identity); 
         SingleBulletScript bulletScript = bullet.GetComponent<SingleBulletScript>();
-        bulletScript.Initialize(playerObject.layer); // Pass the shooter's layer to avoid autocollision, this is useful to use the same script for the enemies too and avoids the autocollision with the player when the shooter is the player and not an enemy.
+        bulletScript.Initialize(shooterObject); 
         Debug.Log("BAM!");
         Debug.Log(ammoCount + "/" + magCap);
     }

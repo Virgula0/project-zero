@@ -6,11 +6,12 @@ public class EnemyWeaponManager : MonoBehaviour
     [SerializeField] private IGun currentLoadedWeapon; // an enemy will have always a gun at the beginning
     private float timer; // timer counts the timer elapsed from the last shot, in seconds
     [SerializeField] SpriteRenderer playerSpriteRenderer;
+    [SerializeField] GameObject ai;
 
     private Sprite defaultPlayerSprite;
 
     // this will be invoked externally
-    public void LoadNewGun(IGun weapon)
+    public void LoadNewGun(IGun weapon, GameObject shooter)
     {
         if (weapon == null)
         {
@@ -30,7 +31,7 @@ public class EnemyWeaponManager : MonoBehaviour
 
         // we're allowed to shoot at te beginning 
         timer = float.PositiveInfinity;
-        currentLoadedWeapon.Setup();
+        currentLoadedWeapon.Setup(shooter);
         // playerSpriteRenderer.sprite = weapon.GetEquippedSprite();
     }
 
@@ -62,6 +63,9 @@ public class EnemyWeaponManager : MonoBehaviour
         }
 
         /* TODO: implement enemy weapon logic here */
+        currentLoadedWeapon.Shoot();
+        UnloadCurrentGun();
+        return;
 
         timer += Time.deltaTime;
     }
