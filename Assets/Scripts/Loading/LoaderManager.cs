@@ -60,7 +60,7 @@ public class DirectorySceneLoader : MonoBehaviour
                 }
             }
 
-            yield return new WaitForSeconds(1);  // Update status each frame
+            yield return null;  // Update status each frame
         }
 
         Debug.Log("All scenes loaded. Activating the first scene: " + firstSceneName);

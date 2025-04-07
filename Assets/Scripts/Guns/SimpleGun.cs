@@ -1,27 +1,50 @@
+using System;
 using UnityEngine;
 
-public class SimpleGun : MonoBehaviour , IGun
+public class SimpleGun : MonoBehaviour, IGun
 {
     private readonly float fireRate = 0.5f; // in seconds, 0.5 seconds between each shot
     private readonly int magCap = 10;
     private int numberOfReloads = 5; // total bullets available can be seen as numberOfReloads*magCap
     private int ammoCount;
-
     [SerializeField] private Sprite equippedSprite;
+    [SerializeField] private GameObject bulletPrefab;
 
-    public void Setup()
+    private GameObject shooterObject;
+
+    public void Setup(GameObject player)
     {
         this.ammoCount = this.magCap;
+        shooterObject = player;
     }
 
-    public void Shoot(){
+    void Start()
+    {
+        if (equippedSprite == null)
+        {
+            throw new NullReferenceException("EQUIPPED SPRITE FOR WEAPON" + this.ToString() + " IS NULL");
+        }
+
+        if (bulletPrefab == null)
+        {
+            throw new NullReferenceException("BULLET PREFAB FOR WEAPON " + this.ToString() + " IS NULL");
+        }
+    }
+
+    public void Shoot()
+    {
         ammoCount -= 1;
+        GameObject bullet = Instantiate(bulletPrefab, shooterObject.transform.position, Quaternion.identity);
+        SingleBulletScript bulletScript = bullet.GetComponent<SingleBulletScript>();
+        bulletScript.Initialize(shooterObject);
         Debug.Log("BAM!");
         Debug.Log(ammoCount + "/" + magCap);
     }
 
-    public void Reload(){
-        if (this.ammoCount == this.magCap){
+    public void Reload()
+    {
+        if (this.ammoCount == this.magCap)
+        {
             Debug.Log("Already loaded");
             return;
         }
@@ -50,7 +73,8 @@ public class SimpleGun : MonoBehaviour , IGun
         return this.ammoCount;
     }
 
-    public Sprite GetEquippedSprite(){
+    public Sprite GetEquippedSprite()
+    {
         return this.equippedSprite;
     }
 }
