@@ -1,13 +1,10 @@
 ﻿using UnityEngine;
-using System.Collections;
 using UnityEngine.UI;
 
 public class Loading : MonoBehaviour
 {
     private RectTransform rectComponent;
     private Image imageComp;
-    private bool up;
-
     public float rotateSpeed = 200f;
     public float openSpeed = .005f;
     public float closeSpeed = .01f;
@@ -19,7 +16,6 @@ public class Loading : MonoBehaviour
     {
         rectComponent = GetComponent<RectTransform>();
         imageComp = rectComponent.GetComponent<Image>();
-        up = true;
     }
 
     private void Update()
