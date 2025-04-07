@@ -1,19 +1,10 @@
 fileFormatVersion: 2
-guid: d5feaef926c9bdd478b21d59e595efe2
+guid: fd5812679992d0d4c8c36e42bb674782
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 971367504742289926
-    second: box_1_0
-  - first:
-      213: -2346989569307602350
-    second: box_1_1
-  - first:
-      213: -3860453882521062803
-    second: box_1_2
-  - first:
-      213: 2498767087936519264
-    second: box_1_3
+      213: -8133518483546864112
+    second: box_4_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -109,57 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: box_1_0
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 24
-        width: 28
-        height: 76
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 602958a599dfa7d00800000000000000
-      internalID: 971367504742289926
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: box_1_1
-      rect:
-        serializedVersion: 2
-        x: 30
-        y: 26
-        width: 230
-        height: 74
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 2529fddeb61dd6fd0800000000000000
-      internalID: -2346989569307602350
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: box_1_2
+      name: box_4_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 26
-        height: 22
+        width: 76
+        height: 28
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -168,30 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d62fd8cb5a9ec6ac0800000000000000
-      internalID: -3860453882521062803
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: box_1_3
-      rect:
-        serializedVersion: 2
-        x: 28
-        y: 0
-        width: 232
-        height: 24
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 06cb4ec6d676da220800000000000000
-      internalID: 2498767087936519264
+      spriteID: 0168d1e4800ff1f80800000000000000
+      internalID: -8133518483546864112
       vertices: []
       indices: 
       edges: []

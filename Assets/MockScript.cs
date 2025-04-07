@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class MockScript : MonoBehaviour
@@ -14,6 +15,11 @@ public class MockScript : MonoBehaviour
 
     private bool mockMessageSpawned = false;
 
+    private int mockCharges = 4;
+
+    private float pointTimer = 0f;
+    
+    private int points = 0;
 
 
     private UIManager uIManager;
@@ -21,17 +27,30 @@ public class MockScript : MonoBehaviour
     void Start()
     {
         this.uIManager = ui.GetComponent<UIManager>();
+        uIManager.UpdateCharges(mockCharges);
+        uIManager.UpdateBullets(mockAmmoCount);
+        uIManager.UpdateReloads(mockReloadsCount);
         Debug.Log(uIManager);
     }
 
     // Update is called once per frame
     void Update()
-    {
+    {   
+        if (pointTimer >= 5){ 
+            MockAcquirePoints();
+            pointTimer = 0;
+        }
+
         if (Input.GetKeyDown(KeyCode.R) && mockReloadsCount > 0)
         {
             MockReload();
             uIManager.UpdateReloads(mockReloadsCount);
             uIManager.UpdateBullets(mockAmmoCount);
+        }
+        if (Input.GetKeyDown(KeyCode.Q) && mockCharges > 0)
+        {
+            MockAbilityUse();
+            uIManager.UpdateCharges(mockCharges);
         }
         // if left button is pressed, let an user to leave the weapon
         if (Input.GetMouseButton((int)Utils.Enums.MouseButtons.RightButton))
@@ -56,6 +75,7 @@ public class MockScript : MonoBehaviour
             mockMessageSpawned = true; // avoid spam on console
         }
 
+        pointTimer += Time.deltaTime;
         mockTimer += Time.deltaTime;
     }
 
@@ -71,6 +91,16 @@ public class MockScript : MonoBehaviour
     private void MockUnloadCurrentGun()
     {
         mockTimer = 0;
+    }
+
+    private void MockAbilityUse(){
+        this.mockCharges -= 1;
+    }
+
+    private void MockAcquirePoints(){
+        int randNum = UnityEngine.Random.Range(10, 1000);
+        points += randNum;
+        uIManager.UpdatePoints(points);
     }
 
 }
