@@ -9,7 +9,9 @@ public class GameLogger : MonoBehaviour
     void Awake()
     {
         // Create Logs folder if it doesn't exist
-        // C:/Users/Username/AppData/LocalLow
+        // Application.persistentDataPath
+        // WINDOWS: C:/Users/Username/AppData/LocalLow/ProductName
+        // OSX: ~/Library/Application Support/CompanyName/ProductName
         string folderPath = Path.Combine(Application.persistentDataPath, "Logs");
         if (!Directory.Exists(folderPath))
         {
