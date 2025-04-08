@@ -77,4 +77,10 @@ public class SimpleGun : MonoBehaviour, IGun
     {
         return this.equippedSprite;
     }
+
+    public Sprite GetStaticWeaponSprite()
+    {
+        // this method returns the sprite of grounded weapon so that it can be used as an icon in the ui.
+        return this.gameObject.GetComponentsInChildren<SpriteRenderer>()[1].sprite;
+    }
 }
