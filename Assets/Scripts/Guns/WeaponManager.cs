@@ -4,32 +4,30 @@ using UnityEngine;
 public class WeaponManager : MonoBehaviour
 {
     private IGun currentLoadedWeapon;
-    private bool messageSpawned = false;
     private float timer; // timer counts the timer elapsed from the last shot, in seconds
-
-    private readonly float WeaponDeloadTimeInSeconds = 10; //deload weapon after N seconds if no ammo 
-
-    private Sprite defaultPlayerSprite;
 
     [SerializeField] SpriteRenderer playerSpriteRenderer;
 
+    private Sprite defaultPlayerSprite;
+
     // this will be invoked externally
-    public void LoadNewGun(IGun weapon)
+    public void LoadNewGun(IGun weapon, GameObject shooter)
     {
         if (weapon == null)
         {
             throw new NullReferenceException("GUN LOAD CANNOT BE NULL, THE PASSED REFERENCE TO WEAPON MANAGER IS NULL");
         }
 
-        if(playerSpriteRenderer == null){
-           throw new NullReferenceException("PLAYER SPRITE RENDERER CANNOT BE NULL, THE PASSED REFERENCE TO THE PLAYER SPRITE RENDERER IS NULL"); 
+        if (playerSpriteRenderer == null)
+        {
+            throw new NullReferenceException("PLAYER SPRITE RENDERER CANNOT BE NULL, THE PASSED REFERENCE TO THE PLAYER SPRITE RENDERER IS NULL");
         }
         // must be done whatever a new gun gets loaded
         currentLoadedWeapon = weapon;
 
         // we're allowed to shoot at te beginning 
         timer = float.PositiveInfinity;
-        currentLoadedWeapon.Setup();
+        currentLoadedWeapon.Setup(shooter);
         playerSpriteRenderer.sprite = weapon.GetEquippedSprite();
     }
 
@@ -60,14 +58,6 @@ public class WeaponManager : MonoBehaviour
             return;
         }
 
-        // if after WeaponDeloadTimeInSeconds seconds there is a weapon equipped but without any bullet we deload it 
-        if (timer >= WeaponDeloadTimeInSeconds && 
-            currentLoadedWeapon.GetNumberOfReloads() * currentLoadedWeapon.GetMegCap() <= 0)
-        {
-            UnloadCurrentGun();
-            return;
-        }
-
         // if left button is pressed, let an user to leave the weapon
         if (Input.GetMouseButton((int)Utils.Enums.MouseButtons.RightButton))
         {
@@ -86,11 +76,6 @@ public class WeaponManager : MonoBehaviour
         {
             timer = 0;
             currentLoadedWeapon.Shoot();
-        }
-        else if (currentLoadedWeapon.GetAmmoCount() <= 0 && !messageSpawned)
-        { // for debugging purposes, this else statement can be removed later
-            Debug.Log("No ammo, need to reload, press R!");
-            messageSpawned = true; // avoid spam on console
         }
 
         timer += Time.deltaTime;

@@ -1,15 +1,12 @@
-using System;
 using System.Collections;
-using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.IO;
+using System.Collections.Generic;
 
 public class DirectorySceneLoader : MonoBehaviour
 {
-    private string sceneDirectory = "Assets/Scenes/Level1";  // Directory to search for scenes
-
-    private AsyncOperation[] asyncOperations;
-    private string firstSceneName;
+    private string firstSceneName;  // The actual first game scene
 
     [SerializeField]
     private GameObject vicaGameObject;
@@ -17,69 +14,74 @@ public class DirectorySceneLoader : MonoBehaviour
 
     private IEnumerator Start()
     {
-        // get initialized script component for upadting text
         script = vicaGameObject.GetComponent<loadingtext>();
-        
-        // Get all scene files in the specified directory
-        string[] sceneFiles = Directory.GetFiles(sceneDirectory, "*.unity", SearchOption.TopDirectoryOnly);
-        
-        if (sceneFiles.Length == 0)
-        {
-            Debug.LogError("No scenes found in directory: " + sceneDirectory);
-            yield break;
-        }
 
-        asyncOperations = new AsyncOperation[sceneFiles.Length];
-        firstSceneName = Path.GetFileNameWithoutExtension(sceneFiles[0]);
+        int sceneCount = SceneManager.sceneCountInBuildSettings;
+        // We'll store only the "game" scenes, skipping the main menu
+        // (which is presumably index 0 in your build settings)
+        var sceneList = new List<AsyncOperation>();
 
-        // Load all scenes additively but don't activate them
-        for (int i = 0; i < sceneFiles.Length; i++)
+        for (int i = 0; i < sceneCount; i++)
         {
-            string sceneName = Path.GetFileNameWithoutExtension(sceneFiles[i]);
+            // Get scene path and name
+            string scenePath = SceneUtility.GetScenePathByBuildIndex(i);
+            string sceneName = Path.GetFileNameWithoutExtension(scenePath);
+
+            // Skip the Main Menu scene
+            if (i == 0 || i == 1) // skip MainMenuScene and LoadingScene
+            {
+                continue;
+            }
+
+            if (string.IsNullOrEmpty(firstSceneName))
+            {
+                // The first *game* scene we find becomes our firstSceneName
+                firstSceneName = sceneName;
+            }
+
             Debug.Log("Loading scene in background: " + sceneName);
-
             AsyncOperation asyncOp = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
-            asyncOp.allowSceneActivation = false;  // Prevent immediate activation
-            asyncOperations[i] = asyncOp;
+            asyncOp.allowSceneActivation = false;
+            sceneList.Add(asyncOp);
         }
 
-        // Wait for all scenes to load up to 90% (Unity keeps them at 0.9 until activation)
+        // Wait until all "game" scenes reach 90% loaded
         bool allScenesLoaded = false;
         while (!allScenesLoaded)
         {
-            allScenesLoaded = true; // Assume all scenes are ready
-
-            foreach (var op in asyncOperations)
+            allScenesLoaded = true;
+            foreach (var op in sceneList)
             {
-                script.UpdateLoadingProgress((float)op.progress); // upload progress on the graphics
+                script.UpdateLoadingProgress(op.progress);
 
                 if (op.progress < 0.9f)
                 {
-                    allScenesLoaded = false; // If any scene is not yet ready, keep waiting
+                    allScenesLoaded = false;
                     break;
                 }
             }
-
-            yield return new WaitForSeconds(1);  // Update status each frame
+            yield return new WaitForSeconds(1);
         }
 
-        Debug.Log("All scenes loaded. Activating the first scene: " + firstSceneName);
+        Debug.Log("All scenes loaded. Activating the first game scene: " + firstSceneName);
 
-        // Activate only the first scene
-        AsyncOperation firstSceneOp = asyncOperations[0];
+        // Activate that first game scene
+        AsyncOperation firstSceneOp = sceneList[0];
         firstSceneOp.allowSceneActivation = true;
 
-        // Wait for it to fully activate
+        // Wait for the first scene to finish activating
         while (!firstSceneOp.isDone)
         {
             yield return null;
         }
 
-        // Set the first scene as the active scene
+        // Set that scene as the active scene
         Scene firstScene = SceneManager.GetSceneByName(firstSceneName);
         if (firstScene.IsValid())
         {
-            SceneManager.SetActiveScene(firstScene);
+            if (!SceneManager.SetActiveScene(firstScene)){
+                Debug.LogError(firstScene.name + "should be loaded but was not loaded when trying to set to active");
+            }
             Debug.Log("First scene is now active: " + firstSceneName);
         }
         else

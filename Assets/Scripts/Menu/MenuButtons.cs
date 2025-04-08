@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MenuButtons : MonoBehaviour
 {
@@ -33,6 +34,7 @@ public class MenuButtons : MonoBehaviour
 
     public void ClickStart(){
         StartCoroutine(ClickSound());
+        SceneManager.LoadScene("LoadingScene");
     }
 
     public void ClickOptions(){
