@@ -5,10 +5,18 @@ public class WeaponManager : MonoBehaviour
 {
     private IGun currentLoadedWeapon;
     private float timer; // timer counts the timer elapsed from the last shot, in seconds
+    private UIManager uiManager;
+    private Sprite defaultPlayerSprite;
 
     [SerializeField] SpriteRenderer playerSpriteRenderer;
+    [SerializeField] Canvas ui;
 
-    private Sprite defaultPlayerSprite;
+    void Start()
+    {
+        this.defaultPlayerSprite = playerSpriteRenderer.sprite;
+        this.uiManager = ui.GetComponent<UIManager>();
+    }
+
 
     // this will be invoked externally
     public void LoadNewGun(IGun weapon, GameObject shooter)
@@ -29,6 +37,9 @@ public class WeaponManager : MonoBehaviour
         timer = float.PositiveInfinity;
         currentLoadedWeapon.Setup(shooter);
         playerSpriteRenderer.sprite = weapon.GetEquippedSprite();
+        uiManager.UpdateWeaponIcon(currentLoadedWeapon.GetStaticWeaponSprite());
+        uiManager.UpdateBullets(currentLoadedWeapon.GetAmmoCount());
+        uiManager.UpdateReloads(currentLoadedWeapon.GetNumberOfReloads());
     }
 
     private void UnloadCurrentGun()
@@ -42,11 +53,9 @@ public class WeaponManager : MonoBehaviour
         currentLoadedWeapon = null;
         timer = 0;
         playerSpriteRenderer.sprite = defaultPlayerSprite;
-    }
-
-    void Start()
-    {
-        this.defaultPlayerSprite = playerSpriteRenderer.sprite;
+        uiManager.UpdateBullets(0);
+        uiManager.UpdateReloads(0);
+        uiManager.UpdateWeaponIcon(null);
     }
 
     // Update is called once per frame
@@ -58,6 +67,8 @@ public class WeaponManager : MonoBehaviour
             return;
         }
 
+        timer += Time.deltaTime;
+
         // if left button is pressed, let an user to leave the weapon
         if (Input.GetMouseButton((int)Utils.Enums.MouseButtons.RightButton))
         {
@@ -68,6 +79,9 @@ public class WeaponManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.R) && currentLoadedWeapon.GetNumberOfReloads() > 0)
         {
             currentLoadedWeapon.Reload();
+            uiManager.UpdateReloads(currentLoadedWeapon.GetNumberOfReloads());
+            uiManager.UpdateBullets(currentLoadedWeapon.GetAmmoCount());
+            return;
         }
 
         if (Input.GetMouseButton((int)Utils.Enums.MouseButtons.LeftButton) &&
@@ -76,8 +90,7 @@ public class WeaponManager : MonoBehaviour
         {
             timer = 0;
             currentLoadedWeapon.Shoot();
+            uiManager.UpdateBullets(currentLoadedWeapon.GetAmmoCount());
         }
-
-        timer += Time.deltaTime;
     }
 }

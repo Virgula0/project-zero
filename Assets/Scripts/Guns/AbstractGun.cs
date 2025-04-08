@@ -13,4 +13,5 @@ public interface IGun
     int GetMegCap();
     float GetFireRate();
     Sprite GetEquippedSprite();
+    Sprite GetStaticWeaponSprite();
 }

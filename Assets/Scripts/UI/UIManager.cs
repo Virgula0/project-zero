@@ -15,7 +15,9 @@ public class UIManager : MonoBehaviour
     
     [SerializeField] private GameObject chargesText;
 
-    //TODO: add variables for Primary and Secondary weapons sprites.
+    [SerializeField] private Image weaponIcon;
+
+    [SerializeField] private Image secondaryIcon;
 
     void Start()
     {
@@ -37,6 +39,15 @@ public class UIManager : MonoBehaviour
     public void UpdatePoints(int points){
         pointsText.GetComponent<TextMeshProUGUI>().text = points.ToString() + " pts";
     }
+
+    public void UpdateWeaponIcon(Sprite newSprite){
+        Color currentColor = weaponIcon.color;
+        currentColor.a = 1f - weaponIcon.color.a;
+        weaponIcon.color = currentColor;
+        weaponIcon.sprite = newSprite;
+    }
+
+    //TODO: add method for updating secondary sprite.
 
     private void SetLevelText(){
         levelText.GetComponent<TextMeshProUGUI>().text = SceneManager.GetActiveScene().name;

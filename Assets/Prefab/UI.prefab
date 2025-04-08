@@ -1039,15 +1039,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -6426407083895912561, guid: 3431b4a05e0d44047b8ef234fcc8eb8d, type: 3}
-  m_Type: 0
+  m_Sprite: {fileID: 0}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -1468,6 +1468,8 @@ MonoBehaviour:
   pointsText: {fileID: 938731942332860035}
   levelText: {fileID: 5274632448550930158}
   chargesText: {fileID: 1937353100535835367}
+  weaponIcon: {fileID: 4754979332119332474}
+  secondaryIcon: {fileID: 3607978265492185063}
 --- !u!1 &8611137444543540518
 GameObject:
   m_ObjectHideFlags: 0
