@@ -14,7 +14,7 @@ public class PlayerDetector : MonoBehaviour
         transform.position = transform.parent.position;   
     }
 
-    void Update()
+    void FixedUpdate()
     {
         // Perform the CircleCast using Physics2D
         RaycastHit2D hitInfo = Physics2D.CircleCast(transform.parent.position, circleRadius, castDirection, circleDistance, physicalLayer);
@@ -26,11 +26,11 @@ public class PlayerDetector : MonoBehaviour
         }
     }
 
-    // Visualize the circle cast in the Scene view
+    // Visualize the circle cast in the Scene view (even without playing the game)
     private void OnDrawGizmos()
     {
         // Calculate the starting point and ending point of the cast
-        Vector3 startPoint = transform.position;
+        Vector3 startPoint = transform.parent.position;
         Vector3 endPoint = startPoint + (Vector3)(castDirection.normalized * circleDistance);
 
         // Set Gizmo color for visualization

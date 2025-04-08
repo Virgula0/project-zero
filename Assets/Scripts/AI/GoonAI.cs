@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class AI : MonoBehaviour
 {
@@ -10,7 +10,7 @@ public class AI : MonoBehaviour
     private IMovement currentMovement;
     private GameObject currentEnemy; 
 
-    private float patrolSpeed = 3f;
+    [SerializeField] private float patrolSpeed = 3f;
     [SerializeField] private Vector2[] patrolWaypoints;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -25,10 +25,30 @@ public class AI : MonoBehaviour
         currentMovement = patrol; // patrol movement when the object is spawned
     }
 
-    // Update is called once per frame
     void FixedUpdate()
     {
         currentMovement.Move(currentEnemy.transform);
     }
 
+    // Debugging purposes
+    private void OnDrawGizmos()
+    {   
+        float circleRadius = 0.8f;
+        foreach (Vector2 point in patrolWaypoints){
+            // Calculate the starting point and ending point of the cast
+            Vector3 startPoint = point;
+            Vector3 endPoint = startPoint + (Vector3)(new Vector2(0,0).normalized * circleRadius);
+
+            // Set Gizmo color for visualization
+            Gizmos.color = Color.cyan;
+            
+            // Draw the starting circle
+            Gizmos.DrawWireSphere(startPoint, circleRadius);
+            // Draw the ending circle
+            Gizmos.DrawWireSphere(endPoint, circleRadius);
+            
+            // Draw a line connecting the two circles to illustrate the cast path
+            Gizmos.DrawLine(startPoint, endPoint);
+        }
+    }
 }
