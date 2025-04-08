@@ -6,9 +6,14 @@ public class EnemyWeaponManager : MonoBehaviour
     [SerializeField] private IGun currentLoadedWeapon; // an enemy will have always a gun at the beginning
     private float timer; // timer counts the timer elapsed from the last shot, in seconds
     [SerializeField] SpriteRenderer enemySpriteRenderer;
-    [SerializeField] GameObject ai;
 
     private Sprite defaultEnemySprite;
+
+    private bool isEnemyAlerted = false; 
+
+    public void changeEnemyStatus(bool status){
+        this.isEnemyAlerted = status;
+    }
 
     // this will be invoked externally
     public void LoadNewGun(IGun weapon, GameObject shooter)
@@ -62,11 +67,12 @@ public class EnemyWeaponManager : MonoBehaviour
             return;
         }
 
+        timer += Time.deltaTime;
+
         /* TODO: implement enemy weapon logic here */
         currentLoadedWeapon.Shoot();
         UnloadCurrentGun();
         return;
 
-        timer += Time.deltaTime;
     }
 }
