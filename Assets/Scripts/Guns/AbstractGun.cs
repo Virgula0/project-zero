@@ -14,4 +14,6 @@ public interface IGun
     float GetFireRate();
     Sprite GetEquippedSprite();
     Sprite GetStaticWeaponSprite();
+    AudioClip GetShotSfx();
+    AudioClip GetReloadSfx();
 }

@@ -10,6 +10,7 @@ public class WeaponManager : MonoBehaviour
 
     [SerializeField] SpriteRenderer playerSpriteRenderer;
     [SerializeField] Canvas ui;
+    [SerializeField] AudioSource audioSrc;
 
     void Start()
     {
@@ -90,6 +91,7 @@ public class WeaponManager : MonoBehaviour
         {
             timer = 0;
             currentLoadedWeapon.Shoot();
+            audioSrc.PlayOneShot(currentLoadedWeapon.GetShotSfx());
             uiManager.UpdateBullets(currentLoadedWeapon.GetAmmoCount());
         }
     }
