@@ -28,7 +28,7 @@ public class DirectorySceneLoader : MonoBehaviour
             string sceneName = Path.GetFileNameWithoutExtension(scenePath);
 
             // Skip the Main Menu scene
-            if (i == 0 || i == 1) // skip MainMenuScene and LoadingScene
+            if (i < 2) // skip MainMenuScene and LoadingScene
             {
                 continue;
             }
