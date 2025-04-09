@@ -11,11 +11,12 @@ public class PlayerDetector : MonoBehaviour
 
     private bool isEnemyAwareOfPlayer = false;
     private float elapsedLatestDetectionOfPlayerInSeconds = 0f;
+    private float alertedEnemySeconds = 5f; // Seconds in which the enemy will remain in alert status after player detection
 
     void FixedUpdate()
     {        
         // After 2 seconds without detection, reset the alert status
-        if (elapsedLatestDetectionOfPlayerInSeconds > 2f)
+        if (elapsedLatestDetectionOfPlayerInSeconds > alertedEnemySeconds)
         {
             isEnemyAwareOfPlayer = false;
         }
@@ -57,7 +58,7 @@ public class PlayerDetector : MonoBehaviour
 
         if (!detectedPlayer) // optimization, this may be not needed
         {
-            elapsedLatestDetectionOfPlayerInSeconds += Time.deltaTime;
+            elapsedLatestDetectionOfPlayerInSeconds += Time.fixedDeltaTime;
         }
     }
 

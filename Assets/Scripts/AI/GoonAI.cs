@@ -4,27 +4,32 @@ using UnityEngine.AI;
 
 public class AI : MonoBehaviour
 {
-    private GameObject player; // we need the position and other ottributes of the player
-
-    List<IMovement> movements;
-    private IMovement currentMovement;
-    private GameObject currentEnemy;
-
     [SerializeField] private float patrolSpeed = 3f;
+    [SerializeField] private float chaseSpeed;
+    [SerializeField] private float offsetChaseFromPlayer = 0f;
     [SerializeField] private Vector2[] patrolWaypoints;
+    [SerializeField] private Vector2[] exitWaypoints;
+
+    private GameObject player; // we need the position and other ottributes of the player
+    private IMovement currentMovement;
+    private IMovement patrolMovement;
+    private IMovement chaseMovement;
+    private GameObject currentEnemy;
     private EnemyWeaponManager weaponManager;
     private PlayerDetector playerDetector;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        this.chaseSpeed = patrolSpeed * 3;
         player = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
         currentEnemy = transform.parent.gameObject;
-        IMovement patrol = new PatrolMovement(patrolWaypoints, patrolSpeed);
+        patrolMovement = new PatrolMovement(patrolWaypoints, patrolSpeed);
+        chaseMovement = new ChaseMovement(player, chaseSpeed, offsetChaseFromPlayer, exitWaypoints);
 
-        // add movements to the list
-        //movements.Add(patrol);
-        currentMovement = patrol; // patrol movement when the object is spawned
+        // movements
+        currentMovement = patrolMovement; // patrol movement when the object is spawned
         weaponManager = gameObject.transform.parent.GetComponentInChildren<EnemyWeaponManager>();
         playerDetector = gameObject.GetComponent<PlayerDetector>();
     }
@@ -33,12 +38,15 @@ public class AI : MonoBehaviour
     {
         if (!playerDetector.GetIsEnemyAwareOfPlayer())
         {
-            weaponManager.ChangeEnemyStatus(false);
+            currentMovement = patrolMovement;
             currentMovement.Move(currentEnemy.transform); // if the enemy does not know about the player
+            weaponManager.ChangeEnemyStatus(false);
             return;
         }
 
-        // if here enemy detected player, start shooting!
+        // if here enemy detected player, start shooting and chasing!
+        currentMovement = chaseMovement;
+        currentMovement?.Move(currentEnemy.transform); // ?. means that Move will called if currentMovement is not null
         weaponManager.ChangeEnemyStatus(true);
     }
 
