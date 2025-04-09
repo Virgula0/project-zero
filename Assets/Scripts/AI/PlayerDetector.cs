@@ -3,8 +3,8 @@ using UnityEngine;
 public class PlayerDetector : MonoBehaviour
 {
     [Header("Circle Cast Settings")]
-    [SerializeField] private float circleRadius = 8f;         // The radius of the circle used for the cast.
-    [SerializeField] private float circleDistance = 0f;       // How far the circle cast travels.
+    [SerializeField] private float circleRadius = 8f;          // The radius of the circle used for the cast.
+    [SerializeField] private float circleDistance = 0f;        // How far the circle cast travels.
     [SerializeField] private LayerMask physicalLayer;          // Layer mask for detection.
     [SerializeField] private Vector2 castDirection = new(0,0); // Direction for the cast.
 
@@ -20,9 +20,9 @@ public class PlayerDetector : MonoBehaviour
         RaycastHit2D hitInfo = Physics2D.CircleCast(transform.parent.position, circleRadius, castDirection, circleDistance, physicalLayer);
         if (hitInfo.collider != null)
         {
-            Debug.Log("ENEMY DETECTED: " + hitInfo.collider.gameObject.name);
+            // Debug.Log("ENEMY DETECTED: " + hitInfo.collider.gameObject.name);
         }else{
-            Debug.Log("nothing detected");
+            // Debug.Log("nothing detected");
         }
     }
 
