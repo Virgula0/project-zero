@@ -13,6 +13,13 @@ public class PlayerDetector : MonoBehaviour
     private float elapsedLatestDetectionOfPlayerInSeconds = 0f;
     private float alertedEnemySeconds = 5f; // Seconds in which the enemy will remain in alert status after player detection
 
+    private Rigidbody2D body;
+
+    void Start()
+    {
+        this.body = transform.parent.GetComponentInChildren<Rigidbody2D>(); 
+    }
+
     void FixedUpdate()
     {        
         // After 2 seconds without detection, reset the alert status
@@ -25,7 +32,7 @@ public class PlayerDetector : MonoBehaviour
         // CircleCast does not work becuase it does not work for stationary objects.
         // CircleCast is the equivalent of ShpereCast for 2D
         // For this reason we use OverlaCircleAll here which seems to works better and circumnvent the problem
-        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.parent.position, circleRadius, physicalLayer);
+        Collider2D[] hits = Physics2D.OverlapCircleAll(body.position, circleRadius, physicalLayer);
         bool detectedPlayer = false;
 
         foreach (Collider2D hitCollider in hits)
@@ -33,7 +40,7 @@ public class PlayerDetector : MonoBehaviour
             if (hitCollider.gameObject.layer == (int)Utils.Enums.ObjectLayers.Player)
             {
                 // Set the base positions for enemy and player.
-                Vector2 enemyPos = (Vector2)transform.parent.position + Vector2.up * lineOfSightOffset;
+                Vector2 enemyPos = body.position + Vector2.up * lineOfSightOffset;
                 Vector2 playerPos = hitCollider.transform.position;
                 Vector2 directionToPlayer = (playerPos - enemyPos).normalized;
                 float distanceToPlayer = Vector2.Distance(enemyPos, playerPos);
@@ -68,14 +75,15 @@ public class PlayerDetector : MonoBehaviour
     }
 
     // Visualize the detection circle and line of sight in the Scene view.
+    // use transform.position to set up in the editor too
     private void OnDrawGizmos()
     {
-        if (transform.parent == null)
+        if (transform.position == null)
             return;
             
         // Draw detection circle
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.parent.position, circleRadius);
+        Gizmos.DrawWireSphere(transform.position, circleRadius);
 
         // Draw line of sight if player is detected
         if (isEnemyAwareOfPlayer)
@@ -83,8 +91,8 @@ public class PlayerDetector : MonoBehaviour
             Gizmos.color = Color.green;
             // Simplified line visualization (remove old castDirection/circleDistance logic)
             Gizmos.DrawLine(
-                transform.parent.position + Vector3.up * lineOfSightOffset,
-                transform.parent.position + Vector3.up * lineOfSightOffset + Vector3.right * circleRadius // Example direction
+                transform.position + Vector3.up * lineOfSightOffset,
+                transform.position + Vector3.up * lineOfSightOffset + Vector3.right * circleRadius // Example direction
             );
         }
     }
