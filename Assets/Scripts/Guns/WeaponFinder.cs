@@ -17,6 +17,10 @@ public class WeaponFinder : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        if (weapon == null){
+            return;
+        }
+
         Debug.Log("Collision detected with: " + collision.gameObject.name);
         switch (collision.gameObject.layer)
         {

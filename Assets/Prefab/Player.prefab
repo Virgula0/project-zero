@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1274458512188676141}
   - component: {fileID: 8302184713731113973}
-  - component: {fileID: 5662470950873588059}
   - component: {fileID: 6953489902866986344}
+  - component: {fileID: 5662470950873588059}
   m_Layer: 3
   m_Name: Player
   m_TagString: PlayerTag
@@ -63,20 +63,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
---- !u!114 &5662470950873588059
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 637570073800689327}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d9b35d8c8164aaa46b0f66832bf4843d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 1200
-  playerRb: {fileID: 8302184713731113973}
 --- !u!61 &6953489902866986344
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -123,6 +109,20 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.42, y: 0.55}
   m_EdgeRadius: 0
+--- !u!114 &5662470950873588059
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 637570073800689327}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9b35d8c8164aaa46b0f66832bf4843d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 1000
+  playerRb: {fileID: 8302184713731113973}
 --- !u!1 &2089441036673348674
 GameObject:
   m_ObjectHideFlags: 0
@@ -198,7 +198,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: 943040943245898049, guid: a540655edba04964bba3286276ffc24b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

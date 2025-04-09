@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class PlayerScript : MonoBehaviour
 {
-    public float moveSpeed = 1500f;
+    public float moveSpeed = 1000f;
     public Rigidbody2D playerRb;
     private Vector2 moveDirection;
     private SpriteRenderer playerSprite;
