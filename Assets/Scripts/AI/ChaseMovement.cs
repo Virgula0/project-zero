@@ -49,9 +49,9 @@ public class ChaseMovement : IMovement
         return min;
     }
 
-    public void Move(Transform enemyTransform)
+    public void Move(Rigidbody2D enemyTransform)
     {
-        Vector2 nearestWayPoint = IterateWaypoints(enemyTransform);
+        Vector2 nearestWayPoint = IterateWaypoints(enemyTransform.transform);
         // calculate distance from player
         float distanceToPlayer = Vector2.Distance(enemyTransform.position, playerObject.transform.position);
         // if we're far away from the player enemy will try to get closer
@@ -61,13 +61,15 @@ public class ChaseMovement : IMovement
             // Move towards the current waypoint.
             Vector2 newPos = Vector2.MoveTowards(enemyTransform.position, playerObject.transform.position, chaseSpeed * Time.fixedDeltaTime);
             // Update enemy's position while keeping the original z-coordinate.
-            enemyTransform.position = new Vector3(newPos.x, newPos.y, enemyTransform.position.z);
+            // enemyTransform.position = new Vector3(newPos.x, newPos.y, enemyTransform.position.z);
+            enemyTransform.MovePosition(newPos);
+
             // Switch to the next waypoint if any and if closer than player position
             if (nearestWayPoint.x != float.PositiveInfinity)
             {
                 Debug.Log("Using door waypoint to let the enemy to find the exit");
                 Vector2 newWayPos = Vector2.MoveTowards(enemyTransform.position, nearestWayPoint, chaseSpeed * Time.fixedDeltaTime);
-                enemyTransform.position = new Vector3(newWayPos.x, newWayPos.y, enemyTransform.position.z);
+                enemyTransform.MovePosition(newWayPos);
             }
         }
     }

@@ -1,5 +1,5 @@
 using UnityEngine;
 
 public interface IMovement{
-    void Move(Transform enemyTransform);
+    void Move(Rigidbody2D enemyTransform);
 }

@@ -17,12 +17,13 @@ public class AI : MonoBehaviour
     private GameObject currentEnemy;
     private EnemyWeaponManager weaponManager;
     private PlayerDetector playerDetector;
-
+    private Rigidbody2D body;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         this.chaseSpeed = patrolSpeed * 3;
+        this.body = transform.parent.GetComponentInChildren<Rigidbody2D>();
         player = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
         currentEnemy = transform.parent.gameObject;
         patrolMovement = new PatrolMovement(patrolWaypoints, patrolSpeed);
@@ -39,14 +40,14 @@ public class AI : MonoBehaviour
         if (!playerDetector.GetIsEnemyAwareOfPlayer())
         {
             currentMovement = patrolMovement;
-            currentMovement.Move(currentEnemy.transform); // if the enemy does not know about the player
+            currentMovement.Move(body); // if the enemy does not know about the player
             weaponManager.ChangeEnemyStatus(false);
             return;
         }
 
         // if here enemy detected player, start shooting and chasing!
         currentMovement = chaseMovement;
-        currentMovement?.Move(currentEnemy.transform); // ?. means that Move will called if currentMovement is not null
+        currentMovement?.Move(body); // ?. means that Move will called if currentMovement is not null
         weaponManager.ChangeEnemyStatus(true);
     }
 

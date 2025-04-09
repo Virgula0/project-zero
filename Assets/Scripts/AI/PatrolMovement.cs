@@ -14,20 +14,20 @@ public class PatrolMovement : IMovement
         currentWaypoint = 0;
     }
 
-    public void Move(Transform enemyTransform)
+    public void Move(Rigidbody2D enemyTransform)
     {
         if (waypoints == null || waypoints.Length == 0)
             return;
 
-        // Convert the enemy's current position to a Vector2 (ignoring the z-axis).
+        // Use the rigidbody's position for accurate physics-based movement.
         Vector2 currentPos = enemyTransform.position;
         Vector2 targetPos = waypoints[currentWaypoint];
 
-        // Move towards the current waypoint.
+        // Compute the new position towards the target.
         Vector2 newPos = Vector2.MoveTowards(currentPos, targetPos, speed * Time.fixedDeltaTime);
 
-        // Update enemy's position while keeping the original z-coordinate.
-        enemyTransform.position = new Vector3(newPos.x, newPos.y, enemyTransform.position.z);
+        // Move the enemy using the physics engine.
+        enemyTransform.MovePosition(newPos);
 
         // Switch to the next waypoint if close enough.
         if (Vector2.Distance(newPos, targetPos) < 0.1f)
