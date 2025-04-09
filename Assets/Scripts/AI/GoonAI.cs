@@ -6,7 +6,7 @@ public class AI : MonoBehaviour
 {
     [SerializeField] private float patrolSpeed = 3f;
     [SerializeField] private float chaseSpeed;
-    [SerializeField] private float offsetChaseFromPlayer = 0f;
+    [SerializeField] private float stoppingDistance = 5f;
     [SerializeField] private Vector2[] patrolWaypoints;
     [SerializeField] private Vector2[] exitWaypoints;
 
@@ -27,7 +27,7 @@ public class AI : MonoBehaviour
         player = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
         currentEnemy = transform.parent.gameObject;
         patrolMovement = new PatrolMovement(patrolWaypoints, patrolSpeed);
-        chaseMovement = new ChaseMovement(player, chaseSpeed, offsetChaseFromPlayer, exitWaypoints);
+        chaseMovement = new ChaseMovement(player, chaseSpeed, stoppingDistance, exitWaypoints);
 
         // movements
         currentMovement = patrolMovement; // patrol movement when the object is spawned
@@ -63,6 +63,24 @@ public class AI : MonoBehaviour
 
             // Set Gizmo color for visualization
             Gizmos.color = Color.cyan;
+
+            // Draw the starting circle
+            Gizmos.DrawWireSphere(startPoint, circleRadius);
+            // Draw the ending circle
+            Gizmos.DrawWireSphere(endPoint, circleRadius);
+
+            // Draw a line connecting the two circles to illustrate the cast path
+            Gizmos.DrawLine(startPoint, endPoint);
+        }
+
+        foreach (Vector2 point in exitWaypoints)
+        {
+            // Calculate the starting point and ending point of the cast
+            Vector3 startPoint = point;
+            Vector3 endPoint = startPoint + (Vector3)(new Vector2(0, 0).normalized * circleRadius);
+
+            // Set Gizmo color for visualization
+            Gizmos.color = Color.white;
 
             // Draw the starting circle
             Gizmos.DrawWireSphere(startPoint, circleRadius);
