@@ -1,65 +1,90 @@
 using UnityEngine;
-
 public class PlayerDetector : MonoBehaviour
 {
     [Header("Circle Cast Settings")]
-    [SerializeField] private float circleRadius = 8f;          // The radius of the circle used for the cast.
-    [SerializeField] private float circleDistance = 0f;        // How far the circle cast travels.
-    [SerializeField] private LayerMask physicalLayer;          // Layer mask for detection.
-    [SerializeField] private Vector2 castDirection = new(0, 0); // Direction for the cast.
+    [SerializeField] private float circleRadius = 8f;          // The radius of the circle used for the cast
+    [SerializeField] private LayerMask physicalLayer;          // Layer mask for detection (Player,Enemies etc..)
+    
+    [Header("Line of Sight Settings")]
+    [SerializeField] private LayerMask obstacleLayer;          // Layer mask for obstacles (walls, tables, and so on..)
+    [SerializeField] private float lineOfSightOffset = 0f;     // Offset for the raycast start (e.g., adjust for "eye-level")
+
     private bool isEnemyAwareOfPlayer = false;
     private float elapsedLatestDetectionOfPlayerInSeconds = 0f;
 
-    void Start()
-    {
-        transform.position = transform.parent.position;
-    }
-
     void FixedUpdate()
     {        
-
-        if (elapsedLatestDetectionOfPlayerInSeconds > 2f) // after 2 seconds we reset the player alert status
+        // After 2 seconds without detection, reset the alert status
+        if (elapsedLatestDetectionOfPlayerInSeconds > 2f)
         {
             isEnemyAwareOfPlayer = false;
         }
 
-        // Perform the CircleCast using Physics2D
-        RaycastHit2D hitInfo = Physics2D.CircleCast(transform.parent.position, circleRadius, castDirection, circleDistance, physicalLayer);
-        if (hitInfo.collider != null)
+        // Check for all colliders within the detection circle
+        // CircleCast does not work becuase it does not work for stationary objects.
+        // CircleCast is the equivalent of ShpereCast for 2D
+        // For this reason we use OverlaCircleAll here which seems to works better and circumnvent the problem
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.parent.position, circleRadius, physicalLayer);
+        bool detectedPlayer = false;
+
+        foreach (Collider2D hitCollider in hits)
         {
-            switch (hitInfo.collider.gameObject.layer)
+            if (hitCollider.gameObject.layer == (int)Utils.Enums.ObjectLayers.Player)
             {
-                case (int)Utils.Enums.ObjectLayers.Player:
-                    Debug.Log("OBJECT DETECTED BY ENEMY: " + hitInfo.collider.gameObject.name);
-                    isEnemyAwareOfPlayer = true;
-                    elapsedLatestDetectionOfPlayerInSeconds = 0f;
-                    break;
+                // Set the base positions for enemy and player.
+                Vector2 enemyPos = (Vector2)transform.parent.position + Vector2.up * lineOfSightOffset;
+                Vector2 playerPos = hitCollider.transform.position;
+                Vector2 directionToPlayer = (playerPos - enemyPos).normalized;
+                float distanceToPlayer = Vector2.Distance(enemyPos, playerPos);
+
+                // Perform a raycast between enemy and player to check for obstacles in the betwen
+                RaycastHit2D sightHit = Physics2D.Raycast(enemyPos, directionToPlayer, distanceToPlayer, obstacleLayer);
+
+                // If no obstacle is hit, then the enemy has a clear line of sight
+                switch (sightHit.collider){
+                    case not null:
+                        Debug.Log("Player is hidden by an obstacle: " + sightHit.collider.gameObject.name);
+                        break;
+                    default:
+                        Debug.Log("OBJECT DETECTED BY ENEMY: " + hitCollider.gameObject.name);
+                        isEnemyAwareOfPlayer = true;
+                        elapsedLatestDetectionOfPlayerInSeconds = 0f;
+                        detectedPlayer = true;
+                        break;
+                }
             }
         }
 
-        elapsedLatestDetectionOfPlayerInSeconds += Time.fixedDeltaTime;
+        if (!detectedPlayer) // optimization, this may be not needed
+        {
+            elapsedLatestDetectionOfPlayerInSeconds += Time.deltaTime;
+        }
     }
 
-    public bool GetIsEnemyAwareOfPlayer(){
+    public bool GetIsEnemyAwareOfPlayer()
+    {
         return isEnemyAwareOfPlayer;
     }
 
-    // Visualize the circle cast in the Scene view (even without playing the game)
+    // Visualize the detection circle and line of sight in the Scene view.
     private void OnDrawGizmos()
     {
-        // Calculate the starting point and ending point of the cast
-        Vector3 startPoint = transform.parent.position;
-        Vector3 endPoint = startPoint + (Vector3)(castDirection.normalized * circleDistance);
-
-        // Set Gizmo color for visualization
+        if (transform.parent == null)
+            return;
+            
+        // Draw detection circle
         Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.parent.position, circleRadius);
 
-        // Draw the starting circle
-        Gizmos.DrawWireSphere(startPoint, circleRadius);
-        // Draw the ending circle
-        Gizmos.DrawWireSphere(endPoint, circleRadius);
-
-        // Draw a line connecting the two circles to illustrate the cast path
-        Gizmos.DrawLine(startPoint, endPoint);
+        // Draw line of sight if player is detected
+        if (isEnemyAwareOfPlayer)
+        {
+            Gizmos.color = Color.green;
+            // Simplified line visualization (remove old castDirection/circleDistance logic)
+            Gizmos.DrawLine(
+                transform.parent.position + Vector3.up * lineOfSightOffset,
+                transform.parent.position + Vector3.up * lineOfSightOffset + Vector3.right * circleRadius // Example direction
+            );
+        }
     }
 }

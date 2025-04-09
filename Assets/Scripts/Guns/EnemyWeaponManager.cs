@@ -67,10 +67,9 @@ public class EnemyWeaponManager : MonoBehaviour
         }
 
         if (!isEnemyAlerted){
+            timer = 0;
             return;
         }
-
-        timer += Time.deltaTime;
 
         if (currentLoadedWeapon.GetNumberOfReloads() < 1 && currentLoadedWeapon.GetAmmoCount() < 1){
             UnloadCurrentGun();
@@ -89,5 +88,7 @@ public class EnemyWeaponManager : MonoBehaviour
             currentLoadedWeapon.Shoot();
             return;
         }
+
+        timer += Time.deltaTime;
     }
 }
