@@ -8,10 +8,9 @@ public class EnemyWeaponManager : MonoBehaviour
     [SerializeField] SpriteRenderer enemySpriteRenderer;
 
     private Sprite defaultEnemySprite;
+    private bool isEnemyAlerted = false;
 
-    private bool isEnemyAlerted = false; 
-
-    public void changeEnemyStatus(bool status){
+    public void ChangeEnemyStatus(bool status){
         this.isEnemyAlerted = status;
     }
 
@@ -67,12 +66,28 @@ public class EnemyWeaponManager : MonoBehaviour
             return;
         }
 
+        if (!isEnemyAlerted){
+            return;
+        }
+
         timer += Time.deltaTime;
 
-        /* TODO: implement enemy weapon logic here */
-        currentLoadedWeapon.Shoot();
-        UnloadCurrentGun();
-        return;
+        if (currentLoadedWeapon.GetNumberOfReloads() < 1 && currentLoadedWeapon.GetAmmoCount() < 1){
+            UnloadCurrentGun();
+            return;
+        }
 
+        if (currentLoadedWeapon.GetNumberOfReloads() > 0 && currentLoadedWeapon.GetAmmoCount() < 1)
+        {
+            currentLoadedWeapon.Reload();
+            return;
+        }
+
+        if (timer >= currentLoadedWeapon.GetFireRate() && currentLoadedWeapon.GetAmmoCount() > 0)
+        {
+            timer = 0;
+            currentLoadedWeapon.Shoot();
+            return;
+        }
     }
 }
