@@ -27,7 +27,14 @@ public class AI : MonoBehaviour
         player = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
         playerDetector = gameObject.GetComponent<PlayerDetector>();
         currentEnemy = transform.parent.gameObject;
-        patrolMovement = new PatrolMovement(patrolWaypoints, patrolSpeed);
+
+        // this trick is needed beacuse it needs MohoBehaviour for coroutines
+        // and we can't even initialize a new object in unity if it inherits MonoBehaviour
+        // this is a little bit shit and I need to do this trick if i want to add manually the script as component 
+        // within the game object logic
+        patrolMovement = gameObject.AddComponent<PatrolMovement>().New(patrolWaypoints, exitWaypoints, patrolSpeed);
+        
+        // instantiate normally
         chaseMovement = new ChaseMovement(player, playerDetector, chaseSpeed, stoppingDistance, exitWaypoints);
 
         // movements

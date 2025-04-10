@@ -93,11 +93,12 @@ public class ChaseMovement : IMovement
             }
             // Note: Concurrency issues may arise when clearing the list if new positions are added concurrently.
             // TODO: Improve this section to handle the case where positions are concurrently added.
+            playerDetector.GetPlayerPositionVectorWhenChasing().Clear();    
             return;
         }
 
         // Normal chasing when no waypoint and no historic player positions are available
-        // Debug.Log("Chasing the player normally");
-        // MoveTowardsTarget(enemyRB, playerBody.position);
+        Debug.Log("Chasing the player normally");
+        MoveTowardsTarget(enemyRB, playerBody.position);
     }
 }

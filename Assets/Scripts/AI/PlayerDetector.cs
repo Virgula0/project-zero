@@ -37,7 +37,7 @@ public class PlayerDetector : MonoBehaviour
         while (isEnemyAwareOfPlayer) { // while we're in the state of alerting 
             isRecording = true;
             playerPositionVectorWhenChasing.Add(playerBody.position);
-            yield return null; // save player position each frame
+            yield return null; // save player position each frame (actually not each frame we're in fixedupdate)
         }
     }
 
@@ -46,6 +46,7 @@ public class PlayerDetector : MonoBehaviour
         // After 2 seconds without detection, reset the alert status
         if (elapsedLatestDetectionOfPlayerInSeconds > alertedEnemySeconds)
         {
+            StopCoroutine(SavePlayerPosition());
             playerPositionVectorWhenChasing.Clear();
             isRecording = false; //restore routine to be available again for saving posisiton
             isEnemyAwareOfPlayer = false;
@@ -80,6 +81,7 @@ public class PlayerDetector : MonoBehaviour
                         playerHiddenByObstacle = true;
                         break;
                     default:
+                        StartCoroutine(SavePlayerPosition());
                         Debug.Log("OBJECT DETECTED BY ENEMY: " + hitCollider.gameObject.name);
                         isEnemyAwareOfPlayer = true;
                         playerHiddenByObstacle = false;
@@ -95,9 +97,6 @@ public class PlayerDetector : MonoBehaviour
             elapsedLatestDetectionOfPlayerInSeconds += Time.fixedDeltaTime;
             return;
         }
-
-        // is it is detected try to start coroutine for savine player position
-        StartCoroutine(SavePlayerPosition());
     }
 
     public bool GetIsEnemyAwareOfPlayer()
