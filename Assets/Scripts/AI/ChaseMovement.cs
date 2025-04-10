@@ -52,45 +52,52 @@ public class ChaseMovement : IMovement
         return bestWaypoint;
     }
 
+    // Helper method to move enemy towards a target position
+    private void MoveTowardsTarget(Rigidbody2D enemyRB, Vector2 targetPosition)
+    {
+        Vector2 enemyPos = enemyRB.position;
+        Vector2 newPos = Vector2.MoveTowards(enemyPos, targetPosition, chaseSpeed * Time.fixedDeltaTime);
+        enemyRB.MovePosition(newPos);
+    }
+
     public void Move(Rigidbody2D enemyRB)
     {
         Vector2 enemyPos = enemyRB.position;
         Vector2? bestWaypoint = FindBestWaypoint(enemyPos);
 
-        Vector2 targetPosition;
-        bool useWaypoint = bestWaypoint.HasValue;
-
-        IList<Vector2> listPlayerPosition = playerDetector.GetPlayerPositionVectorWhenChasing();
-
-        if (useWaypoint)
+        float distanceToPlayer = Vector2.Distance(enemyPos, playerBody.position);
+        if (distanceToPlayer <= stoppingDistance)
         {
-            Debug.Log("Using DoorWayPoint to districate");
-            targetPosition = bestWaypoint.Value;
-        }
-        else if (listPlayerPosition.Count < 1)
-        {
-            Debug.Log("Chasing the player normally");
-            float distanceToPlayer = Vector2.Distance(enemyPos, playerBody.position);
-            if (distanceToPlayer <= stoppingDistance)
-            {
-                enemyRB.linearVelocity = Vector2.zero;
-                return;
-            }
-            targetPosition = playerBody.position;
-        }
-        else
-        {
-            Debug.Log("Chasing the player using PlayerPositionVector");
-            foreach (Vector2 pos in listPlayerPosition)
-            {
-                Vector2 playerPos = Vector2.MoveTowards(enemyPos, pos, chaseSpeed * Time.fixedDeltaTime);
-                enemyRB.MovePosition(playerPos);
-            }
-            playerDetector.GetPlayerPositionVectorWhenChasing().Clear(); // clear position TODO: this needs to be improved. Other position may be added concurrently to the list while we we're chasing the player (even if they're added every 500ms and we read them with FixedUpdate instead). When clearing we could loose them.
+            enemyRB.linearVelocity = Vector2.zero;
             return;
         }
 
-        Vector2 newPos = Vector2.MoveTowards(enemyPos, targetPosition, chaseSpeed * Time.fixedDeltaTime);
-        enemyRB.MovePosition(newPos);
+        // Retrieve player detected positions only once
+        IList<Vector2> playerPositions = playerDetector.GetPlayerPositionVectorWhenChasing();
+
+        // Use door waypoint if available (helpful when enemy is stuck on a wall)
+        if (bestWaypoint.HasValue && playerDetector.GetplayerHiddenByObstacle())
+        {
+            Debug.Log("Using DoorWayPoint to find an exit");
+            MoveTowardsTarget(enemyRB, bestWaypoint.Value);
+            return;
+        }
+
+        // Check if there are any positions in the player's position vector
+        if (playerPositions.Count > 0)
+        {
+            Debug.Log("Chasing the player using PlayerPositionVector");
+            foreach (Vector2 pos in playerPositions)
+            {
+                MoveTowardsTarget(enemyRB, pos);
+            }
+            // Note: Concurrency issues may arise when clearing the list if new positions are added concurrently.
+            // TODO: Improve this section to handle the case where positions are concurrently added.
+            return;
+        }
+
+        // Normal chasing when no waypoint and no historic player positions are available
+        // Debug.Log("Chasing the player normally");
+        // MoveTowardsTarget(enemyRB, playerBody.position);
     }
 }

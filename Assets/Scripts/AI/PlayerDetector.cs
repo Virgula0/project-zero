@@ -19,6 +19,7 @@ public class PlayerDetector : MonoBehaviour
     private IList<Vector2> playerPositionVectorWhenChasing; // a list is an ordered collection of items in c#
     private Rigidbody2D playerBody;
     private bool isRecording = false;
+    private bool playerHiddenByObstacle = false;
 
     void Start()
     {
@@ -36,7 +37,7 @@ public class PlayerDetector : MonoBehaviour
         while (isEnemyAwareOfPlayer) { // while we're in the state of alerting 
             isRecording = true;
             playerPositionVectorWhenChasing.Add(playerBody.position);
-            yield return new WaitForSeconds(0.5f); // save player position each 500ms
+            yield return null; // save player position each frame
         }
     }
 
@@ -45,8 +46,10 @@ public class PlayerDetector : MonoBehaviour
         // After 2 seconds without detection, reset the alert status
         if (elapsedLatestDetectionOfPlayerInSeconds > alertedEnemySeconds)
         {
+            playerPositionVectorWhenChasing.Clear();
             isRecording = false; //restore routine to be available again for saving posisiton
             isEnemyAwareOfPlayer = false;
+            playerHiddenByObstacle = false;
         }
 
         // Check for all colliders within the detection circle
@@ -74,10 +77,12 @@ public class PlayerDetector : MonoBehaviour
                 {
                     case not null:
                         Debug.Log("Player is hidden by an obstacle: " + sightHit.collider.gameObject.name);
+                        playerHiddenByObstacle = true;
                         break;
                     default:
                         Debug.Log("OBJECT DETECTED BY ENEMY: " + hitCollider.gameObject.name);
                         isEnemyAwareOfPlayer = true;
+                        playerHiddenByObstacle = false;
                         elapsedLatestDetectionOfPlayerInSeconds = 0f;
                         detectedPlayer = true;
                         break;
@@ -102,6 +107,10 @@ public class PlayerDetector : MonoBehaviour
 
     public IList<Vector2> GetPlayerPositionVectorWhenChasing(){
         return playerPositionVectorWhenChasing;
+    }
+
+    public bool GetplayerHiddenByObstacle(){
+        return playerHiddenByObstacle;
     }
 
     // Visualize the detection circle and line of sight in the Scene view.
