@@ -76,6 +76,7 @@ public class ChaseMovement : IMovement
         IList<Vector2> playerPositions = playerDetector.GetPlayerPositionVectorWhenChasing();
 
         // Use door waypoint if available (helpful when enemy is stuck on a wall)
+        // TODO: improve this and move in a coroutine as done in patrol movement so it can ignore the player until as surpassed the waypoint
         if (bestWaypoint.HasValue && playerDetector.GetplayerHiddenByObstacle())
         {
             Debug.Log("Using DoorWayPoint to find an exit");
@@ -100,5 +101,10 @@ public class ChaseMovement : IMovement
         // Normal chasing when no waypoint and no historic player positions are available
         Debug.Log("Chasing the player normally");
         MoveTowardsTarget(enemyRB, playerBody.position);
+    }
+
+    public void CustomSetter<T>(T var)
+    {
+        return;
     }
 }
