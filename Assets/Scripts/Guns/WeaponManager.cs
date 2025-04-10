@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class WeaponManager : MonoBehaviour
@@ -37,6 +38,7 @@ public class WeaponManager : MonoBehaviour
         // we're allowed to shoot at te beginning 
         timer = float.PositiveInfinity;
         currentLoadedWeapon.Setup(shooter);
+        audioSrc.PlayOneShot(currentLoadedWeapon.GetEquipSfx());
         playerSpriteRenderer.sprite = weapon.GetEquippedSprite();
         uiManager.UpdateWeaponIcon(currentLoadedWeapon.GetStaticWeaponSprite());
         uiManager.UpdateBullets(currentLoadedWeapon.GetAmmoCount());
@@ -51,6 +53,7 @@ public class WeaponManager : MonoBehaviour
         }
 
         Debug.Log("Weapon deloaded");
+        audioSrc.PlayOneShot(currentLoadedWeapon.GetEquipSfx());
         currentLoadedWeapon = null;
         timer = 0;
         playerSpriteRenderer.sprite = defaultPlayerSprite;
@@ -82,12 +85,13 @@ public class WeaponManager : MonoBehaviour
             currentLoadedWeapon.Reload();
             uiManager.UpdateReloads(currentLoadedWeapon.GetNumberOfReloads());
             uiManager.UpdateBullets(currentLoadedWeapon.GetAmmoCount());
+            audioSrc.PlayOneShot(currentLoadedWeapon.GetReloadSfx()); 
             return;
         }
 
         if (Input.GetMouseButton((int)Utils.Enums.MouseButtons.LeftButton) &&
             timer >= currentLoadedWeapon.GetFireRate() &&
-            currentLoadedWeapon.GetAmmoCount() > 0)
+            currentLoadedWeapon.GetAmmoCount() > 0 && !audioSrc.isPlaying)
         {
             timer = 0;
             currentLoadedWeapon.Shoot();

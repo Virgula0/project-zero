@@ -16,4 +16,5 @@ public interface IGun
     Sprite GetStaticWeaponSprite();
     AudioClip GetShotSfx();
     AudioClip GetReloadSfx();
+    AudioClip GetEquipSfx();
 }

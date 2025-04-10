@@ -13,7 +13,7 @@ public class SimpleGun : MonoBehaviour, IGun
     [SerializeField] private Sprite bulletSprite;
     [SerializeField] private AudioClip shotSound;
     [SerializeField] private AudioClip reloadSound;
-
+    [SerializeField] private AudioClip equipSound;
     private GameObject shooterObject;
 
     public void Setup(GameObject player)
@@ -99,5 +99,8 @@ public class SimpleGun : MonoBehaviour, IGun
         return this.reloadSound;
     }
 
-    //TODO add getter for eq./uneq. gun
+    public AudioClip GetEquipSfx()
+    {
+        return this.equipSound;
+    }
 }
