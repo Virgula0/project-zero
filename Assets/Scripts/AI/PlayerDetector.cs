@@ -1,10 +1,12 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 public class PlayerDetector : MonoBehaviour
 {
     [Header("Circle Cast Settings")]
     [SerializeField] private float circleRadius = 8f;          // The radius of the circle used for the cast
     [SerializeField] private LayerMask physicalLayer;          // Layer mask for detection (Player,Enemies etc..)
-    
+
     [Header("Line of Sight Settings")]
     [SerializeField] private LayerMask obstacleLayer;          // Layer mask for obstacles (walls, tables, and so on..)
     [SerializeField] private float lineOfSightOffset = 0f;     // Offset for the raycast start (e.g., adjust for "eye-level")
@@ -14,17 +16,36 @@ public class PlayerDetector : MonoBehaviour
     private float alertedEnemySeconds = 5f; // Seconds in which the enemy will remain in alert status after player detection
 
     private Rigidbody2D body;
+    private IList<Vector2> playerPositionVectorWhenChasing; // a list is an ordered collection of items in c#
+    private Rigidbody2D playerBody;
+    private bool isRecording = false;
 
     void Start()
     {
-        this.body = transform.parent.GetComponentInChildren<Rigidbody2D>(); 
+        this.body = transform.parent.GetComponentInChildren<Rigidbody2D>();
+        this.playerBody = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponent<Rigidbody2D>();
+        this.playerPositionVectorWhenChasing = new List<Vector2>();
+    }
+
+    private IEnumerator SavePlayerPosition()
+    {
+        if (isRecording){
+            yield return null;
+        }
+        playerPositionVectorWhenChasing.Clear();
+        while (isEnemyAwareOfPlayer) { // while we're in the state of alerting 
+            isRecording = true;
+            playerPositionVectorWhenChasing.Add(playerBody.position);
+            yield return new WaitForSeconds(0.5f); // save player position each 500ms
+        }
     }
 
     void FixedUpdate()
-    {        
+    {
         // After 2 seconds without detection, reset the alert status
         if (elapsedLatestDetectionOfPlayerInSeconds > alertedEnemySeconds)
         {
+            isRecording = false; //restore routine to be available again for saving posisiton
             isEnemyAwareOfPlayer = false;
         }
 
@@ -49,7 +70,8 @@ public class PlayerDetector : MonoBehaviour
                 RaycastHit2D sightHit = Physics2D.Raycast(enemyPos, directionToPlayer, distanceToPlayer, obstacleLayer);
 
                 // If no obstacle is hit, then the enemy has a clear line of sight
-                switch (sightHit.collider){
+                switch (sightHit.collider)
+                {
                     case not null:
                         Debug.Log("Player is hidden by an obstacle: " + sightHit.collider.gameObject.name);
                         break;
@@ -66,12 +88,20 @@ public class PlayerDetector : MonoBehaviour
         if (!detectedPlayer) // optimization, this may be not needed
         {
             elapsedLatestDetectionOfPlayerInSeconds += Time.fixedDeltaTime;
+            return;
         }
+
+        // is it is detected try to start coroutine for savine player position
+        StartCoroutine(SavePlayerPosition());
     }
 
     public bool GetIsEnemyAwareOfPlayer()
     {
         return isEnemyAwareOfPlayer;
+    }
+
+    public IList<Vector2> GetPlayerPositionVectorWhenChasing(){
+        return playerPositionVectorWhenChasing;
     }
 
     // Visualize the detection circle and line of sight in the Scene view.
@@ -80,7 +110,7 @@ public class PlayerDetector : MonoBehaviour
     {
         if (transform.position == null)
             return;
-            
+
         // Draw detection circle
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, circleRadius);

@@ -25,14 +25,14 @@ public class AI : MonoBehaviour
         this.chaseSpeed = patrolSpeed * 3;
         this.body = transform.parent.GetComponentInChildren<Rigidbody2D>();
         player = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
+        playerDetector = gameObject.GetComponent<PlayerDetector>();
         currentEnemy = transform.parent.gameObject;
         patrolMovement = new PatrolMovement(patrolWaypoints, patrolSpeed);
-        chaseMovement = new ChaseMovement(player, chaseSpeed, stoppingDistance, exitWaypoints);
+        chaseMovement = new ChaseMovement(player, playerDetector, chaseSpeed, stoppingDistance, exitWaypoints);
 
         // movements
         currentMovement = patrolMovement; // patrol movement when the object is spawned
         weaponManager = gameObject.transform.parent.GetComponentInChildren<EnemyWeaponManager>();
-        playerDetector = gameObject.GetComponent<PlayerDetector>();
     }
 
     void FixedUpdate()
