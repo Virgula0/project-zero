@@ -194,7 +194,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 138215cf35385f6469c9fce189224dbf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  equippedSprite: {fileID: 21300000, guid: f27d43fbffd46ea488e36f48e122264b, type: 3}
+  equippedSprite: {fileID: 7834454112102350060, guid: 69efdfc9446b69949957ca515493fa68, type: 3}
   bulletPrefab: {fileID: 4521634595782343921, guid: 6b4bbc73769d95f48998df61ae5c8760, type: 3}
   bulletSprite: {fileID: -3652640642259741591, guid: 3a0d6fccd292fad4e8b19166ff840311, type: 3}
   shotSound: {fileID: 8300000, guid: 2e977563880cfe4418c7ecc8f7dcbc1e, type: 3}
