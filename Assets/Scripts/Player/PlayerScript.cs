@@ -14,12 +14,13 @@ public class PlayerScript : MonoBehaviour
     private Vector2 lastMoveDirection = Vector2.right; // Default direction
     private bool isDashing = false;
     private float dashTimer = 0f;
+    private float dashCooldownTimer = 0;
     private Vector2 dashDirection;
     private AudioSource audioSrc;
 
     [SerializeField] float startDashTime = 0.07f;
     [SerializeField] float dashSpeed = 50f;
-    [SerializeField] float dashCooldown = 0f;
+    [SerializeField] float dashCooldown = 3f;
     [SerializeField] AudioClip dashSound;
     [SerializeField] AudioClip dashCooldownAlert;
 
@@ -34,33 +35,29 @@ public class PlayerScript : MonoBehaviour
         this.audioSrc = GetComponent<AudioSource>();
     }
 
-    void Update()
-    {
-        if (!isDashing && canDash && Input.GetKeyDown(KeyCode.Space))
-    {
-        ProcessInputs(); // Get the current movement direction
-        if (moveDirection != Vector2.zero)
-            dashDirection = moveDirection;
-        else
-            dashDirection = lastMoveDirection;
+    void Update(){
+        if (!isDashing && canDash && Input.GetKeyDown(KeyCode.Space)){
+            ProcessInputs(); //get dash direction
+            if (moveDirection == Vector2.zero){ //if the direction is 0 use the last non 0 direction
+                dashDirection = lastMoveDirection;
+            }else{
+                dashDirection = moveDirection;
+            }
 
-        isDashing = true;
-        dashTimer = startDashTime;
-        canDash = false;
-        canMove = false;
-    }
-
-    if (!canDash)
-    {
-        dashCooldown += Time.deltaTime;
-        if (dashCooldown > 3f)
-        {
-            canDash = true;
-            dashCooldown = 0f;
-            audioSrc.PlayOneShot(dashCooldownAlert);
-            Debug.Log("YOU CAN DASH AGAIN");
+            isDashing = true;
+            dashTimer = startDashTime;
+            canDash = false;
+            canMove = false;
         }
-    }
+
+        if (!canDash){
+            dashCooldownTimer += Time.deltaTime;
+            if (dashCooldownTimer > dashCooldown){
+                canDash = true;
+                dashCooldownTimer = 0f;
+                audioSrc.PlayOneShot(dashCooldownAlert);
+            }
+        }
     }
 
     void FixedUpdate()
@@ -70,11 +67,11 @@ public class PlayerScript : MonoBehaviour
         if (isDashing)
         {
             DashMovement();
-            return; // Skip normal movement during dash
+            return; //skip normal movement during dash
         }
 
         if(!canMove){
-            return;
+            return; //you can't move while dashing
         }
         ProcessInputs();
         Movement();
@@ -92,30 +89,9 @@ public class PlayerScript : MonoBehaviour
             audioSrc.PlayOneShot(dashSound);
             isDashing = false;
             canMove = true;
-            playerRb.linearVelocity = Vector2.zero;
+            playerRb.linearVelocity = Vector2.zero; //stop dashing
         }
     }
-
-    /*IEnumerator Dash(Vector2 direction){
-        currentDashTime = startDashTime; // Reset the dash timer.
-
-        Debug.Log("Dashing");
-        Debug.Log(direction);
-
-        while (currentDashTime > 0f)
-        {
-            currentDashTime -= Time.deltaTime; // Lower the dash timer each frame.
-
-            playerRb.linearVelocity = direction * dashSpeed; // Dash in the direction that was held down.
-            // No need to multiply by Time.DeltaTime here, physics are already consistent across different FPS.
-
-            yield return null; // Returns out of the coroutine this frame so we don't hit an infinite loop.
-        }
-
-        playerRb.linearVelocity = new Vector2(0f, 0f); // Stop dashing.
-
-        canMove = true;
-    }*/
 
     private void ProcessInputs(){
         float moveX = Input.GetAxisRaw("Horizontal");
@@ -124,8 +100,7 @@ public class PlayerScript : MonoBehaviour
         Vector2 input = new Vector2(moveX, moveY);
         moveDirection = input.normalized;
 
-        if (input != Vector2.zero)
-        {
+        if (input != Vector2.zero){ //save the last movement direction
             lastMoveDirection = moveDirection;
         }
     }

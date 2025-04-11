@@ -32,6 +32,11 @@ public class WeaponManager : MonoBehaviour
         {
             throw new NullReferenceException("PLAYER SPRITE RENDERER CANNOT BE NULL, THE PASSED REFERENCE TO THE PLAYER SPRITE RENDERER IS NULL");
         }
+
+        if (currentLoadedWeapon != null){ 
+            UnloadCurrentGun();
+        }
+
         // must be done whatever a new gun gets loaded
         currentLoadedWeapon = weapon;
 
@@ -43,6 +48,7 @@ public class WeaponManager : MonoBehaviour
         uiManager.UpdateWeaponIcon(currentLoadedWeapon.GetStaticWeaponSprite());
         uiManager.UpdateBullets(currentLoadedWeapon.GetAmmoCount());
         uiManager.UpdateReloads(currentLoadedWeapon.GetNumberOfReloads());
+        
     }
 
     private void UnloadCurrentGun()
