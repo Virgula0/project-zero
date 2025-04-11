@@ -1472,7 +1472,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 615861216296667522, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
       propertyPath: exitWaypoints.Array.size
-      value: 3
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 615861216296667522, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
       propertyPath: exitWaypoints.Array.data[0].x
@@ -1480,7 +1480,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 615861216296667522, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
       propertyPath: exitWaypoints.Array.data[0].y
-      value: -10.15
+      value: -1.45
       objectReference: {fileID: 0}
     - target: {fileID: 615861216296667522, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
       propertyPath: exitWaypoints.Array.data[1].x
@@ -1488,39 +1488,39 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 615861216296667522, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
       propertyPath: exitWaypoints.Array.data[1].y
-      value: -5.45
+      value: -9.57
       objectReference: {fileID: 0}
     - target: {fileID: 615861216296667522, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
       propertyPath: exitWaypoints.Array.data[2].x
-      value: 4.13
+      value: -19.56
       objectReference: {fileID: 0}
     - target: {fileID: 615861216296667522, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
       propertyPath: exitWaypoints.Array.data[2].y
-      value: -0.81
+      value: -9.57
       objectReference: {fileID: 0}
     - target: {fileID: 615861216296667522, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
       propertyPath: exitWaypoints.Array.data[3].x
-      value: 9.12
+      value: -19.56
       objectReference: {fileID: 0}
     - target: {fileID: 615861216296667522, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
       propertyPath: exitWaypoints.Array.data[3].y
-      value: -8.65
+      value: 22.11
       objectReference: {fileID: 0}
     - target: {fileID: 615861216296667522, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
       propertyPath: exitWaypoints.Array.data[4].x
-      value: 9.12
+      value: 35.5
       objectReference: {fileID: 0}
     - target: {fileID: 615861216296667522, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
       propertyPath: exitWaypoints.Array.data[4].y
-      value: -0.59
+      value: 22.11
       objectReference: {fileID: 0}
     - target: {fileID: 615861216296667522, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
       propertyPath: exitWaypoints.Array.data[5].x
-      value: 4.17
+      value: 35.5
       objectReference: {fileID: 0}
     - target: {fileID: 615861216296667522, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
       propertyPath: exitWaypoints.Array.data[5].y
-      value: -0.59
+      value: -9.7
       objectReference: {fileID: 0}
     - target: {fileID: 615861216296667522, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
       propertyPath: exitWaypoints.Array.data[6].x

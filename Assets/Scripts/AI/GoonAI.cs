@@ -33,7 +33,7 @@ public class AI : MonoBehaviour
         // and we can't even initialize a new object in unity if it inherits MonoBehaviour
         // this is a little bit shit and I need to do this trick if i want to add manually the script as component 
         // within the game object logic
-        patrolMovement = gameObject.AddComponent<PatrolMovement>().New(patrolWaypoints, exitWaypoints, patrolSpeed);
+        patrolMovement = gameObject.AddComponent<PatrolMovement>().New(patrolWaypoints, exitWaypoints, patrolSpeed, playerDetector);
 
         // instantiate normally
         chaseMovement = new ChaseMovement(player, playerDetector, chaseSpeed, stoppingDistance, exitWaypoints);
@@ -52,12 +52,9 @@ public class AI : MonoBehaviour
             weaponManager.ChangeEnemyStatus(false);
             return;
         }
-        else
-        {
-            currentMovement.CustomSetter(varToSet: false); // CustomSetter will try to set the current patrol in PatrolMovement object 
-        }
 
         // if here enemy detected player, start shooting and chasing!
+        currentMovement.CustomSetter(varToSet: true); // CustomSetter will try to set the needsRepositioning to true
         currentMovement = chaseMovement;
         currentMovement?.Move(body); // ?. means that Move will called if currentMovement is not null
         weaponManager.ChangeEnemyStatus(true);
