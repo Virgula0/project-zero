@@ -1,9 +1,6 @@
 using System.Collections;
 using UnityEngine;
-using System.Linq;
 using System;
-using NUnit.Framework.Internal;
-
 
 public class PatrolMovement : MonoBehaviour, IMovement
 {
@@ -14,7 +11,6 @@ public class PatrolMovement : MonoBehaviour, IMovement
     private bool busy = false;
     private bool needsRepositioning = false;
     private PlayerDetector playerDetector;
-
     private KdTree kdTree; // find the best way to doorWayPoint
 
     public PatrolMovement New(Vector2[] waypoints, Vector2[] doorWayPoint, float speed, PlayerDetector playerDetector)
@@ -86,6 +82,8 @@ private IEnumerator MoveDoorWaypointsCoroutine(Rigidbody2D enemyTransform)
             enemyTransform.MovePosition(newPos);
             yield return new WaitForFixedUpdate();
         }
+
+        Debug.Log("PATROL Return moving to coordinates: " + closestPoint);
 
         // If we've reached the first waypoint, exit the loop
         if (closestPoint == doorWayPoint[0])

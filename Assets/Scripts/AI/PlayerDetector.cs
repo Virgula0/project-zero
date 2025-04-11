@@ -16,29 +16,13 @@ public class PlayerDetector : MonoBehaviour
     private float alertedEnemySeconds = 5f; // Seconds in which the enemy will remain in alert status after player detection
 
     private Rigidbody2D body;
-    private IList<Vector2> playerPositionVectorWhenChasing; // a list is an ordered collection of items in c#
     private Rigidbody2D playerBody;
-    private bool isRecording = false;
     private bool playerHiddenByObstacle = false;
 
     void Start()
     {
         this.body = transform.parent.GetComponentInChildren<Rigidbody2D>();
         this.playerBody = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponent<Rigidbody2D>();
-        this.playerPositionVectorWhenChasing = new List<Vector2>();
-    }
-
-    private IEnumerator SavePlayerPosition()
-    {
-        if (isRecording){
-            yield return null;
-        }
-        playerPositionVectorWhenChasing.Clear();
-        while (isEnemyAwareOfPlayer) { // while we're in the state of alerting 
-            isRecording = true;
-            playerPositionVectorWhenChasing.Add(playerBody.position);
-            yield return null; // save player position each frame (actually not each frame we're in fixedupdate)
-        }
     }
 
     void FixedUpdate()
@@ -46,9 +30,6 @@ public class PlayerDetector : MonoBehaviour
         // After 2 seconds without detection, reset the alert status
         if (elapsedLatestDetectionOfPlayerInSeconds > alertedEnemySeconds)
         {
-            StopCoroutine(SavePlayerPosition());
-            playerPositionVectorWhenChasing.Clear();
-            isRecording = false; //restore routine to be available again for saving posisiton
             isEnemyAwareOfPlayer = false;
             playerHiddenByObstacle = false;
         }
@@ -81,7 +62,6 @@ public class PlayerDetector : MonoBehaviour
                         playerHiddenByObstacle = true;
                         break;
                     default:
-                        StartCoroutine(SavePlayerPosition());
                         Debug.Log("OBJECT DETECTED BY ENEMY: " + hitCollider.gameObject.name);
                         isEnemyAwareOfPlayer = true;
                         playerHiddenByObstacle = false;
@@ -104,11 +84,7 @@ public class PlayerDetector : MonoBehaviour
         return isEnemyAwareOfPlayer;
     }
 
-    public IList<Vector2> GetPlayerPositionVectorWhenChasing(){
-        return playerPositionVectorWhenChasing;
-    }
-
-    public bool GetplayerHiddenByObstacle(){
+    public bool GetIsPlayerHiddenByObstacle(){
         return playerHiddenByObstacle;
     }
 
@@ -118,10 +94,14 @@ public class PlayerDetector : MonoBehaviour
     {
         if (transform.position == null)
             return;
-
-        // Draw detection circle
+        
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, circleRadius);
+
+        if (body != null)
+            // Draw detection circle
+            Gizmos.DrawWireSphere(body.position, circleRadius);
+        else 
+            Gizmos.DrawWireSphere(transform.position, circleRadius);
 
         // Draw line of sight if player is detected
         if (isEnemyAwareOfPlayer)

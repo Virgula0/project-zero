@@ -36,7 +36,7 @@ public class AI : MonoBehaviour
         patrolMovement = gameObject.AddComponent<PatrolMovement>().New(patrolWaypoints, exitWaypoints, patrolSpeed, playerDetector);
 
         // instantiate normally
-        chaseMovement = new ChaseMovement(player, playerDetector, chaseSpeed, stoppingDistance, exitWaypoints);
+        chaseMovement = gameObject.AddComponent<ChaseMovement>().New(player, playerDetector, chaseSpeed, stoppingDistance, exitWaypoints);
 
         // movements
         currentMovement = patrolMovement; // patrol movement when the object is spawned
