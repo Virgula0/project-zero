@@ -41,6 +41,7 @@ public class KdTree
     }
 
     private Node root;
+
     public KdTree(Vector2[] points)
     {
         // Build an array of IndexedPoint to track the original index.
@@ -129,6 +130,112 @@ public class KdTree
         if (diff * diff < bestDistanceSqr)
         {
             NearestNeighbor(secondBranch, target, ref best, ref bestDistanceSqr, ref bestIndex);
+        }
+    }
+
+    // New FindNearest that ignores a specific index.
+    public Vector2 FindNearest(Vector2 target, int indexToIgnore, out int index)
+    {
+        Vector2 best = Vector2.zero;
+        float bestDistanceSqr = float.MaxValue;
+        int bestIndex = -1;
+        NearestNeighborIgnoreIndex(root, target, indexToIgnore, ref best, ref bestDistanceSqr, ref bestIndex);
+        index = bestIndex;
+        return best;
+    }
+
+    private void NearestNeighborIgnoreIndex(Node node, Vector2 target, int indexToIgnore, ref Vector2 best, ref float bestDistanceSqr, ref int bestIndex)
+    {
+        if (node == null)
+        {
+            return;
+        }
+
+        // Skip this node if its index matches the one we want to ignore.
+        if (node.Index == indexToIgnore)
+        {
+            NearestNeighborIgnoreIndex(node.Left, target, indexToIgnore, ref best, ref bestDistanceSqr, ref bestIndex);
+            NearestNeighborIgnoreIndex(node.Right, target, indexToIgnore, ref best, ref bestDistanceSqr, ref bestIndex);
+            return;
+        }
+
+        // Compute squared distance from this node's point to the target.
+        float distanceSqr = (node.Point - target).sqrMagnitude;
+        if (distanceSqr < bestDistanceSqr)
+        {
+            bestDistanceSqr = distanceSqr;
+            best = node.Point;
+            bestIndex = node.Index;
+        }
+
+        // Determine which side to explore first.
+        int axis = node.Axis;
+        float diff = axis == 0 ? target.x - node.Point.x : target.y - node.Point.y;
+
+        // Choose the branch that is likely to contain the target.
+        Node firstBranch = diff < 0 ? node.Left : node.Right;
+        Node secondBranch = diff < 0 ? node.Right : node.Left;
+
+        // Explore the first branch.
+        NearestNeighborIgnoreIndex(firstBranch, target, indexToIgnore, ref best, ref bestDistanceSqr, ref bestIndex);
+
+        // Check if the hypersphere crosses the splitting plane.
+        if (diff * diff < bestDistanceSqr)
+        {
+            NearestNeighborIgnoreIndex(secondBranch, target, indexToIgnore, ref best, ref bestDistanceSqr, ref bestIndex);
+        }
+    }
+
+    // New FindNearest that ignores a specific point.
+    public Vector2 FindNearest(Vector2 target, Vector2 pointToIgnore, out int index)
+    {
+        Vector2 best = Vector2.zero;
+        float bestDistanceSqr = float.MaxValue;
+        int bestIndex = -1;
+        NearestNeighborIgnorePoint(root, target, pointToIgnore, ref best, ref bestDistanceSqr, ref bestIndex);
+        index = bestIndex;
+        return best;
+    }
+
+    private void NearestNeighborIgnorePoint(Node node, Vector2 target, Vector2 pointToIgnore, ref Vector2 best, ref float bestDistanceSqr, ref int bestIndex)
+    {
+        if (node == null)
+        {
+            return;
+        }
+
+        // Skip this node if its point matches the one we want to ignore.
+        if (node.Point == pointToIgnore)
+        {
+            NearestNeighborIgnorePoint(node.Left, target, pointToIgnore, ref best, ref bestDistanceSqr, ref bestIndex);
+            NearestNeighborIgnorePoint(node.Right, target, pointToIgnore, ref best, ref bestDistanceSqr, ref bestIndex);
+            return;
+        }
+
+        // Compute squared distance from this node's point to the target.
+        float distanceSqr = (node.Point - target).sqrMagnitude;
+        if (distanceSqr < bestDistanceSqr)
+        {
+            bestDistanceSqr = distanceSqr;
+            best = node.Point;
+            bestIndex = node.Index;
+        }
+
+        // Determine which side to explore first.
+        int axis = node.Axis;
+        float diff = axis == 0 ? target.x - node.Point.x : target.y - node.Point.y;
+
+        // Choose the branch that is likely to contain the target.
+        Node firstBranch = diff < 0 ? node.Left : node.Right;
+        Node secondBranch = diff < 0 ? node.Right : node.Left;
+
+        // Explore the first branch.
+        NearestNeighborIgnorePoint(firstBranch, target, pointToIgnore, ref best, ref bestDistanceSqr, ref bestIndex);
+
+        // Check if the hypersphere crosses the splitting plane.
+        if (diff * diff < bestDistanceSqr)
+        {
+            NearestNeighborIgnorePoint(secondBranch, target, pointToIgnore, ref best, ref bestDistanceSqr, ref bestIndex);
         }
     }
 }

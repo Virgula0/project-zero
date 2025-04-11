@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using System.Linq;
 using System;
+using NUnit.Framework.Internal;
 
 
 public class PatrolMovement : MonoBehaviour, IMovement
@@ -60,7 +61,7 @@ public class PatrolMovement : MonoBehaviour, IMovement
         }
     }
 
-    public Vector2 FindClosestWayPoint(Rigidbody2D enemyRigidbody , out int index)
+    public Vector2 FindClosestWayPoint(Rigidbody2D enemyRigidbody, out int index)
     {
         if (kdTree == null)
         {
@@ -70,13 +71,15 @@ public class PatrolMovement : MonoBehaviour, IMovement
         return kdTree.FindNearest(enemyRigidbody.position, out index);
     }
 
-    private IEnumerator MoveDoorWaypointsCoroutine(Rigidbody2D enemyTransform)
-    {
-        // Then we continue to move on the path choosing a branch and assuming that indexes of doorWayPoint are ordered
-        int closestPointIndex;
-        Vector2 closestPoint = FindClosestWayPoint(enemyTransform, out closestPointIndex);
+private IEnumerator MoveDoorWaypointsCoroutine(Rigidbody2D enemyTransform)
+{
+    int closestPointIndex;
+    Vector2 closestPoint = FindClosestWayPoint(enemyTransform, out closestPointIndex);
 
-        // while we're far away from the closest way point we move towards it
+    // Continue moving through waypoints until we reach the first one
+    while (true)
+    {
+        // Move towards the closest waypoint
         while (Vector2.Distance(enemyTransform.position, closestPoint) > 0.1f)
         {
             Vector2 newPos = Vector2.MoveTowards(enemyTransform.position, closestPoint, patrolSpeed * Time.fixedDeltaTime);
@@ -84,34 +87,19 @@ public class PatrolMovement : MonoBehaviour, IMovement
             yield return new WaitForFixedUpdate();
         }
 
-        Debug.Log("Closest point: " + closestPoint);
-        Debug.Log("Closest point index: " + closestPointIndex);
-        
-        /*
-        // We choose to continue on the left path or right path of doorWaypoints
-        // take and skip methods include the pass index
-        Vector2[] subarray = closestPointIndex <=  doorWayPoint.Length / 2 
-                            ? doorWayPoint.Take(closestPointIndex).Reverse().ToArray() 
-                            : doorWayPoint.Skip(closestPointIndex).Append(doorWayPoint[0]).ToArray();
+        // If we've reached the first waypoint, exit the loop
+        if (closestPoint == doorWayPoint[0])
+            break;
 
-        Debug.Log("Chosen subarray: " + string.Join(", ", subarray));
-
-        foreach (Vector2 pp in subarray)
-        {
-            // Continue moving towards this door waypoint until it is reached.
-            while (Vector2.Distance(enemyTransform.position, pp) > 0.1f)
-            {
-                Vector2 newPos = Vector2.MoveTowards(enemyTransform.position, pp, patrolSpeed * Time.fixedDeltaTime);
-                enemyTransform.MovePosition(newPos);
-                yield return new WaitForFixedUpdate();
-            }
-        }
-        */
-        Debug.Log("Finished moving through door waypoints.");
-        busy = false;
-        // Mark that we already transitioned through the door.
-        needsRepositioning = false;
+        // Find the next closest point in the path exluding the current point
+        closestPoint = kdTree.FindNearest(enemyTransform.position, closestPointIndex, out closestPointIndex);
     }
+
+    Debug.Log("Finished moving through door waypoints.");
+    busy = false;
+    needsRepositioning = false;  // Mark that we already transitioned through the door.
+}
+
 
     public void CustomSetter<T>(T var)
     {
