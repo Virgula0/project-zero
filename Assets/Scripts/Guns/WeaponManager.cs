@@ -80,10 +80,6 @@ public class WeaponManager : MonoBehaviour
 
         timer += Time.deltaTime;
 
-        if (isReloading){
-            return;
-        }
-
         // if left button is pressed, let an user to leave the weapon
         if (Input.GetMouseButton((int)Utils.Enums.MouseButtons.RightButton))
         {
@@ -92,7 +88,7 @@ public class WeaponManager : MonoBehaviour
         }
 
         if (Input.GetKeyDown(KeyCode.R) && currentLoadedWeapon.GetNumberOfReloads() > 0 
-            && currentLoadedWeapon.GetAmmoCount() < currentLoadedWeapon.GetMegCap())
+            && currentLoadedWeapon.GetAmmoCount() < currentLoadedWeapon.GetMegCap() && !isReloading)
         {
             currentLoadedWeapon.Reload();
             uiManager.UpdateReloads(currentLoadedWeapon.GetNumberOfReloads());
@@ -105,7 +101,7 @@ public class WeaponManager : MonoBehaviour
 
         if (Input.GetMouseButton((int)Utils.Enums.MouseButtons.LeftButton) &&
             timer >= currentLoadedWeapon.GetFireRate() &&
-            currentLoadedWeapon.GetAmmoCount() > 0)
+            currentLoadedWeapon.GetAmmoCount() > 0 && !isReloading)
         {
             timer = 0;
             currentLoadedWeapon.Shoot();
