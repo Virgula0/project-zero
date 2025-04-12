@@ -1,16 +1,12 @@
-using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerScript : MonoBehaviour
 {
     public float moveSpeed = 1500f;
-    public Rigidbody2D playerRb;
+    private Rigidbody2D playerRb;
     private Vector2 moveDirection;
     private SpriteRenderer playerSprite;
     private bool canDash;
-    private bool canMove;
-    private float currentDashTime;
     private Vector2 lastMoveDirection = Vector2.right; // Default direction
     private bool isDashing = false;
     private float dashTimer = 0f;
@@ -30,8 +26,8 @@ public class PlayerScript : MonoBehaviour
     {
         //add something later
         playerSprite = GetComponentInChildren<SpriteRenderer>();
+        playerRb = gameObject.GetComponent<Rigidbody2D>();
         this.canDash = true;
-        this.canMove = true;
         this.audioSrc = GetComponent<AudioSource>();
     }
 
@@ -47,7 +43,6 @@ public class PlayerScript : MonoBehaviour
             isDashing = true;
             dashTimer = startDashTime;
             canDash = false;
-            canMove = false;
         }
 
         if (!canDash){
@@ -70,9 +65,6 @@ public class PlayerScript : MonoBehaviour
             return; //skip normal movement during dash
         }
 
-        if(!canMove){
-            return; //you can't move while dashing
-        }
         ProcessInputs();
         Movement();
     }
@@ -88,7 +80,6 @@ public class PlayerScript : MonoBehaviour
         {
             audioSrc.PlayOneShot(dashSound);
             isDashing = false;
-            canMove = true;
             playerRb.linearVelocity = Vector2.zero; //stop dashing
         }
     }
