@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
 
 public class AI : MonoBehaviour
 {
@@ -9,34 +7,75 @@ public class AI : MonoBehaviour
     [SerializeField] private float chaseSpeed;
     [SerializeField] private float stoppingDistance = 5f;
     [SerializeField] private Vector2[] patrolWaypoints;
+    // exitWaypoints is a vector containing the coordinates of doors or obstacles (manually defined in the editor) 
+    // in order to surpass them when chasing the player
+    // if the player is on the other side of one of doorPoints within the vector we use that waypoint which indicates the exit 
+    // from the room
+    // We have the playerObject reference so we know its position easly.
+    // They're used as well for getting back in the patrolling room.
     [SerializeField] private Vector2[] exitWaypoints;
 
     private GameObject player; // we need the position and other ottributes of the player
     private IMovement currentMovement;
     private IMovement patrolMovement;
     private IMovement chaseMovement;
-    private GameObject currentEnemy;
     private EnemyWeaponManager weaponManager;
-    private PlayerDetector playerDetector;
+    private Detector playerDetector;
     private Rigidbody2D body;
+    private KdTree treeStructure;
+    private BFSPathfinder bfs;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         this.chaseSpeed = patrolSpeed * 3;
         this.body = transform.parent.GetComponentInChildren<Rigidbody2D>();
+        this.treeStructure = new KdTree(exitWaypoints);
         player = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
-        playerDetector = gameObject.GetComponent<PlayerDetector>();
-        currentEnemy = transform.parent.gameObject;
+        playerDetector = gameObject.GetComponent<Detector>();
+
+        // This structure defines connections between exitWaypoints 
+        // WARNING! The same namber of exitWaypoints and the SAME EXACT CONNECTIONS MUST BE USED ALSO FOR OTHER ENEMIES WICH RESIDES
+        // IN THE SAME ROOM!
+        // Within the same scene a merge between all exitWaypoints of all enemies may be needed
+        // syntax: { 0, new List<int> { 1, 3 } } means waypoint 0 connected to 1 and 3
+
+        // TODO: at the moment a new script GoonAI must be created for each enemy GoonAI of different rooms to redefine this structure.
+        // Of course I need to serialize this in a common file and take them dinamically through a serialize field integer which 
+        // indicates the specific map to get for example. 
+        Dictionary<int, List<int>> connections = new Dictionary<int, List<int>>
+        {
+            { 0, new List<int> { 1 } },
+            { 1, new List<int> { 9, 10, 0 } },
+            { 2, new List<int> { 7, 10 } },
+            { 3, new List<int> { 6, 7 } },
+            { 4, new List<int> { 6, 8 } },
+            { 5, new List<int> { 8, 9 } },
+            { 6, new List<int> { 3, 4 } },
+            { 7, new List<int> { 2, 3 } },
+            { 8, new List<int> { 4, 5 } },
+            { 9, new List<int> { 5, 1 } },
+            { 10, new List<int> { 1, 2 } },
+        };
+        
+        Vector2[] globalWaypoints = GameObject.FindGameObjectWithTag(Utils.Const.GLOBAL_WAYPOINTS_TAG).GetComponent<GlobalWaypoints>().GetGlobalWaypoints();
+        // connect each global waypoint to the last element of connections
+        
+        for (int i = 0; i < globalWaypoints.Length; i++) {
+            
+        }
+
+        // Define connections and build the connection graph
+        this.bfs = new BFSPathfinder(exitWaypoints, connections);
 
         // this trick is needed beacuse it needs MohoBehaviour for coroutines
         // and we can't even initialize a new object in unity if it inherits MonoBehaviour
         // this is a little bit shit and I need to do this trick if i want to add manually the script as component 
         // within the game object logic
-        patrolMovement = gameObject.AddComponent<PatrolMovement>().New(patrolWaypoints, exitWaypoints, patrolSpeed, playerDetector);
+        patrolMovement = gameObject.AddComponent<PatrolMovement>().New(patrolWaypoints, playerDetector, treeStructure, bfs, patrolSpeed);
 
         // instantiate normally
-        chaseMovement = gameObject.AddComponent<ChaseMovement>().New(player, playerDetector, chaseSpeed, stoppingDistance, exitWaypoints);
+        chaseMovement = gameObject.AddComponent<ChaseMovement>().New(player, playerDetector, treeStructure, bfs, chaseSpeed, stoppingDistance);
 
         // movements
         currentMovement = patrolMovement; // patrol movement when the object is spawned
@@ -47,6 +86,7 @@ public class AI : MonoBehaviour
     {
         if (!playerDetector.GetIsEnemyAwareOfPlayer())
         {
+            // Debug.Log("Enemy is not alerted anymore");
             currentMovement = patrolMovement;
             currentMovement.Move(body); // if the enemy does not know about the player
             weaponManager.ChangeEnemyStatus(false);
@@ -60,7 +100,7 @@ public class AI : MonoBehaviour
         weaponManager.ChangeEnemyStatus(true);
     }
 
-    // Debugging purposes
+    // Debugging purposes you can ignore this
     private void OnDrawGizmos()
     {
         if (transform.position == null)

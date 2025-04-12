@@ -5,22 +5,22 @@ using System;
 public class PatrolMovement : MonoBehaviour, IMovement
 {
     private Vector2[] waypoints;
-    private Vector2[] doorWayPoint;
     private int currentWaypoint;
     private float patrolSpeed;
     private bool busy = false;
     private bool needsRepositioning = false;
-    private PlayerDetector playerDetector;
-    private KdTree kdTree; // find the best way to doorWayPoint
+    private Detector playerDetector;
+    private KdTree kdTree;
+    private BFSPathfinder bfs;
 
-    public PatrolMovement New(Vector2[] waypoints, Vector2[] doorWayPoint, float speed, PlayerDetector playerDetector)
+    public PatrolMovement New(Vector2[] waypoints, Detector playerDetector, KdTree kdTree,  BFSPathfinder bfs , float speed)
     {
         this.waypoints = waypoints;
         patrolSpeed = speed;
         currentWaypoint = 0;
-        this.doorWayPoint = doorWayPoint;
-        kdTree = new KdTree(doorWayPoint);
         this.playerDetector = playerDetector;
+        this.kdTree = kdTree;
+        this.bfs = bfs;
         return this;
     }
 
@@ -34,9 +34,9 @@ public class PatrolMovement : MonoBehaviour, IMovement
             return;
         }
 
-        // NeedsRepositioning is set to true whatever the enemy is chasing of finding a gun
-        // Them if is not aware of the player so is not chasing the player we can restore is patrolling position
-        if (doorWayPoint.Length != 0 && needsRepositioning && !playerDetector.GetIsEnemyAwareOfPlayer())
+        // NeedsRepositioning is set to true whatever the enemy is chasing or finding a gun
+        // Then if is not aware of the player so is not chasing the player we can restore is patrolling position
+        if (needsRepositioning && !playerDetector.GetIsEnemyAwareOfPlayer())
         {
             Debug.Log("Returning to Door Way point for patrolling");
             busy = true;
@@ -67,36 +67,26 @@ public class PatrolMovement : MonoBehaviour, IMovement
         return kdTree.FindNearest(enemyRigidbody.position, out index);
     }
 
-private IEnumerator MoveDoorWaypointsCoroutine(Rigidbody2D enemyTransform)
-{
-    int closestPointIndex;
-    Vector2 closestPoint = FindClosestWayPoint(enemyTransform, out closestPointIndex);
-
-    // Continue moving through waypoints until we reach the first one
-    while (true)
+    private IEnumerator MoveDoorWaypointsCoroutine(Rigidbody2D enemyTransform)
     {
-        // Move towards the closest waypoint
-        while (Vector2.Distance(enemyTransform.position, closestPoint) > 0.1f)
+        Vector2 closestPoint = FindClosestWayPoint(enemyTransform, out _);
+        Vector2[] path = bfs.PathToTheFirst(closestPoint);
+        Debug.Log("The path will be " + Utils.Functions.Vector2ArrayToString(path));
+
+        foreach (Vector2 v in path)
         {
-            Vector2 newPos = Vector2.MoveTowards(enemyTransform.position, closestPoint, patrolSpeed * Time.fixedDeltaTime);
-            enemyTransform.MovePosition(newPos);
-            yield return new WaitForFixedUpdate();
+            while (Vector2.Distance(enemyTransform.position, v) > 0.1f)
+            {
+                Vector2 newPos = Vector2.MoveTowards(enemyTransform.position, v, patrolSpeed * Time.fixedDeltaTime);
+                enemyTransform.MovePosition(newPos);
+                yield return new WaitForFixedUpdate();
+            }
         }
 
-        Debug.Log("PATROL Return moving to coordinates: " + closestPoint);
-
-        // If we've reached the first waypoint, exit the loop
-        if (closestPoint == doorWayPoint[0])
-            break;
-
-        // Find the next closest point in the path exluding the current point
-        closestPoint = kdTree.FindNearest(enemyTransform.position, closestPointIndex, out closestPointIndex);
+        Debug.Log("Finished moving through door waypoints.");
+        busy = false;
+        needsRepositioning = false;  // Mark that we already transitioned through the door.
     }
-
-    Debug.Log("Finished moving through door waypoints.");
-    busy = false;
-    needsRepositioning = false;  // Mark that we already transitioned through the door.
-}
 
 
     public void CustomSetter<T>(T var)

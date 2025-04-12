@@ -6,6 +6,7 @@ TagManager:
   tags:
   - WeaponManager
   - PlayerTag
+  - GlobalWaypoints
   layers:
   - Default
   - TransparentFX

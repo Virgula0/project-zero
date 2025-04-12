@@ -41,9 +41,11 @@ public class KdTree
     }
 
     private Node root;
+    private Vector2[] points;
 
     public KdTree(Vector2[] points)
-    {
+    {   
+        this.points = points; 
         // Build an array of IndexedPoint to track the original index.
         IndexedPoint[] indexedPoints = new IndexedPoint[points.Length];
         for (int i = 0; i < points.Length; i++)
@@ -52,6 +54,10 @@ public class KdTree
         }
         // Build the kd‑tree using the indexed points.
         root = Build(indexedPoints, 0);
+    }
+
+    public Vector2[] GetPoints(){
+        return points;
     }
 
     private Node Build(IndexedPoint[] points, int depth)

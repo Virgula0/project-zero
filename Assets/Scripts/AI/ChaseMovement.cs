@@ -8,16 +8,13 @@ public class ChaseMovement : MonoBehaviour, IMovement
     private float chaseSpeed;
     private float stoppingDistance = 5f;
     private Rigidbody2D playerBody;
-    // door waypoints is a vector containing the coordinates of doors or obstacles (manually defined in the editor) 
-    // in order to surpass them when chasing the player
-    // if the player is on the other side of one of doorPoints within the vector we use that waypoint which indicates the exit 
-    // from the room
-    // We have the playerObject reference so we know its position easly.
-    private PlayerDetector playerDetector;
+    private Detector playerDetector;
     private KdTree kdTree;
+    private BFSPathfinder bfs;
+    private Vector2 enemyLatestPosition;
     private bool busy = false;
 
-    public IMovement New(GameObject player, PlayerDetector detector, float chaseSpeed, float stoppingDistance, Vector2[] doorWayPoints)
+    public IMovement New(GameObject player, Detector detector, KdTree tree, BFSPathfinder bfs, float chaseSpeed, float stoppingDistance)
     {
         if (player == null || chaseSpeed < 1)
             throw new ArgumentException("Invalid argument passed to chase movement");
@@ -26,7 +23,8 @@ public class ChaseMovement : MonoBehaviour, IMovement
         this.playerBody = player.GetComponent<Rigidbody2D>();
         this.chaseSpeed = chaseSpeed;
         this.stoppingDistance = stoppingDistance;
-        kdTree = new KdTree(doorWayPoints);
+        this.kdTree = tree;
+        this.bfs = bfs;
         return this;
     }
 
@@ -38,12 +36,32 @@ public class ChaseMovement : MonoBehaviour, IMovement
         enemyRB.MovePosition(newPos);
     }
 
-    private IEnumerator MoveDoorWaypointsCoroutine(Rigidbody2D enemyTransform, Vector2 pointToReach)
+    private IEnumerator MoveDoorWaypointsCoroutine(Rigidbody2D enemyTransform, Vector2 startPoint)
     {
-        while (Vector2.Distance(enemyTransform.position, pointToReach) > 0.1f)
+        // TODO: this FindNearest needs improvement
+        // in fact FindNearest is ok but not if there are walls in the between
+        // find nearest among points not behind walls or objects
+        // until this imprvement the best way is to comment out the // This is checks if the player is closer enough. strategy
+        Vector2 playerBestWaypoint = kdTree.FindNearest(playerBody.position, out _); 
+        Vector2[] path = bfs.PathToPoint(startPoint, playerBestWaypoint);
+        foreach (Vector2 v in path)
         {
-            MoveTowardsTarget(enemyTransform, pointToReach);
-            yield return new WaitForFixedUpdate();
+            while (Vector2.Distance(enemyTransform.position, v) > 0.1f)
+            {
+                // This is checks if the player is closer enough. If yes we can ignore to follow the path and resume the chasing normally
+                // One strategy can be: if enemy is closer to the player respect to its current waypoint and player is not behind a wall we break
+                // this needs more tests
+                /*
+                if (Vector2.Distance(enemyTransform.position, playerBody.position) <= Vector2.Distance(enemyTransform.position, v)
+                    && !playerDetector.GetIsPlayerHiddenByObstacle())
+                {
+                    busy = false;
+                    yield return null;
+                }
+                */
+                MoveTowardsTarget(enemyTransform, v);
+                yield return new WaitForFixedUpdate();
+            }
         }
         busy = false;
         Debug.Log("Enemy finished to move to the gadget");
@@ -57,15 +75,9 @@ public class ChaseMovement : MonoBehaviour, IMovement
         }
 
         Vector2 enemyWaypoint = kdTree.FindNearest(enemyPos, out _);
-        //Vector2 playerWaypoint = kdTree.FindNearest(playerBody.position, out _);
-
-        // if enemy is closer to its waypoint return the enemy waypoint otherwise the player one
-        //return Vector2.Distance(enemyPos, enemyWaypoint) < Vector2.Distance(enemyPos, playerWaypoint) ? enemyWaypoint  : playerWaypoint;
 
         return enemyWaypoint;
     }
-
-    private Vector2 enemyLatestPosition;
 
     public void Move(Rigidbody2D enemyRB)
     {
@@ -76,9 +88,9 @@ public class ChaseMovement : MonoBehaviour, IMovement
 
         Vector2 enemyPos = enemyRB.position;
         float distanceToPlayer = Vector2.Distance(enemyPos, playerBody.position);
-        
-        // if we're too close to the player we do not move, we can return
-        if (distanceToPlayer <= stoppingDistance)
+
+        // if we're too close to the player we do not move, but checking that he is not hidden, we can return
+        if (distanceToPlayer <= stoppingDistance && !playerDetector.GetIsPlayerHiddenByObstacle())
         {
             enemyRB.linearVelocity = Vector2.zero;
             return;
@@ -86,7 +98,7 @@ public class ChaseMovement : MonoBehaviour, IMovement
 
         // Retrieve player detected positions only once
         // Use door waypoint if available (helpful when enemy is stuck on a wall)
-        if (playerDetector.GetIsPlayerHiddenByObstacle() || 
+        if (playerDetector.GetIsPlayerHiddenByObstacle() ||
             Vector2.Distance(enemyPos, enemyLatestPosition) < 0.1f) // if the latest position is too small we may want to find an exit through a waypoint
         {
             Vector2? bestWaypoint = FindClosestWayPoint(enemyPos);

@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-public class PlayerDetector : MonoBehaviour
+public class Detector : MonoBehaviour
 {
     [Header("Circle Cast Settings")]
     [SerializeField] private float circleRadius = 8f;          // The radius of the circle used for the cast
@@ -16,22 +14,20 @@ public class PlayerDetector : MonoBehaviour
     private float alertedEnemySeconds = 5f; // Seconds in which the enemy will remain in alert status after player detection
 
     private Rigidbody2D body;
-    private Rigidbody2D playerBody;
-    private bool playerHiddenByObstacle = false;
+    private bool playerWasHiddenByObstacle = false;
 
     void Start()
     {
         this.body = transform.parent.GetComponentInChildren<Rigidbody2D>();
-        this.playerBody = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponent<Rigidbody2D>();
     }
 
     void FixedUpdate()
     {
-        // After 2 seconds without detection, reset the alert status
+        // After N seconds without detection, reset the alert status
         if (elapsedLatestDetectionOfPlayerInSeconds > alertedEnemySeconds)
         {
             isEnemyAwareOfPlayer = false;
-            playerHiddenByObstacle = false;
+            playerWasHiddenByObstacle = false;
         }
 
         // Check for all colliders within the detection circle
@@ -59,12 +55,12 @@ public class PlayerDetector : MonoBehaviour
                 {
                     case not null:
                         Debug.Log("Player is hidden by an obstacle: " + sightHit.collider.gameObject.name);
-                        playerHiddenByObstacle = true;
+                        playerWasHiddenByObstacle = true;
                         break;
                     default:
                         Debug.Log("OBJECT DETECTED BY ENEMY: " + hitCollider.gameObject.name);
                         isEnemyAwareOfPlayer = true;
-                        playerHiddenByObstacle = false;
+                        playerWasHiddenByObstacle = false;
                         elapsedLatestDetectionOfPlayerInSeconds = 0f;
                         detectedPlayer = true;
                         break;
@@ -85,7 +81,7 @@ public class PlayerDetector : MonoBehaviour
     }
 
     public bool GetIsPlayerHiddenByObstacle(){
-        return playerHiddenByObstacle;
+        return playerWasHiddenByObstacle;
     }
 
     // Visualize the detection circle and line of sight in the Scene view.
