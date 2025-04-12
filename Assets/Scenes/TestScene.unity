@@ -148,6 +148,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 796cd19b4f8d00942a7006a6b8c1cf93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  globalWaypoints:
+  - {x: -40.83, y: -18.99}
 --- !u!4 &149197036
 Transform:
   m_ObjectHideFlags: 0
