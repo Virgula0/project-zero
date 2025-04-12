@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GlobalWaypoints : MonoBehaviour
@@ -11,11 +12,37 @@ public class GlobalWaypoints : MonoBehaviour
 
     [SerializeField] private Vector2[] globalWaypoints;
 
-    public Vector2[] GetGlobalWaypoints(){
-        return globalWaypoints;
+    private Dictionary<int, int> globalWaypointsRemapped; // remapping with high indexes so they won't collide with real indexes of enemies graphs
+
+    private int baseCounter = 100000; // starting from 100000
+    void Awake()
+    {
+         this.globalWaypointsRemapped = GenerateMapping();
     }
 
-        // Debugging purposes you can ignore this
+    private Dictionary<int, int> GenerateMapping()
+    {
+        Dictionary<int, int> mapping = new Dictionary<int, int>();
+        
+        // Loop over each element in the waypoints array.
+        for (int i = 0; i < globalWaypoints.Length; i++)
+        {
+            int generatedValue = baseCounter++;
+            mapping.Add(generatedValue, i);
+        }
+
+        return mapping;
+    }
+
+    public Dictionary<int, int> GetGlobalWaypointsRemapped(){
+        return globalWaypointsRemapped;
+    }
+
+    public Vector2 GetElementFromRemappedIndex(int remappedIndex){
+        return globalWaypoints[globalWaypointsRemapped.GetValueOrDefault(remappedIndex, -1)];
+    }
+
+    // Debugging purposes you can ignore this
     private void OnDrawGizmos()
     {
         if (transform.position == null)

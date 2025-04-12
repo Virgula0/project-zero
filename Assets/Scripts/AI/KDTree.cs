@@ -21,6 +21,26 @@ public class KdTree
         }
     }
 
+    public void UpdateVectorSet(Vector2 newPoint)
+    {
+        // Create a new array with one extra slot
+        Vector2[] newPoints = new Vector2[points.Length + 1];
+        Array.Copy(points, newPoints, points.Length);
+        newPoints[points.Length] = newPoint;
+
+        // Update internal point list
+        points = newPoints;
+
+        // Rebuild the tree with the updated point set
+        IndexedPoint[] indexedPoints = new IndexedPoint[points.Length];
+        for (int i = 0; i < points.Length; i++)
+        {
+            indexedPoints[i] = new IndexedPoint(points[i], i);
+        }
+
+        root = Build(indexedPoints, 0);
+    }
+
     // Internal tree node definition.
     private class Node
     {
@@ -44,8 +64,8 @@ public class KdTree
     private Vector2[] points;
 
     public KdTree(Vector2[] points)
-    {   
-        this.points = points; 
+    {
+        this.points = points;
         // Build an array of IndexedPoint to track the original index.
         IndexedPoint[] indexedPoints = new IndexedPoint[points.Length];
         for (int i = 0; i < points.Length; i++)
@@ -56,7 +76,8 @@ public class KdTree
         root = Build(indexedPoints, 0);
     }
 
-    public Vector2[] GetPoints(){
+    public Vector2[] GetPoints()
+    {
         return points;
     }
 

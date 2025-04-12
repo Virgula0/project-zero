@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using NUnit.Framework;
 using UnityEngine;
 
 public class AI : MonoBehaviour
@@ -30,9 +31,9 @@ public class AI : MonoBehaviour
     {
         this.chaseSpeed = patrolSpeed * 3;
         this.body = transform.parent.GetComponentInChildren<Rigidbody2D>();
-        this.treeStructure = new KdTree(exitWaypoints);
         player = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
         playerDetector = gameObject.GetComponent<Detector>();
+        this.treeStructure = new KdTree(exitWaypoints);
 
         // This structure defines connections between exitWaypoints 
         // WARNING! The same namber of exitWaypoints and the SAME EXACT CONNECTIONS MUST BE USED ALSO FOR OTHER ENEMIES WICH RESIDES
@@ -43,6 +44,8 @@ public class AI : MonoBehaviour
         // TODO: at the moment a new script GoonAI must be created for each enemy GoonAI of different rooms to redefine this structure.
         // Of course I need to serialize this in a common file and take them dinamically through a serialize field integer which 
         // indicates the specific map to get for example. 
+
+        // indexes correspond to indexes of Vector2[] instances
         Dictionary<int, List<int>> connections = new Dictionary<int, List<int>>
         {
             { 0, new List<int> { 1 } },
@@ -58,12 +61,19 @@ public class AI : MonoBehaviour
             { 10, new List<int> { 1, 2 } },
         };
         
-        Vector2[] globalWaypoints = GameObject.FindGameObjectWithTag(Utils.Const.GLOBAL_WAYPOINTS_TAG).GetComponent<GlobalWaypoints>().GetGlobalWaypoints();
-        // connect each global waypoint to the last element of connections
-        
-        for (int i = 0; i < globalWaypoints.Length; i++) {
-            
+        GlobalWaypoints glob = GameObject.FindGameObjectWithTag(Utils.Const.GLOBAL_WAYPOINTS_TAG).GetComponent<GlobalWaypoints>();
+        Dictionary<int,int> dict = glob.GetGlobalWaypointsRemapped();
+        // connect each global waypoint to the nearest element of our current Vector2[] set
+        foreach (var item in dict){
+            Vector2 elemToLink = glob.GetElementFromRemappedIndex(item.Key);
+            Vector2 _ = treeStructure.FindNearest(elemToLink, out int index);
+            this.exitWaypoints = Utils.Functions.AddToVector2Array(this.exitWaypoints, elemToLink, out int addedIndex); // ad to current Vector2 set
+            connections.Add(addedIndex, new List<int> { index }); // add the element actually in the connection graph
+            connections[index].Add(addedIndex); // add connection to existing node in connection graph
+            treeStructure.UpdateVectorSet(elemToLink); // update the treeStructure
         }
+
+        // Utils.Functions.PrintDictionary(connections);
 
         // Define connections and build the connection graph
         this.bfs = new BFSPathfinder(exitWaypoints, connections);
@@ -84,6 +94,10 @@ public class AI : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (currentMovement == null){
+            return;
+        }
+
         if (!playerDetector.GetIsEnemyAwareOfPlayer())
         {
             // Debug.Log("Enemy is not alerted anymore");
