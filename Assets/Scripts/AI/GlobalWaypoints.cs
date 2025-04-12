@@ -9,7 +9,6 @@ public class GlobalWaypoints : MonoBehaviour
     * and they're useful for an enemy to find the path to they're rooms
     * The data vector is merged with each enemy waypointVector before to define structure and BFS searches...
     */
-
     [SerializeField] private Vector2[] globalWaypoints;
 
     private Dictionary<int, int> globalWaypointsRemapped; // remapping with high indexes so they won't collide with real indexes of enemies graphs
