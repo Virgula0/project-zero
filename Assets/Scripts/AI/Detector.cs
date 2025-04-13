@@ -54,11 +54,11 @@ public class Detector : MonoBehaviour
                 switch (sightHit.collider)
                 {
                     case not null:
-                        Debug.Log("Player is hidden by an obstacle: " + sightHit.collider.gameObject.name);
+                        // Debug.Log("Player is hidden by an obstacle: " + sightHit.collider.gameObject.name);
                         playerWasHiddenByObstacle = true;
                         break;
                     default:
-                        Debug.Log("OBJECT DETECTED BY ENEMY: " + hitCollider.gameObject.name);
+                        // Debug.Log("OBJECT DETECTED BY ENEMY: " + hitCollider.gameObject.name);
                         isEnemyAwareOfPlayer = true;
                         playerWasHiddenByObstacle = false;
                         elapsedLatestDetectionOfPlayerInSeconds = 0f;

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using NUnit.Framework;
 using UnityEngine;
 
 public class AI : MonoBehaviour
@@ -29,18 +28,19 @@ public class AI : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        this.chaseSpeed = patrolSpeed * 3;
+        this.chaseSpeed = patrolSpeed * 3 + chaseSpeed;
         this.body = transform.parent.GetComponentInChildren<Rigidbody2D>();
         player = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
         playerDetector = gameObject.GetComponent<Detector>();
         this.treeStructure = new KdTree(exitWaypoints);
 
-        Dictionary<int, List<int>> connections = Utils.Level1.Scene1.GOON_1_CONNECTIONS;
-        
+        Dictionary<int, List<int>> connections = Utils.Functions.GenerateConnections(exitWaypoints);
+
         GlobalWaypoints glob = GameObject.FindGameObjectWithTag(Utils.Const.GLOBAL_WAYPOINTS_TAG).GetComponent<GlobalWaypoints>();
-        Dictionary<int,int> dict = glob.GetGlobalWaypointsRemapped();
+        Dictionary<int, int> dict = glob.GetGlobalWaypointsRemapped();
         // connect each global waypoint to the nearest element of our current Vector2[] set
-        foreach (var item in dict){
+        foreach (var item in dict)
+        {
             Vector2 elemToLink = glob.GetElementFromRemappedIndex(item.Key);
             Vector2 _ = treeStructure.FindNearest(elemToLink, out int index);
             this.exitWaypoints = Utils.Functions.AddToVector2Array(this.exitWaypoints, elemToLink, out int addedIndex); // ad to current Vector2 set
@@ -49,8 +49,8 @@ public class AI : MonoBehaviour
             treeStructure.UpdateVectorSet(elemToLink); // update the treeStructure
         }
 
+        //Debug.Log(Utils.Functions.Vector2ArrayToString(exitWaypoints));
         // Utils.Functions.PrintDictionary(connections);
-
         // Define connections and build the connection graph
         this.bfs = new BFSPathfinder(exitWaypoints, connections);
 
@@ -68,9 +68,15 @@ public class AI : MonoBehaviour
         weaponManager = gameObject.transform.parent.GetComponentInChildren<EnemyWeaponManager>();
     }
 
+    private Dictionary<int, List<int>> AddGlobalWaypointsToObject(Dictionary<int, List<int>> connections)
+    {
+        return connections;
+    }
+
     void FixedUpdate()
     {
-        if (currentMovement == null){
+        if (currentMovement == null)
+        {
             return;
         }
 
@@ -95,7 +101,7 @@ public class AI : MonoBehaviour
     {
         if (transform.position == null)
             return;
-            
+
         float circleRadius = 0.8f;
         foreach (Vector2 point in patrolWaypoints)
         {

@@ -6,6 +6,7 @@ using UnityEngine;
 // Tree build time: O(n log n)
 // Best search time: O(log n)
 // Worst search: O(n)
+// AVL tree is not naturally suited for multidimensional spatial querier while KDTree is.
 public class KdTree
 {
     // Internal helper to hold a point and its original index.

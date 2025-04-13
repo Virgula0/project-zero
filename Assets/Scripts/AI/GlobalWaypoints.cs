@@ -8,6 +8,8 @@ public class GlobalWaypoints : MonoBehaviour
     * They're used as waypoint from all enemies in the scane to understand "open spaces" which are common spaces between rooms
     * and they're useful for an enemy to find the path to they're rooms
     * The data vector is merged with each enemy waypointVector before to define structure and BFS searches...
+    * THIS CAN BE IMPROVED
+    * GlobalWaypoints could mantain remapped waypoints for all enemies in the scene . Then each enemy gets the full map from the global WayPoints.
     */
     [SerializeField] private Vector2[] globalWaypoints;
 
