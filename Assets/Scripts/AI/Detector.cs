@@ -21,7 +21,7 @@ public class Detector : MonoBehaviour
         this.body = transform.parent.GetComponentInChildren<Rigidbody2D>();
     }
 
-    void FixedUpdate()
+    void Update()
     {
         // After N seconds without detection, reset the alert status
         if (elapsedLatestDetectionOfPlayerInSeconds > alertedEnemySeconds)
@@ -57,7 +57,7 @@ public class Detector : MonoBehaviour
                         // Debug.Log("Player is hidden by an obstacle: " + sightHit.collider.gameObject.name);
                         playerWasHiddenByObstacle = true;
                         break;
-                    default:
+                    case null:
                         // Debug.Log("OBJECT DETECTED BY ENEMY: " + hitCollider.gameObject.name);
                         isEnemyAwareOfPlayer = true;
                         playerWasHiddenByObstacle = false;
@@ -70,7 +70,7 @@ public class Detector : MonoBehaviour
 
         if (!detectedPlayer) // optimization, this may be not needed
         {
-            elapsedLatestDetectionOfPlayerInSeconds += Time.fixedDeltaTime;
+            elapsedLatestDetectionOfPlayerInSeconds += Time.deltaTime;
             return;
         }
     }

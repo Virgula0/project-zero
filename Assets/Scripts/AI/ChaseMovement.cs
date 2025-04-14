@@ -13,6 +13,7 @@ public class ChaseMovement : MonoBehaviour, IMovement
     private BFSPathfinder bfs;
     private Vector2 enemyLatestPosition;
     private bool busy = false;
+    private float additionalSpeedWhenFollowingPath = 1.5f;
 
     public IMovement New(GameObject player, Detector detector, KdTree tree, BFSPathfinder bfs, float chaseSpeed, float stoppingDistance)
     {
@@ -29,10 +30,10 @@ public class ChaseMovement : MonoBehaviour, IMovement
     }
 
     // Helper method to move enemy towards a target position
-    private void MoveTowardsTarget(Rigidbody2D enemyRB, Vector2 targetPosition)
+    private void MoveTowardsTarget(Rigidbody2D enemyRB, Vector2 targetPosition, float additionalSpeed = 1)
     {
         Vector2 enemyPos = enemyRB.position;
-        Vector2 newPos = Vector2.MoveTowards(enemyPos, targetPosition, chaseSpeed * Time.fixedDeltaTime);
+        Vector2 newPos = Vector2.MoveTowards(enemyPos, targetPosition, chaseSpeed * additionalSpeed * Time.fixedDeltaTime);
         enemyRB.MovePosition(newPos);
     }
 
@@ -42,7 +43,7 @@ public class ChaseMovement : MonoBehaviour, IMovement
         // in fact FindNearest is ok but not if there are walls in the between
         // find nearest among points not behind walls or objects
         // until this imprvement the best way is to comment out the // This is checks if the player is closer enough. strategy
-        Vector2 playerBestWaypoint = kdTree.FindNearest(playerBody.position, out _); 
+        Vector2 playerBestWaypoint = kdTree.FindNearest(playerBody.position, out _);
         Vector2[] path = bfs.PathToPoint(startPoint, playerBestWaypoint);
         foreach (Vector2 v in path)
         {
@@ -59,7 +60,13 @@ public class ChaseMovement : MonoBehaviour, IMovement
                     yield return null;
                 }
                 */
-                MoveTowardsTarget(enemyTransform, v);
+
+                if (!playerDetector.GetIsEnemyAwareOfPlayer() && playerDetector.GetIsPlayerHiddenByObstacle()){
+                    busy = false;
+                    yield return null;
+                }
+                
+                MoveTowardsTarget(enemyTransform, v, additionalSpeedWhenFollowingPath);
                 yield return new WaitForFixedUpdate();
             }
         }
@@ -114,7 +121,10 @@ public class ChaseMovement : MonoBehaviour, IMovement
         Debug.Log("Chasing the player normally");
         MoveTowardsTarget(enemyRB, playerBody.position);
     }
-
+    
+    public string ToString(){
+        return "chasing";
+    }
     public void CustomSetter<T>(T var)
     {
         return;

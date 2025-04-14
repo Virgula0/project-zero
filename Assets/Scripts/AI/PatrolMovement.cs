@@ -77,6 +77,12 @@ public class PatrolMovement : MonoBehaviour, IMovement
         {
             while (Vector2.Distance(enemyTransform.position, v) > 0.1f)
             {
+                /*
+                if (playerDetector.GetIsEnemyAwareOfPlayer()){
+                    yield return null;
+                }
+                */
+
                 Vector2 newPos = Vector2.MoveTowards(enemyTransform.position, v, patrolSpeed * Time.fixedDeltaTime);
                 enemyTransform.MovePosition(newPos);
                 yield return new WaitForFixedUpdate();
@@ -88,6 +94,9 @@ public class PatrolMovement : MonoBehaviour, IMovement
         needsRepositioning = false;  // Mark that we already transitioned through the door.
     }
 
+    public string ToString(){
+        return "patrolling";
+    }
 
     public void CustomSetter<T>(T var)
     {

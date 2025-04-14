@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.IO;
 using System.Collections.Generic;
+using System.Linq;
 
 public class DirectorySceneLoader : MonoBehaviour
 {
@@ -52,7 +53,8 @@ public class DirectorySceneLoader : MonoBehaviour
             allScenesLoaded = true;
             foreach (var op in sceneList)
             {
-                script.UpdateLoadingProgress(op.progress);
+                float totalProgress = sceneList.Average(op => op.progress);
+                script.UpdateLoadingProgress(Mathf.Clamp01(totalProgress / 0.9f));
 
                 if (op.progress < 0.9f)
                 {
