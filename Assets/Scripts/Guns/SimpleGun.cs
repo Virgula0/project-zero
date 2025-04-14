@@ -7,15 +7,20 @@ public class SimpleGun : MonoBehaviour, IGun
     private readonly int magCap = 10;
     private int numberOfReloads = 5; // total bullets available can be seen as numberOfReloads*magCap
     private int ammoCount;
+
     [SerializeField] private Sprite equippedSprite;
     [SerializeField] private GameObject bulletPrefab;
-
+    [SerializeField] private Sprite bulletSprite;
+    [SerializeField] private AudioClip shotSound;
+    [SerializeField] private AudioClip reloadSound;
+    [SerializeField] private AudioClip equipSound;
     private GameObject shooterObject;
 
     public void Setup(GameObject player)
     {
         this.ammoCount = this.magCap;
         shooterObject = player;
+        
     }
 
     void Start()
@@ -29,6 +34,8 @@ public class SimpleGun : MonoBehaviour, IGun
         {
             throw new NullReferenceException("BULLET PREFAB FOR WEAPON " + this.ToString() + " IS NULL");
         }
+
+        bulletPrefab.GetComponentInChildren<SpriteRenderer>().sprite = bulletSprite;
     }
 
     public void Shoot()
@@ -82,5 +89,18 @@ public class SimpleGun : MonoBehaviour, IGun
     {
         // this method returns the sprite of grounded weapon so that it can be used as an icon in the ui.
         return this.gameObject.GetComponentsInChildren<SpriteRenderer>()[1].sprite;
+    }
+
+    public AudioClip GetShotSfx(){
+        return this.shotSound;
+    }
+
+    public AudioClip GetReloadSfx(){
+        return this.reloadSound;
+    }
+
+    public AudioClip GetEquipSfx()
+    {
+        return this.equipSound;
     }
 }
