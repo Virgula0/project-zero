@@ -6,19 +6,10 @@ public class PlayerScript : MonoBehaviour
     private Rigidbody2D playerRb;
     private Vector2 moveDirection;
     private SpriteRenderer playerSprite;
-    private bool canDash;
+    
     private Vector2 lastMoveDirection = Vector2.right; // Default direction
-    private bool isDashing = false;
-    private float dashTimer = 0f;
-    private float dashCooldownTimer = 0;
-    private Vector2 dashDirection;
-    private AudioSource audioSrc;
-
-    [SerializeField] float startDashTime = 0.07f;
-    [SerializeField] float dashSpeed = 50f;
-    [SerializeField] float dashCooldown = 3f;
-    [SerializeField] AudioClip dashSound;
-    [SerializeField] AudioClip dashCooldownAlert;
+    private AudioSource audioSrc; //it may be of use in the future
+    private DashScript dash;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -27,31 +18,12 @@ public class PlayerScript : MonoBehaviour
         //add something later
         playerSprite = GetComponentInChildren<SpriteRenderer>();
         playerRb = gameObject.GetComponent<Rigidbody2D>();
-        this.canDash = true;
-        this.audioSrc = GetComponent<AudioSource>();
+        this.dash = gameObject.GetComponent<DashScript>();
     }
 
     void Update(){
-        if (!isDashing && canDash && Input.GetKeyDown(KeyCode.Space)){
-            ProcessInputs(); //get dash direction
-            if (moveDirection == Vector2.zero){ //if the direction is 0 use the last non 0 direction
-                dashDirection = lastMoveDirection;
-            }else{
-                dashDirection = moveDirection;
-            }
-
-            isDashing = true;
-            dashTimer = startDashTime;
-            canDash = false;
-        }
-
-        if (!canDash){
-            dashCooldownTimer += Time.deltaTime;
-            if (dashCooldownTimer > dashCooldown){
-                canDash = true;
-                dashCooldownTimer = 0f;
-                audioSrc.PlayOneShot(dashCooldownAlert);
-            }
+        if(Input.GetKeyDown(KeyCode.Space)){
+            dash.StartDash();
         }
     }
 
@@ -59,29 +31,12 @@ public class PlayerScript : MonoBehaviour
     {
         //best suited for physics operations, using along with interpolation as interpolate
         LookAt();
-        if (isDashing)
-        {
-            DashMovement();
-            return; //skip normal movement during dash
+        dash.DashMovement();
+        if(dash.IsDashing()){
+            return;
         }
-
         ProcessInputs();
         Movement();
-    }
-
-    private void DashMovement()
-    {
-        if (dashTimer > 0)
-        {
-            dashTimer -= Time.fixedDeltaTime;
-            playerRb.linearVelocity = dashDirection * dashSpeed;
-        }
-        else
-        {
-            audioSrc.PlayOneShot(dashSound);
-            isDashing = false;
-            playerRb.linearVelocity = Vector2.zero; //stop dashing
-        }
     }
 
     private void ProcessInputs(){
@@ -126,5 +81,21 @@ public class PlayerScript : MonoBehaviour
         // Apply rotation (z-axis in 2D)
         float rotationSpeed = 10f;
         transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0f, 0f, angle), Time.fixedDeltaTime * rotationSpeed);
+    }
+
+    public Vector2 GetDirection(){
+        if(moveDirection == Vector2.zero){
+            return lastMoveDirection;
+        }else{
+            return moveDirection;
+        }
+    }
+
+    public Vector2 GetLinearVelocity(){
+        return playerRb.linearVelocity;
+    }
+
+    public void SetLinearVelocity(Vector2 newLinearVecolity){
+        playerRb.linearVelocity = newLinearVecolity;
     }
 }

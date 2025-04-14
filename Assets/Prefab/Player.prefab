@@ -77,7 +77,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 900
-  playerRb: {fileID: 8302184713731113973}
   startDashTime: 0.1
   dashSpeed: 50
   dashCooldown: 3
