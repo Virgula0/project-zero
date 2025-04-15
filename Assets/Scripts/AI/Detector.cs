@@ -21,8 +21,18 @@ public class Detector : MonoBehaviour
         this.body = transform.parent.GetComponentInChildren<Rigidbody2D>();
     }
 
-    public LayerMask GetObstacleLayers(){
+    public LayerMask GetObstacleLayers()
+    {
         return obstacleLayer;
+    }
+
+    private bool PlayerDetected()
+    {
+        isEnemyAwareOfPlayer = true;
+        playerWasHiddenByObstacle = false;
+        elapsedLatestDetectionOfPlayerInSeconds = 0f;
+
+        return true;
     }
 
     void Update()
@@ -63,12 +73,17 @@ public class Detector : MonoBehaviour
                         break;
                     case null:
                         // Debug.Log("OBJECT DETECTED BY ENEMY: " + hitCollider.gameObject.name);
-                        isEnemyAwareOfPlayer = true;
-                        playerWasHiddenByObstacle = false;
-                        elapsedLatestDetectionOfPlayerInSeconds = 0f;
-                        detectedPlayer = true;
+                        detectedPlayer = PlayerDetected();
                         break;
                 }
+                return;
+            }
+
+            if (hitCollider.gameObject.layer == (int)Utils.Enums.ObjectLayers.BulletByPlayer)
+            {
+                // Debug.Log("Enemy detected bullet by player");
+                detectedPlayer = PlayerDetected();
+                return;
             }
         }
 
@@ -84,7 +99,8 @@ public class Detector : MonoBehaviour
         return isEnemyAwareOfPlayer;
     }
 
-    public bool GetIsPlayerHiddenByObstacle(){
+    public bool GetIsPlayerHiddenByObstacle()
+    {
         return playerWasHiddenByObstacle;
     }
 
@@ -94,13 +110,13 @@ public class Detector : MonoBehaviour
     {
         if (transform.position == null)
             return;
-        
+
         Gizmos.color = Color.red;
 
         if (body != null)
             // Draw detection circle
             Gizmos.DrawWireSphere(body.position, circleRadius);
-        else 
+        else
             Gizmos.DrawWireSphere(transform.position, circleRadius);
 
         // Draw line of sight if player is detected

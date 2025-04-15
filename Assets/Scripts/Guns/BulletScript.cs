@@ -14,6 +14,7 @@ public class SingleBulletScript : MonoBehaviour
     {
         if (player.layer == (int)Utils.Enums.ObjectLayers.Player)
         {
+            gameObject.layer = (int)Utils.Enums.ObjectLayers.BulletByPlayer; // set a layer to be detected by enemies but we need to do this because it will detect only if it's by the player
             isPlayer = true;
         }
     }

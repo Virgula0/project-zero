@@ -20,6 +20,7 @@ namespace Utils
             Player = 3,
             Wall = 6,
             Enemy = 7,
+            BulletByPlayer = 8,
         }
     }
 

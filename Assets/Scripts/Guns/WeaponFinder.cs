@@ -22,6 +22,7 @@ public class WeaponFinder : MonoBehaviour
         }
 
         Debug.Log("Collision detected with: " + collision.gameObject.name);
+        
         switch (collision.gameObject.layer)
         {
             case (int)Utils.Enums.ObjectLayers.Player:

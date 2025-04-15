@@ -81,7 +81,7 @@ MonoBehaviour:
   circleRadius: 15
   physicalLayer:
     serializedVersion: 2
-    m_Bits: 136
+    m_Bits: 392
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 64
