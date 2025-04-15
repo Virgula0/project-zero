@@ -10,14 +10,12 @@ public class PatrolMovement : MonoBehaviour, IMovement
     private float patrolSpeed;
     private bool busy = false;
     private bool needsRepositioning = false;
-    private Rigidbody2D playerBody;
     private Detector playerDetector;
     private KdTree kdTree;
     private BFSPathfinder bfs;
 
-    public PatrolMovement New(Vector2[] waypoints, Detector playerDetector, GameObject player, KdTree kdTree, BFSPathfinder bfs, float speed)
+    public PatrolMovement New(Vector2[] waypoints, Detector playerDetector, KdTree kdTree, BFSPathfinder bfs, float speed)
     {
-        this.playerBody = player.GetComponent<Rigidbody2D>();
         this.waypoints = waypoints;
         patrolSpeed = speed;
         currentWaypoint = 0;

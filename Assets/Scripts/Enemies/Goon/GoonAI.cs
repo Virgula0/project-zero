@@ -99,7 +99,7 @@ public class AI : MonoBehaviour, IEnemy
         // and we can't even initialize a new object in unity if it inherits MonoBehaviour
         // this is a little bit shit and I need to do this trick if i want to add manually the script as component 
         // within the game object logic
-        patrolMovement = gameObject.AddComponent<PatrolMovement>().New(patrolWaypoints, playerDetector, player, treeStructure, bfs, patrolSpeed);
+        patrolMovement = gameObject.AddComponent<PatrolMovement>().New(patrolWaypoints, playerDetector, treeStructure, bfs, patrolSpeed);
 
         // instantiate normally
         chaseMovement = gameObject.AddComponent<ChaseMovement>().New(player, playerDetector, treeStructure, bfs, chaseSpeed, stoppingDistance);
