@@ -29,7 +29,8 @@ public class SingleBulletScript : MonoBehaviour
             // Calculate initial direction towards mouse position
             Vector2 mousePosition = playerCamera.ScreenToWorldPoint(Input.mousePosition);
             moveDirection = (mousePosition - (Vector2)transform.position).normalized;
-            transform.right = moveDirection;
+            //transform.right = moveDirection;
+            gameObject.GetComponent<Rigidbody2D>().transform.right = moveDirection;
             return;
         }
 
@@ -37,7 +38,7 @@ public class SingleBulletScript : MonoBehaviour
         // otherwise move direction is calculated around the player position
         GameObject pp = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
         moveDirection = ((Vector2)pp.transform.position - (Vector2)transform.position).normalized;
-        transform.right = moveDirection;
+        gameObject.GetComponent<Rigidbody2D>().transform.right = moveDirection;
     }
 
     void FixedUpdate()
