@@ -6,9 +6,11 @@ public class SimpleGun : MonoBehaviour, IGun
     private readonly float fireRate = 0.5f; // in seconds, 0.5 seconds between each shot
     private readonly int magCap = 10;
     private int numberOfReloads = 5; // total bullets available can be seen as numberOfReloads*magCap
-    private int ammoCount;
+    private int ammoCount;  
+    private Sprite equippedSprite;
+    private BoxCollider2D equippedCollider;
 
-    [SerializeField] private Sprite equippedSprite;
+   // [SerializeField] private Sprite equippedSprite;
     [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private Sprite bulletSprite;
     [SerializeField] private AudioClip shotSound;
@@ -21,6 +23,12 @@ public class SimpleGun : MonoBehaviour, IGun
         this.ammoCount = this.magCap;
         shooterObject = player;
         
+    }
+
+    void Awake()
+    {
+        this.equippedSprite = transform.Find("EquippedSprite").GetComponent<SpriteRenderer>().sprite;
+        this.equippedCollider = transform.Find("EquippedSprite").GetComponent<BoxCollider2D>();
     }
 
     void Start()
@@ -83,6 +91,10 @@ public class SimpleGun : MonoBehaviour, IGun
     public Sprite GetEquippedSprite()
     {
         return this.equippedSprite;
+    }
+
+    public BoxCollider2D GetEquippedCollider(){
+        return gameObject.GetComponentInChildren<BoxCollider2D>();
     }
 
     public Sprite GetStaticWeaponSprite()

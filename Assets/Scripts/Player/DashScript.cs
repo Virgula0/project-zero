@@ -26,7 +26,7 @@ public class DashScript : MonoBehaviour
 
     public void StartDash(){
         if (!isDashing && canDash){
-            SetDashDirection(playerSc.GetDirection());
+            dashDirection = playerSc.GetDirection();
 
             isDashing = true;
             dashTimer = startDashTime;
@@ -45,28 +45,20 @@ public class DashScript : MonoBehaviour
             }
         }
         if(isDashing){
-            Debug.Log("PlayerVelocity: " + playerSc.GetLinearVelocity());
             if (dashTimer > 0)
             {
                 dashTimer -= Time.fixedDeltaTime;
-                playerSc.SetLinearVelocity(dashDirection * dashSpeed);
-                Debug.Log("PlayerVelocity2: " + playerSc.GetLinearVelocity());
+                playerRb.linearVelocity = dashDirection * dashSpeed;
             }
             else
             {   
-                Debug.Log("Second If, second branch");
                 audioSrc.PlayOneShot(dashSound);
                 isDashing = false;
                 playerRb.linearVelocity = Vector2.zero; //stop dashing
             }
         }
     }
-
-    public void SetDashDirection(Vector2 direction)
-    {
-        this.dashDirection = direction;
-    }
-
+    
     public bool IsDashing(){
         return isDashing;
     }

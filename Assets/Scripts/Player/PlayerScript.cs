@@ -83,19 +83,11 @@ public class PlayerScript : MonoBehaviour
         transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0f, 0f, angle), Time.fixedDeltaTime * rotationSpeed);
     }
 
-    public Vector2 GetDirection(){
+    public Vector2 GetDirection(){ //used by DashScript for getting direction
         if(moveDirection == Vector2.zero){
             return lastMoveDirection;
         }else{
             return moveDirection;
         }
-    }
-
-    public Vector2 GetLinearVelocity(){
-        return playerRb.linearVelocity;
-    }
-
-    public void SetLinearVelocity(Vector2 newLinearVecolity){
-        playerRb.linearVelocity = newLinearVecolity;
     }
 }

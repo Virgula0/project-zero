@@ -13,6 +13,7 @@ public interface IGun
     int GetMegCap();
     float GetFireRate();
     Sprite GetEquippedSprite();
+    BoxCollider2D GetEquippedCollider();
     Sprite GetStaticWeaponSprite();
     AudioClip GetShotSfx();
     AudioClip GetReloadSfx();

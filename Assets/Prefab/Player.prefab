@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 5662470950873588059}
   - component: {fileID: 6953489902866986344}
   - component: {fileID: 6756813065876353688}
+  - component: {fileID: 3383794811861255241}
   m_Layer: 3
   m_Name: Player
   m_TagString: PlayerTag
@@ -77,11 +78,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 900
-  startDashTime: 0.1
-  dashSpeed: 50
-  dashCooldown: 3
-  dashSound: {fileID: 8300000, guid: 0fb17726906928b43b12a7c64706dd90, type: 3}
-  dashCooldownAlert: {fileID: 8300000, guid: a8cbcabb8f0968242aa9ffe6e4cb8416, type: 3}
 --- !u!61 &6953489902866986344
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -225,6 +221,23 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &3383794811861255241
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 637570073800689327}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e47c70f7a08c5a043b6f29f469214794, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startDashTime: 0.07
+  dashSpeed: 50
+  dashSound: {fileID: 8300000, guid: 0fb17726906928b43b12a7c64706dd90, type: 3}
+  dashCooldown: 1
+  dashCooldownAlert: {fileID: 8300000, guid: a8cbcabb8f0968242aa9ffe6e4cb8416, type: 3}
 --- !u!1 &2089441036673348674
 GameObject:
   m_ObjectHideFlags: 0

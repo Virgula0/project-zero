@@ -762,11 +762,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1931362771 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 637570073800689327, guid: aba9230473b29874c86dcef7d2d169ed, type: 3}
-  m_PrefabInstance: {fileID: 1892764902353030255}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2009130304
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -824,11 +819,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 71b6dbee4d80f424cbeecc56a58ed163, type: 3}
---- !u!82 &2104114828 stripped
-AudioSource:
-  m_CorrespondingSourceObject: {fileID: 6518969331765319709, guid: aba9230473b29874c86dcef7d2d169ed, type: 3}
-  m_PrefabInstance: {fileID: 1892764902353030255}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &107286626700169364
 GameObject:
   m_ObjectHideFlags: 0
@@ -1252,10 +1242,6 @@ PrefabInstance:
       propertyPath: ui
       value: 
       objectReference: {fileID: 3458234592484948642}
-    - target: {fileID: 75392682884187312, guid: aba9230473b29874c86dcef7d2d169ed, type: 3}
-      propertyPath: audioSrc
-      value: 
-      objectReference: {fileID: 2104114828}
     - target: {fileID: 637570073800689327, guid: aba9230473b29874c86dcef7d2d169ed, type: 3}
       propertyPath: m_Name
       value: Player
@@ -1300,40 +1286,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7458322534783978370, guid: aba9230473b29874c86dcef7d2d169ed, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 2343215875420381109, guid: 1158dde1dd629ba4392d16b5231df6d6, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 637570073800689327, guid: aba9230473b29874c86dcef7d2d169ed, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1892764902353030257}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: aba9230473b29874c86dcef7d2d169ed, type: 3}
 --- !u!4 &1892764902353030256 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1274458512188676141, guid: aba9230473b29874c86dcef7d2d169ed, type: 3}
   m_PrefabInstance: {fileID: 1892764902353030255}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1892764902353030257
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1931362771}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e47c70f7a08c5a043b6f29f469214794, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  startDashTime: 0.07
-  dashSpeed: 50
-  dashSound: {fileID: 8300000, guid: 0fb17726906928b43b12a7c64706dd90, type: 3}
-  dashCooldown: 1
-  dashCooldownAlert: {fileID: 8300000, guid: a8cbcabb8f0968242aa9ffe6e4cb8416, type: 3}
 --- !u!222 &1923308761795102991
 CanvasRenderer:
   m_ObjectHideFlags: 0

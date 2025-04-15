@@ -9,6 +9,7 @@ public class WeaponManager : MonoBehaviour
     private UIManager uiManager;
     private Sprite defaultPlayerSprite;
     private bool isReloading = false;
+    private BoxCollider2D defaultBoxCollider;
 
     [SerializeField] SpriteRenderer playerSpriteRenderer;
     [SerializeField] Canvas ui;
@@ -18,6 +19,7 @@ public class WeaponManager : MonoBehaviour
     {
         this.defaultPlayerSprite = playerSpriteRenderer.sprite;
         this.uiManager = ui.GetComponent<UIManager>();
+        this.defaultBoxCollider = gameObject.GetComponentInParent<BoxCollider2D>();
     }
 
 
@@ -46,6 +48,9 @@ public class WeaponManager : MonoBehaviour
         currentLoadedWeapon.Setup(shooter);
         audioSrc.PlayOneShot(currentLoadedWeapon.GetEquipSfx());
         playerSpriteRenderer.sprite = weapon.GetEquippedSprite();
+
+        ResizePlayerCollider();
+
         uiManager.UpdateWeaponIcon(currentLoadedWeapon.GetStaticWeaponSprite());
         uiManager.UpdateBullets(currentLoadedWeapon.GetAmmoCount());
         uiManager.UpdateReloads(currentLoadedWeapon.GetNumberOfReloads());
@@ -64,6 +69,9 @@ public class WeaponManager : MonoBehaviour
         currentLoadedWeapon = null;
         timer = 0;
         playerSpriteRenderer.sprite = defaultPlayerSprite;
+
+        ResizePlayerCollider();
+
         uiManager.UpdateBullets(0);
         uiManager.UpdateReloads(0);
         uiManager.UpdateWeaponIcon(null);
@@ -108,6 +116,32 @@ public class WeaponManager : MonoBehaviour
             audioSrc.PlayOneShot(currentLoadedWeapon.GetShotSfx());
             uiManager.UpdateBullets(currentLoadedWeapon.GetAmmoCount());
         }
+    }
+
+    private void ResizePlayerCollider(){
+        /*BoxCollider2D oldCollider = gameObject.GetComponentInParent<BoxCollider2D>();
+        if(oldCollider == null){
+            throw new NullReferenceException("THERE'S A PROBLEM RETRIVING THE OLD COLLIDER");
+        }
+        if(currentLoadedWeapon == null){
+            oldCollider.size = defaultBoxCollider.size;
+            oldCollider.offset = defaultBoxCollider.offset;
+            oldCollider.isTrigger = defaultBoxCollider.isTrigger;
+            oldCollider.usedByEffector = defaultBoxCollider.usedByEffector;
+            oldCollider.edgeRadius = defaultBoxCollider.edgeRadius;
+        }else{
+            BoxCollider2D newCollider = currentLoadedWeapon.GetEquippedCollider();
+            if(newCollider == null){
+                throw new NullReferenceException("THERE'S A PROBLEM RETRIVING THE WEAPON PLAYER COLLIDER");
+            }
+            oldCollider.size = newCollider.size;
+            oldCollider.offset = newCollider.offset;
+            oldCollider.isTrigger = newCollider.isTrigger;
+            oldCollider.usedByEffector = newCollider.usedByEffector;
+            oldCollider.edgeRadius = newCollider.edgeRadius; 
+        }*/
+        gameObject.GetComponentInParent<BoxCollider2D>().size = playerSpriteRenderer.bounds.size;
+        
     }
 
     IEnumerator WaitForSfxToEnd(){
