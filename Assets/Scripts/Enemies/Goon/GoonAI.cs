@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq; // pay attention, as far as I read this library is not that fast
 
 public class AI : MonoBehaviour, IEnemy
 {
@@ -36,8 +37,7 @@ public class AI : MonoBehaviour, IEnemy
         this.safeExitWaypointsCopy = new Vector2[exitWaypoints.Length];
         Array.Copy(exitWaypoints, 0, safeExitWaypointsCopy, 0, exitWaypoints.Length);
         this.originalEnemyConnectionGraph = Utils.Functions.GenerateConnections(exitWaypoints);
-        // TODO: copy not regenerate
-        this.connectionGraph = Utils.Functions.GenerateConnections(exitWaypoints);
+        this.connectionGraph = originalEnemyConnectionGraph.ToDictionary(entry => entry.Key, entry => new List<int>(entry.Value)); // deep copy
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -48,7 +48,7 @@ public class AI : MonoBehaviour, IEnemy
         player = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
         playerDetector = gameObject.GetComponent<Detector>();
         this.treeStructure = new KdTree(exitWaypoints);
-        
+
         GlobalWaypoints glob = GameObject.FindGameObjectWithTag(Utils.Const.GLOBAL_WAYPOINTS_TAG).GetComponent<GlobalWaypoints>();
 
         Debug.Log("before : " + Utils.Functions.Vector2ArrayToString(exitWaypoints));
@@ -74,14 +74,16 @@ public class AI : MonoBehaviour, IEnemy
 
         // for each enemy found
         foreach (IEnemy enemy in otherEnemies)
-        {   
+        {
             Vector2[] enemyWaypoints = glob.GetWaypointMapForAnEnemy(enemy);
             // first link graphs
-            this.connectionGraph = linker.LinkGraphs(this.connectionGraph, 
-                                glob.GetConnectionMapForAnEnemy(enemy), 
-                                this.exitWaypoints, 
-                                enemyWaypoints);
-    
+            this.connectionGraph = linker.LinkGraphs(
+                                this.connectionGraph,
+                                glob.GetConnectionMapForAnEnemy(enemy),
+                                this.exitWaypoints,
+                                enemyWaypoints
+            );
+
             foreach (Vector2 node in enemyWaypoints)
             {
                 this.exitWaypoints = Utils.Functions.AddToVector2Array(this.exitWaypoints, node, out _); // ad to current Vector2 set
@@ -90,7 +92,7 @@ public class AI : MonoBehaviour, IEnemy
         }
 
         Debug.Log("after: " + Utils.Functions.Vector2ArrayToString(exitWaypoints));
-        Debug.Log("connections after");Utils.Functions.PrintDictionary(connectionGraph);
+        Debug.Log("connections after"); Utils.Functions.PrintDictionary(connectionGraph);
 
         // Define connections and build the connection graph
         this.bfs = new BFSPathfinder(exitWaypoints, connectionGraph);
