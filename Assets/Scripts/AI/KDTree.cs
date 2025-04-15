@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 // KDTree is a class which provides O(log n) average case complexity for finding 
@@ -6,7 +7,7 @@ using UnityEngine;
 // Tree build time: O(n log n)
 // Best search time: O(log n)
 // Worst search: O(n)
-// AVL tree is not naturally suited for multidimensional spatial querier while KDTree is.
+// AVL tree is not naturally suited for multidimensional spatial queries while KDTree is.
 public class KdTree
 {
     // Internal helper to hold a point and its original index.
@@ -24,15 +25,15 @@ public class KdTree
 
     public void UpdateVectorSet(Vector2 newPoint)
     {
-        // Create a new array with one extra slot
+        // Create a new array with one extra slot.
         Vector2[] newPoints = new Vector2[points.Length + 1];
         Array.Copy(points, newPoints, points.Length);
         newPoints[points.Length] = newPoint;
 
-        // Update internal point list
+        // Update internal point list.
         points = newPoints;
 
-        // Rebuild the tree with the updated point set
+        // Rebuild the tree with the updated point set.
         IndexedPoint[] indexedPoints = new IndexedPoint[points.Length];
         for (int i = 0; i < points.Length; i++)
         {
@@ -196,18 +197,12 @@ public class KdTree
             bestIndex = node.Index;
         }
 
-        // Determine which side to explore first.
         int axis = node.Axis;
         float diff = axis == 0 ? target.x - node.Point.x : target.y - node.Point.y;
-
-        // Choose the branch that is likely to contain the target.
         Node firstBranch = diff < 0 ? node.Left : node.Right;
         Node secondBranch = diff < 0 ? node.Right : node.Left;
 
-        // Explore the first branch.
         NearestNeighborIgnoreIndex(firstBranch, target, indexToIgnore, ref best, ref bestDistanceSqr, ref bestIndex);
-
-        // Check if the hypersphere crosses the splitting plane.
         if (diff * diff < bestDistanceSqr)
         {
             NearestNeighborIgnoreIndex(secondBranch, target, indexToIgnore, ref best, ref bestDistanceSqr, ref bestIndex);
@@ -240,7 +235,6 @@ public class KdTree
             return;
         }
 
-        // Compute squared distance from this node's point to the target.
         float distanceSqr = (node.Point - target).sqrMagnitude;
         if (distanceSqr < bestDistanceSqr)
         {
@@ -249,21 +243,70 @@ public class KdTree
             bestIndex = node.Index;
         }
 
-        // Determine which side to explore first.
         int axis = node.Axis;
         float diff = axis == 0 ? target.x - node.Point.x : target.y - node.Point.y;
-
-        // Choose the branch that is likely to contain the target.
         Node firstBranch = diff < 0 ? node.Left : node.Right;
         Node secondBranch = diff < 0 ? node.Right : node.Left;
 
-        // Explore the first branch.
         NearestNeighborIgnorePoint(firstBranch, target, pointToIgnore, ref best, ref bestDistanceSqr, ref bestIndex);
-
-        // Check if the hypersphere crosses the splitting plane.
         if (diff * diff < bestDistanceSqr)
         {
             NearestNeighborIgnorePoint(secondBranch, target, pointToIgnore, ref best, ref bestDistanceSqr, ref bestIndex);
+        }
+    }
+
+    // New method: FindNearestExcluding returns the nearest point to "target"
+    // while ignoring any points contained in the "pointsToExclude" array.
+    public Vector2 FindNearestExcluding(Vector2 target, Vector2[] pointsToExclude, out int index)
+    {
+        Vector2 best = Vector2.zero;
+        float bestDistanceSqr = float.MaxValue;
+        int bestIndex = -1;
+
+        // Create a HashSet for quick lookup of points to ignore.
+        HashSet<Vector2> excludeSet = new HashSet<Vector2>(pointsToExclude);
+
+        NearestNeighborIgnorePoints(root, target, excludeSet, ref best, ref bestDistanceSqr, ref bestIndex);
+        index = bestIndex;
+        return best;
+    }
+
+    // Recursive helper that skips any node whose point is in the excludeSet.
+    private void NearestNeighborIgnorePoints(Node node, Vector2 target, HashSet<Vector2> excludeSet, ref Vector2 best, ref float bestDistanceSqr, ref int bestIndex)
+    {
+        if (node == null)
+        {
+            return;
+        }
+
+        // Skip node if its point is in the exclusion set.
+        if (excludeSet.Contains(node.Point))
+        {
+            NearestNeighborIgnorePoints(node.Left, target, excludeSet, ref best, ref bestDistanceSqr, ref bestIndex);
+            NearestNeighborIgnorePoints(node.Right, target, excludeSet, ref best, ref bestDistanceSqr, ref bestIndex);
+            return;
+        }
+
+        // Compute squared distance and update best if needed.
+        float distanceSqr = (node.Point - target).sqrMagnitude;
+        if (distanceSqr < bestDistanceSqr)
+        {
+            bestDistanceSqr = distanceSqr;
+            best = node.Point;
+            bestIndex = node.Index;
+        }
+
+        int axis = node.Axis;
+        float diff = axis == 0 ? target.x - node.Point.x : target.y - node.Point.y;
+        Node firstBranch = diff < 0 ? node.Left : node.Right;
+        Node secondBranch = diff < 0 ? node.Right : node.Left;
+
+        NearestNeighborIgnorePoints(firstBranch, target, excludeSet, ref best, ref bestDistanceSqr, ref bestIndex);
+
+        // Only traverse the second branch if the hypersphere might cross the splitting plane.
+        if (diff * diff < bestDistanceSqr)
+        {
+            NearestNeighborIgnorePoints(secondBranch, target, excludeSet, ref best, ref bestDistanceSqr, ref bestIndex);
         }
     }
 }

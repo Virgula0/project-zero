@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 
 public class PatrolMovement : MonoBehaviour, IMovement
 {
@@ -9,12 +10,14 @@ public class PatrolMovement : MonoBehaviour, IMovement
     private float patrolSpeed;
     private bool busy = false;
     private bool needsRepositioning = false;
+    private Rigidbody2D playerBody;
     private Detector playerDetector;
     private KdTree kdTree;
     private BFSPathfinder bfs;
 
-    public PatrolMovement New(Vector2[] waypoints, Detector playerDetector, KdTree kdTree,  BFSPathfinder bfs , float speed)
+    public PatrolMovement New(Vector2[] waypoints, Detector playerDetector, GameObject player, KdTree kdTree, BFSPathfinder bfs, float speed)
     {
+        this.playerBody = player.GetComponent<Rigidbody2D>();
         this.waypoints = waypoints;
         patrolSpeed = speed;
         currentWaypoint = 0;
@@ -57,19 +60,39 @@ public class PatrolMovement : MonoBehaviour, IMovement
         }
     }
 
-    public Vector2 FindClosestWayPoint(Rigidbody2D enemyRigidbody, out int index)
+    public Vector2 FindClosestWayPoint(Rigidbody2D enemyRigidbody, Vector2[] toExlude, out int index)
     {
         if (kdTree == null)
         {
             throw new InvalidOperationException("KdTree is not built. Make sure doorWayPoint array is assigned.");
         }
 
-        return kdTree.FindNearest(enemyRigidbody.position, out index);
+        return kdTree.FindNearestExcluding(enemyRigidbody.position, toExlude, out index);
     }
 
     private IEnumerator MoveDoorWaypointsCoroutine(Rigidbody2D enemyTransform)
     {
-        Vector2 closestPoint = FindClosestWayPoint(enemyTransform, out _);
+        bool clearPath = false;
+        Vector2 closestPoint = new();
+        List<Vector2> vectorsToExclude = new List<Vector2>();
+
+        // in patrol movement we can ignore the points behind the obstacles to find the way to get back to home
+        while (!clearPath)
+        {
+            closestPoint = FindClosestWayPoint(enemyTransform, vectorsToExclude.ToArray(), out _);
+            // Cast the ray toward the closest point to check if it is hidden by an obstacle
+            Vector2 directionToClosest = (closestPoint - enemyTransform.position).normalized;
+            float distanceToClosest = Vector2.Distance(enemyTransform.position, closestPoint);
+            RaycastHit2D hit = Physics2D.Raycast(enemyTransform.position, directionToClosest, distanceToClosest, playerDetector.GetObstacleLayers());
+            clearPath = hit.collider == null;
+
+            if (!clearPath)
+            {
+                vectorsToExclude.Add(closestPoint);
+                Debug.Log("Obstacle detected between enemy and closest waypoint while trying to come back to patrolling. Recalculating.");
+            }
+        }
+
         Vector2[] path = bfs.PathToTheFirst(closestPoint);
         Debug.Log("The path will be " + Utils.Functions.Vector2ArrayToString(path));
 
@@ -77,11 +100,12 @@ public class PatrolMovement : MonoBehaviour, IMovement
         {
             while (Vector2.Distance(enemyTransform.position, v) > 0.1f)
             {
-                /*
-                if (playerDetector.GetIsEnemyAwareOfPlayer()){
-                    yield return null;
+                // If the enemy becomes aware of the player, abort following waypoints.
+                if (playerDetector.GetIsEnemyAwareOfPlayer())
+                {
+                    busy = false;
+                    yield break;
                 }
-                */
 
                 Vector2 newPos = Vector2.MoveTowards(enemyTransform.position, v, patrolSpeed * Time.fixedDeltaTime);
                 enemyTransform.MovePosition(newPos);
@@ -94,9 +118,6 @@ public class PatrolMovement : MonoBehaviour, IMovement
         needsRepositioning = false;  // Mark that we already transitioned through the door.
     }
 
-    public string ToString(){
-        return "patrolling";
-    }
 
     public void CustomSetter<T>(T var)
     {

@@ -21,6 +21,10 @@ public class Detector : MonoBehaviour
         this.body = transform.parent.GetComponentInChildren<Rigidbody2D>();
     }
 
+    public LayerMask GetObstacleLayers(){
+        return obstacleLayer;
+    }
+
     void Update()
     {
         // After N seconds without detection, reset the alert status

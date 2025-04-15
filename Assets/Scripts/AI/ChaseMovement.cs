@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class ChaseMovement : MonoBehaviour, IMovement
@@ -37,41 +36,39 @@ public class ChaseMovement : MonoBehaviour, IMovement
         enemyRB.MovePosition(newPos);
     }
 
-    private IEnumerator MoveDoorWaypointsCoroutine(Rigidbody2D enemyTransform, Vector2 startPoint)
+    private IEnumerator MoveDoorWaypointsCoroutine(Rigidbody2D enemyRB, Vector2 startPoint)
     {
-        // TODO: this FindNearest needs improvement
-        // in fact FindNearest is ok but not if there are walls in the between
-        // find nearest among points not behind walls or objects
-        // until this imprvement the best way is to comment out the // This is checks if the player is closer enough. strategy
+        // Determine the best waypoint on the player’s side.
+        // The problem here is that it is allowed to be hidden because the player could be 
+        // behind an obstacle but enemy wants to chase it anyway
+        // this of course may be improved
         Vector2 playerBestWaypoint = kdTree.FindNearest(playerBody.position, out _);
         Vector2[] path = bfs.PathToPoint(startPoint, playerBestWaypoint);
-        foreach (Vector2 v in path)
-        {
-            while (Vector2.Distance(enemyTransform.position, v) > 0.1f)
-            {
-                // This is checks if the player is closer enough. If yes we can ignore to follow the path and resume the chasing normally
-                // One strategy can be: if enemy is closer to the player respect to its current waypoint and player is not behind a wall we break
-                // this needs more tests
-                /*
-                if (Vector2.Distance(enemyTransform.position, playerBody.position) <= Vector2.Distance(enemyTransform.position, v)
-                    && !playerDetector.GetIsPlayerHiddenByObstacle())
-                {
-                    busy = false;
-                    yield return null;
-                }
-                */
 
-                if (!playerDetector.GetIsEnemyAwareOfPlayer() && playerDetector.GetIsPlayerHiddenByObstacle()){
+        foreach (Vector2 waypoint in path)
+        {
+            while (Vector2.Distance(enemyRB.position, waypoint) > 0.1f)
+            {
+                // During each fixed update, check if a direct line of sight has opened up.
+                // You might recast a ray or use your detector to decide.
+                float distanceToPlayer = Vector2.Distance(enemyRB.position, playerBody.position);
+                RaycastHit2D hit = Physics2D.Raycast(enemyRB.position, (playerBody.position - enemyRB.position).normalized, distanceToPlayer, playerDetector.GetObstacleLayers());
+                bool clearLine = hit.collider == null;
+
+                if ((clearLine && distanceToPlayer <= stoppingDistance * 1.5f) || !playerDetector.GetIsEnemyAwareOfPlayer())
+                {
+                    // Player is now directly approachable or movement changed
                     busy = false;
-                    yield return null;
+                    yield break;
                 }
-                
-                MoveTowardsTarget(enemyTransform, v, additionalSpeedWhenFollowingPath);
+
+                MoveTowardsTarget(enemyRB, waypoint, additionalSpeedWhenFollowingPath);
                 yield return new WaitForFixedUpdate();
             }
         }
+
         busy = false;
-        Debug.Log("Enemy finished to move to the gadget");
+        Debug.Log("Enemy finished moving using waypoints");
     }
 
     public Vector2 FindClosestWayPoint(Vector2 enemyPos)
@@ -118,13 +115,10 @@ public class ChaseMovement : MonoBehaviour, IMovement
         enemyLatestPosition = enemyPos;
 
         // Normal chasing when no waypoint and no historic player positions are available
-        Debug.Log("Chasing the player normally");
+        // Debug.Log("Chasing the player normally");
         MoveTowardsTarget(enemyRB, playerBody.position);
     }
-    
-    public string ToString(){
-        return "chasing";
-    }
+
     public void CustomSetter<T>(T var)
     {
         return;
