@@ -35,6 +35,30 @@ public class Detector : MonoBehaviour
         return true;
     }
 
+    private bool DefineIsPlayerIsDetected(Collider2D hitCollider)
+    {
+        // Set the base positions for enemy and player.
+        Vector2 enemyPos = body.position + Vector2.up * lineOfSightOffset;
+        Vector2 playerPos = hitCollider.transform.position;
+        Vector2 directionToPlayer = (playerPos - enemyPos).normalized;
+        float distanceToPlayer = Vector2.Distance(enemyPos, playerPos);
+
+        // Perform a raycast between enemy and player to check for obstacles in the betwen
+        RaycastHit2D sightHit = Physics2D.Raycast(enemyPos, directionToPlayer, distanceToPlayer, obstacleLayer);
+
+        // If no obstacle is hit, then the enemy has a clear line of sight
+        switch (sightHit.collider)
+        {
+            case not null:
+                // Debug.Log("Player is hidden by an obstacle: " + sightHit.collider.gameObject.name);
+                playerWasHiddenByObstacle = true;
+                return false;
+            case null:
+                // Debug.Log("OBJECT DETECTED BY ENEMY: " + hitCollider.gameObject.name);
+                return PlayerDetected();
+        }
+    }
+
     void Update()
     {
         // After N seconds without detection, reset the alert status
@@ -55,35 +79,16 @@ public class Detector : MonoBehaviour
         {
             if (hitCollider.gameObject.layer == (int)Utils.Enums.ObjectLayers.Player)
             {
-                // Set the base positions for enemy and player.
-                Vector2 enemyPos = body.position + Vector2.up * lineOfSightOffset;
-                Vector2 playerPos = hitCollider.transform.position;
-                Vector2 directionToPlayer = (playerPos - enemyPos).normalized;
-                float distanceToPlayer = Vector2.Distance(enemyPos, playerPos);
-
-                // Perform a raycast between enemy and player to check for obstacles in the betwen
-                RaycastHit2D sightHit = Physics2D.Raycast(enemyPos, directionToPlayer, distanceToPlayer, obstacleLayer);
-
-                // If no obstacle is hit, then the enemy has a clear line of sight
-                switch (sightHit.collider)
-                {
-                    case not null:
-                        // Debug.Log("Player is hidden by an obstacle: " + sightHit.collider.gameObject.name);
-                        playerWasHiddenByObstacle = true;
-                        break;
-                    case null:
-                        // Debug.Log("OBJECT DETECTED BY ENEMY: " + hitCollider.gameObject.name);
-                        detectedPlayer = PlayerDetected();
-                        break;
-                }
-                return;
+                // Debug.Log("Player detected because he was in visible area");
+                detectedPlayer = DefineIsPlayerIsDetected(hitCollider);
+                break;
             }
 
             if (hitCollider.gameObject.layer == (int)Utils.Enums.ObjectLayers.BulletByPlayer)
             {
-                // Debug.Log("Enemy detected bullet by player");
-                detectedPlayer = PlayerDetected();
-                return;
+                // Debug.Log("Player detected because of a bullet");
+                detectedPlayer = DefineIsPlayerIsDetected(hitCollider);
+                break;
             }
         }
 
