@@ -16,7 +16,6 @@ public class AI : MonoBehaviour, IEnemy
     // We have the playerObject reference so we know its position easly.
     // They're used as well for getting back in the patrolling room.
     [SerializeField] private Vector2[] exitWaypoints;
-
     private GameObject player; // we need the position and other ottributes of the player
     private IMovement currentMovement;
     private IMovement patrolMovement;
@@ -36,80 +35,106 @@ public class AI : MonoBehaviour, IEnemy
         this.linker = new GraphLinker();
         this.safeExitWaypointsCopy = new Vector2[exitWaypoints.Length];
         Array.Copy(exitWaypoints, 0, safeExitWaypointsCopy, 0, exitWaypoints.Length);
-        this.originalEnemyConnectionGraph = Utils.Functions.GenerateConnections(exitWaypoints);
+        this.originalEnemyConnectionGraph = linker.GenerateConnections(exitWaypoints);
         this.connectionGraph = originalEnemyConnectionGraph.ToDictionary(entry => entry.Key, entry => new List<int>(entry.Value)); // deep copy
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        // Perform initializations and get global waypoints
+        GlobalWaypoints glob = InitializeParameters();
+        // Connect the global waypoints into our local graph
+        ConnectGlobalWaypoints(glob);
+        // Connect waypoints from other enemies using the global waypoints reference
+        ConnectOtherEnemyWaypoints(glob);
+        // Finalize the initialization: log info and set up pathfinder and movements
+        FinalizeInitialization();
+    }
+
+    private GlobalWaypoints InitializeParameters()
+    {
+        // Update speeds and obtain components
         this.chaseSpeed = patrolSpeed * 3 + chaseSpeed;
         this.body = transform.parent.GetComponentInChildren<Rigidbody2D>();
         player = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
         playerDetector = gameObject.GetComponent<Detector>();
-        this.treeStructure = new KdTree(exitWaypoints);
+        treeStructure = new KdTree(exitWaypoints);
 
-        GlobalWaypoints glob = GameObject.FindGameObjectWithTag(Utils.Const.GLOBAL_WAYPOINTS_TAG).GetComponent<GlobalWaypoints>();
+        // Get the global waypoints object locally (no new instance variable)
+        GlobalWaypoints glob = GameObject.FindGameObjectWithTag(Utils.Const.GLOBAL_WAYPOINTS_TAG)
+                                      .GetComponent<GlobalWaypoints>();
 
         Debug.Log("before : " + Utils.Functions.Vector2ArrayToString(exitWaypoints));
-        // Debug.Log("connections before");Utils.Functions.PrintDictionary(connections);
-        // CONNECT GLOBAL WAYPOINTS
+        return glob;
+    }
 
-        /*
+    private void ConnectGlobalWaypoints(GlobalWaypoints glob)
+    {
+        // Get the remapped global waypoints dictionary
         Dictionary<int, int> dict = glob.GetGlobalWaypointsRemapped();
-        // connect each global waypoint to the nearest element of our current Vector2[] set
+
+        // Connect each global waypoint to the nearest element of our current set
         foreach (var item in dict)
         {
             Vector2 elemToLink = glob.GetElementFromRemappedIndex(item.Key);
+            // Find the nearest element using the kd-tree
             Vector2 _ = treeStructure.FindNearest(elemToLink, out int index);
-            this.exitWaypoints = Utils.Functions.AddToVector2Array(this.exitWaypoints, elemToLink, out int addedIndex); // ad to current Vector2 set
-            connections.Add(addedIndex, new List<int> { index }); // add the element actually in the connection graph
-            connections[index].Add(addedIndex); // add connection to existing node in connection graph
-            treeStructure.UpdateVectorSet(elemToLink); // update the treeStructure
+            // Add the global waypoint to our local set and update the connection graph
+            this.exitWaypoints = Utils.Functions.AddToVector2Array(this.exitWaypoints, elemToLink, out int addedIndex);
+            this.connectionGraph.Add(addedIndex, new List<int> { index });
+            this.connectionGraph[index].Add(addedIndex);
+            treeStructure.UpdateVectorSet(elemToLink);
         }
-        */
+    }
 
-        // CONNECT OTHER ENEMIES WAYPOINTS
-        List<IEnemy> otherEnemies = glob.GetEnemies(this); // retuns other enemies waypoint (except for me)
+    private void ConnectOtherEnemyWaypoints(GlobalWaypoints glob)
+    {
+        // Get the waypoints of other enemies (excluding self)
+        List<IEnemy> otherEnemies = glob.GetEnemies(this);
 
-        // for each enemy found
+        // For each enemy, link their waypoint graph to our current graph
         foreach (IEnemy enemy in otherEnemies)
         {
             Vector2[] enemyWaypoints = glob.GetWaypointMapForAnEnemy(enemy);
-            // first link graphs
+
+            // Merge connection graphs using the linker helper
             this.connectionGraph = linker.LinkGraphs(
-                                this.connectionGraph,
-                                glob.GetConnectionMapForAnEnemy(enemy),
-                                this.exitWaypoints,
-                                enemyWaypoints
+                this.connectionGraph,
+                glob.GetConnectionMapForAnEnemy(enemy),
+                this.exitWaypoints,
+                enemyWaypoints
             );
 
+            // Add enemy waypoints to the current set and update the kd-tree accordingly
             foreach (Vector2 node in enemyWaypoints)
             {
-                this.exitWaypoints = Utils.Functions.AddToVector2Array(this.exitWaypoints, node, out _); // ad to current Vector2 set
-                treeStructure.UpdateVectorSet(node); // update the treeStructure
+                this.exitWaypoints = Utils.Functions.AddToVector2Array(this.exitWaypoints, node, out _);
+                treeStructure.UpdateVectorSet(node);
             }
         }
-
-        Debug.Log("after: " + Utils.Functions.Vector2ArrayToString(exitWaypoints));
-        Debug.Log("connections after"); Utils.Functions.PrintDictionary(connectionGraph);
-
-        // Define connections and build the connection graph
-        this.bfs = new BFSPathfinder(exitWaypoints, connectionGraph);
-
-        // this trick is needed beacuse it needs MohoBehaviour for coroutines
-        // and we can't even initialize a new object in unity if it inherits MonoBehaviour
-        // this is a little bit shit and I need to do this trick if i want to add manually the script as component 
-        // within the game object logic
-        patrolMovement = gameObject.AddComponent<PatrolMovement>().New(patrolWaypoints, playerDetector, treeStructure, bfs, patrolSpeed);
-
-        // instantiate normally
-        chaseMovement = gameObject.AddComponent<ChaseMovement>().New(player, playerDetector, treeStructure, bfs, chaseSpeed, stoppingDistance);
-
-        // movements
-        currentMovement = patrolMovement; // patrol movement when the object is spawned
-        weaponManager = gameObject.transform.parent.GetComponentInChildren<EnemyWeaponManager>();
     }
+
+    private void FinalizeInitialization()
+    {
+        Debug.Log("after: " + Utils.Functions.Vector2ArrayToString(exitWaypoints));
+        Debug.Log("connections after");
+        Utils.Functions.PrintDictionary(connectionGraph);
+
+        // Create the BFS pathfinder using the finalized waypoint set and connection graph
+        bfs = new BFSPathfinder(exitWaypoints, connectionGraph);
+
+        // Add movement components and initialize them
+        patrolMovement = gameObject.AddComponent<PatrolMovement>()
+            .New(patrolWaypoints, playerDetector, treeStructure, bfs, patrolSpeed);
+        chaseMovement = gameObject.AddComponent<ChaseMovement>()
+            .New(player, playerDetector, treeStructure, bfs, chaseSpeed, stoppingDistance);
+
+        // Set the default movement and get the enemy weapon manager
+        currentMovement = patrolMovement;
+        weaponManager = transform.parent.GetComponentInChildren<EnemyWeaponManager>();
+    }
+
 
     void FixedUpdate()
     {
@@ -131,6 +156,16 @@ public class AI : MonoBehaviour, IEnemy
         currentMovement = chaseMovement;
         currentMovement?.Move(body); // ?. means that Move will called if currentMovement is not null
         weaponManager.ChangeEnemyStatus(true);
+    }
+
+    public Vector2[] GetEnemyWaypoints()
+    {
+        return this.safeExitWaypointsCopy;
+    }
+
+    public Dictionary<int, List<int>> GetEnemyConnections()
+    {
+        return this.originalEnemyConnectionGraph;
     }
 
     // Debugging purposes you can ignore this
@@ -175,15 +210,5 @@ public class AI : MonoBehaviour, IEnemy
             // Draw a line connecting the two circles to illustrate the cast path
             Gizmos.DrawLine(startPoint, endPoint);
         }
-    }
-
-    public Vector2[] GetEnemyWaypoints()
-    {
-        return this.safeExitWaypointsCopy;
-    }
-
-    public Dictionary<int, List<int>> GetEnemyConnections()
-    {
-        return this.originalEnemyConnectionGraph;
     }
 }
