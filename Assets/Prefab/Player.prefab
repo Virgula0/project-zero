@@ -372,7 +372,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerSpriteRenderer: {fileID: 7458322534783978370}
-  ui: {fileID: 9202580814089991112, guid: 252f61995e5fa07febdde239a4573022, type: 3}
+  ui: {fileID: 3539627044964418842, guid: 252f61995e5fa07febdde239a4573022, type: 3}
   audioSrc: {fileID: 6518969331765319709}
 --- !u!82 &6518969331765319709
 AudioSource:
