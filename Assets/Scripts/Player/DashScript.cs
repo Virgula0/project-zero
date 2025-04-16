@@ -1,7 +1,7 @@
 using UnityEngine;
 
 public class DashScript : MonoBehaviour
-{   
+{
     private float dashCooldownTimer = 0f;
     private AudioSource audioSrc;
     private Vector2 dashDirection;
@@ -24,8 +24,10 @@ public class DashScript : MonoBehaviour
         this.audioSrc = gameObject.GetComponent<AudioSource>();
     }
 
-    public void StartDash(){
-        if (!isDashing && canDash){
+    public void StartDash()
+    {
+        if (!isDashing && canDash)
+        {
             SetDashDirection(playerSc.GetDirection());
 
             isDashing = true;
@@ -37,29 +39,36 @@ public class DashScript : MonoBehaviour
 
     public void DashMovement()
     {
-        if (!canDash){
+        if (!canDash)
+        {
             dashCooldownTimer += Time.fixedDeltaTime;
-            if (dashCooldownTimer > dashCooldown){
+            if (dashCooldownTimer > dashCooldown)
+            {
                 canDash = true;
                 audioSrc.PlayOneShot(dashCooldownAlert);
             }
         }
-        if(isDashing){
-            Debug.Log("PlayerVelocity: " + playerSc.GetLinearVelocity());
-            if (dashTimer > 0)
-            {
-                dashTimer -= Time.fixedDeltaTime;
-                playerSc.SetLinearVelocity(dashDirection * dashSpeed);
-                Debug.Log("PlayerVelocity2: " + playerSc.GetLinearVelocity());
-            }
-            else
-            {   
-                Debug.Log("Second If, second branch");
-                audioSrc.PlayOneShot(dashSound);
-                isDashing = false;
-                playerRb.linearVelocity = Vector2.zero; //stop dashing
-            }
+
+        if (!isDashing)
+        {
+            return;
         }
+
+        // we're dashing
+        // Debug.Log("PlayerVelocity: " + playerSc.GetLinearVelocity());
+        if (dashTimer > 0)
+        {
+            dashTimer -= Time.fixedDeltaTime;
+            playerSc.SetLinearVelocity(dashDirection * dashSpeed);
+            // Debug.Log("PlayerVelocity2: " + playerSc.GetLinearVelocity());
+            return;
+        }
+
+        //Debug.Log("Second If, second branch");
+        audioSrc.PlayOneShot(dashSound);
+        isDashing = false;
+        playerRb.linearVelocity = Vector2.zero; //stop dashing
+        return;
     }
 
     public void SetDashDirection(Vector2 direction)
@@ -67,7 +76,8 @@ public class DashScript : MonoBehaviour
         this.dashDirection = direction;
     }
 
-    public bool IsDashing(){
+    public bool IsDashing()
+    {
         return isDashing;
     }
 }

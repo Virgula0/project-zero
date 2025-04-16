@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.IO;
 using System.Collections.Generic;
+using System.Linq;
 
 public class DirectorySceneLoader : MonoBehaviour
 {
@@ -28,7 +29,7 @@ public class DirectorySceneLoader : MonoBehaviour
             string sceneName = Path.GetFileNameWithoutExtension(scenePath);
 
             // Skip the Main Menu scene
-            if (i == 0 || i == 1) // skip MainMenuScene and LoadingScene
+            if (i < 2) // skip MainMenuScene and LoadingScene
             {
                 continue;
             }
@@ -52,7 +53,8 @@ public class DirectorySceneLoader : MonoBehaviour
             allScenesLoaded = true;
             foreach (var op in sceneList)
             {
-                script.UpdateLoadingProgress(op.progress);
+                float totalProgress = sceneList.Average(op => op.progress);
+                script.UpdateLoadingProgress(Mathf.Clamp01(totalProgress / 0.9f));
 
                 if (op.progress < 0.9f)
                 {

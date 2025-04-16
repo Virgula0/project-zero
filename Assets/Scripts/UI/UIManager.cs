@@ -6,17 +6,11 @@ using UnityEngine.UI;
 public class UIManager : MonoBehaviour
 {
     [SerializeField] private GameObject bulletsText;
-
     [SerializeField] private GameObject reloadsText;
-
     [SerializeField] private GameObject pointsText;
-
     [SerializeField] private GameObject levelText;
-    
     [SerializeField] private GameObject chargesText;
-
     [SerializeField] private Image weaponIcon;
-
     [SerializeField] private Image secondaryIcon;
 
     void Start()
