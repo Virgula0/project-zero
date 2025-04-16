@@ -96,3 +96,16 @@ jobs:
             StandaloneOSX.zip
             StandaloneWindows64.zip
             StandaloneLinux64.zip
+
+  deleteTempArtifacts:
+      name: Upload All Builds as Single Pre-Release
+      runs-on: ubuntu-latest
+      needs: uploadAllArtifacts
+      steps:
+        - name: Remove temp artifact for data storage
+          uses: geekyeggo/delete-artifact@v5
+          with:
+            name: |
+              Build-StandaloneLinux64
+              Build-StandaloneOSX
+              Build-StandaloneWindows64
