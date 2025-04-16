@@ -157,7 +157,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2387890322715784559}
   - component: {fileID: 3884041588852964277}
-  - component: {fileID: 4842673356067928228}
   - component: {fileID: 114100989245069762}
   m_Layer: 0
   m_Name: SimpleGun
@@ -201,13 +200,13 @@ MonoBehaviour:
   shotSound: {fileID: 8300000, guid: 2e977563880cfe4418c7ecc8f7dcbc1e, type: 3}
   reloadSound: {fileID: 8300000, guid: 7ea9f88efd9809d49878b32fa62682c1, type: 3}
   equipSound: {fileID: 8300000, guid: fe7ebb81a58a3b54c81cb1093485c0c6, type: 3}
+--- !u!82 &114100989245069762
+AudioSource:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5829556277332518347}
---- !u!82 &114100989245069762
-AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
