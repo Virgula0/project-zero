@@ -46,6 +46,9 @@ public class WeaponManager : MonoBehaviour
         currentLoadedWeapon.Setup(shooter);
         audioSrc.PlayOneShot(currentLoadedWeapon.GetEquipSfx());
         playerSpriteRenderer.sprite = weapon.GetEquippedSprite();
+
+        ResizePlayerCollider();
+
         uiManager.UpdateWeaponIcon(currentLoadedWeapon.GetStaticWeaponSprite());
         uiManager.UpdateBullets(currentLoadedWeapon.GetAmmoCount());
         uiManager.UpdateReloads(currentLoadedWeapon.GetNumberOfReloads());
@@ -64,6 +67,7 @@ public class WeaponManager : MonoBehaviour
         currentLoadedWeapon = null;
         timer = 0;
         playerSpriteRenderer.sprite = defaultPlayerSprite;
+        ResizePlayerCollider();
         uiManager.UpdateBullets(0);
         uiManager.UpdateReloads(0);
         uiManager.UpdateWeaponIcon(null);
@@ -108,6 +112,11 @@ public class WeaponManager : MonoBehaviour
             audioSrc.PlayOneShot(currentLoadedWeapon.GetShotSfx());
             uiManager.UpdateBullets(currentLoadedWeapon.GetAmmoCount());
         }
+    }
+
+    public void ResizePlayerCollider(){
+        BoxCollider2D playerCollider = gameObject.GetComponentInParent<BoxCollider2D>();
+        playerCollider.size = playerSpriteRenderer.sprite.bounds.size;
     }
 
     IEnumerator WaitForSfxToEnd(){
