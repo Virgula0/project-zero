@@ -7,8 +7,8 @@ public class WeaponFinder : MonoBehaviour
     private IGun weapon;
     private GameObject gameObjectRef;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    // Better to use awake since it is called before Start
+    void Awake()
     {
         this.playerManager = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_MANAGER_TAG).GetComponent<WeaponManager>();
         this.weapon = GetComponentInParent<IGun>(); // in parent, the concrete script of the gun which implements Igun must be present
@@ -17,7 +17,12 @@ public class WeaponFinder : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        if (weapon == null){
+            return;
+        }
+
         Debug.Log("Collision detected with: " + collision.gameObject.name);
+        
         switch (collision.gameObject.layer)
         {
             case (int)Utils.Enums.ObjectLayers.Player:

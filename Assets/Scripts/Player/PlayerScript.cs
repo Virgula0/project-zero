@@ -2,15 +2,13 @@ using UnityEngine;
 
 public class PlayerScript : MonoBehaviour
 {
-    public float moveSpeed = 1500f;
-    private Rigidbody2D playerRb;
+    public float moveSpeed = 20f;
+    public Rigidbody2D playerRb;
     private Vector2 moveDirection;
     private SpriteRenderer playerSprite;
     
     private Vector2 lastMoveDirection = Vector2.right; // Default direction
-    private AudioSource audioSrc; //it may be of use in the future
     private DashScript dash;
-
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -52,7 +50,7 @@ public class PlayerScript : MonoBehaviour
     }
 
     private void Movement(){
-        playerRb.linearVelocity = new Vector2(moveDirection.x * moveSpeed * Time.fixedDeltaTime , moveDirection.y * moveSpeed * Time.fixedDeltaTime); // in fixed updates you may want to use fixed deltaTime instead of deltatime
+        playerRb.linearVelocity = new Vector2(moveDirection.x * moveSpeed , moveDirection.y * moveSpeed );
     }
 
     private void LookAt(){
@@ -86,16 +84,15 @@ public class PlayerScript : MonoBehaviour
     public Vector2 GetDirection(){
         if(moveDirection == Vector2.zero){
             return lastMoveDirection;
-        }else{
-            return moveDirection;
         }
+        return moveDirection;
     }
 
     public Vector2 GetLinearVelocity(){
         return playerRb.linearVelocity;
     }
 
-    public void SetLinearVelocity(Vector2 newLinearVecolity){
-        playerRb.linearVelocity = newLinearVecolity;
+    public void SetLinearVelocity(Vector2 newLinearVelocity){
+        playerRb.linearVelocity = newLinearVelocity;
     }
 }
