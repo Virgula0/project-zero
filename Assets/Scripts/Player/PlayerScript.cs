@@ -6,18 +6,35 @@ public class PlayerScript : MonoBehaviour
     public Rigidbody2D playerRb;
     private Vector2 moveDirection;
     private SpriteRenderer playerSprite;
+    
+    private Vector2 lastMoveDirection = Vector2.right; // Default direction
+    private AudioSource audioSrc; //it may be of use in the future
+    private DashScript dash;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         //add something later
         playerSprite = GetComponentInChildren<SpriteRenderer>();
+        playerRb = gameObject.GetComponent<Rigidbody2D>();
+        this.dash = gameObject.GetComponent<DashScript>();
+    }
+
+    void Update(){
+        if(Input.GetKeyDown(KeyCode.Space)){
+            dash.StartDash();
+        }
     }
 
     void FixedUpdate()
     {
         //best suited for physics operations, using along with interpolation as interpolate
         LookAt();
+        dash.DashMovement();
+        if(dash.IsDashing()){
+            return;
+        }
         ProcessInputs();
         Movement();
     }
@@ -26,7 +43,12 @@ public class PlayerScript : MonoBehaviour
         float moveX = Input.GetAxisRaw("Horizontal");
         float moveY = Input.GetAxisRaw("Vertical");
 
-        moveDirection = new Vector2(moveX, moveY).normalized;
+        Vector2 input = new Vector2(moveX, moveY);
+        moveDirection = input.normalized;
+
+        if (input != Vector2.zero){ //save the last movement direction
+            lastMoveDirection = moveDirection;
+        }
     }
 
     private void Movement(){
@@ -59,5 +81,21 @@ public class PlayerScript : MonoBehaviour
         // Apply rotation (z-axis in 2D)
         float rotationSpeed = 10f;
         transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0f, 0f, angle), Time.fixedDeltaTime * rotationSpeed);
+    }
+
+    public Vector2 GetDirection(){
+        if(moveDirection == Vector2.zero){
+            return lastMoveDirection;
+        }else{
+            return moveDirection;
+        }
+    }
+
+    public Vector2 GetLinearVelocity(){
+        return playerRb.linearVelocity;
+    }
+
+    public void SetLinearVelocity(Vector2 newLinearVecolity){
+        playerRb.linearVelocity = newLinearVecolity;
     }
 }

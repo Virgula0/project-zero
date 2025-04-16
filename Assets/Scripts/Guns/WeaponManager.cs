@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class WeaponManager : MonoBehaviour
@@ -7,9 +8,11 @@ public class WeaponManager : MonoBehaviour
     private float timer; // timer counts the timer elapsed from the last shot, in seconds
     private UIManager uiManager;
     private Sprite defaultPlayerSprite;
+    private bool isReloading = false;
 
     [SerializeField] SpriteRenderer playerSpriteRenderer;
     [SerializeField] Canvas ui;
+    [SerializeField] AudioSource audioSrc;
 
     void Start()
     {
@@ -30,16 +33,23 @@ public class WeaponManager : MonoBehaviour
         {
             throw new NullReferenceException("PLAYER SPRITE RENDERER CANNOT BE NULL, THE PASSED REFERENCE TO THE PLAYER SPRITE RENDERER IS NULL");
         }
+
+        if (currentLoadedWeapon != null){ 
+            UnloadCurrentGun();
+        }
+
         // must be done whatever a new gun gets loaded
         currentLoadedWeapon = weapon;
 
         // we're allowed to shoot at te beginning 
         timer = float.PositiveInfinity;
         currentLoadedWeapon.Setup(shooter);
+        audioSrc.PlayOneShot(currentLoadedWeapon.GetEquipSfx());
         playerSpriteRenderer.sprite = weapon.GetEquippedSprite();
         uiManager.UpdateWeaponIcon(currentLoadedWeapon.GetStaticWeaponSprite());
         uiManager.UpdateBullets(currentLoadedWeapon.GetAmmoCount());
         uiManager.UpdateReloads(currentLoadedWeapon.GetNumberOfReloads());
+        
     }
 
     private void UnloadCurrentGun()
@@ -50,6 +60,7 @@ public class WeaponManager : MonoBehaviour
         }
 
         Debug.Log("Weapon deloaded");
+        audioSrc.PlayOneShot(currentLoadedWeapon.GetEquipSfx());
         currentLoadedWeapon = null;
         timer = 0;
         playerSpriteRenderer.sprite = defaultPlayerSprite;
@@ -76,21 +87,35 @@ public class WeaponManager : MonoBehaviour
             return;
         }
 
-        if (Input.GetKeyDown(KeyCode.R) && currentLoadedWeapon.GetNumberOfReloads() > 0)
+        if (Input.GetKeyDown(KeyCode.R) && currentLoadedWeapon.GetNumberOfReloads() > 0 
+            && currentLoadedWeapon.GetAmmoCount() < currentLoadedWeapon.GetMegCap() && !isReloading)
         {
             currentLoadedWeapon.Reload();
             uiManager.UpdateReloads(currentLoadedWeapon.GetNumberOfReloads());
             uiManager.UpdateBullets(currentLoadedWeapon.GetAmmoCount());
+            audioSrc.PlayOneShot(currentLoadedWeapon.GetReloadSfx());
+            isReloading = true;
+            StartCoroutine(WaitForSfxToEnd()); 
             return;
         }
 
         if (Input.GetMouseButton((int)Utils.Enums.MouseButtons.LeftButton) &&
             timer >= currentLoadedWeapon.GetFireRate() &&
-            currentLoadedWeapon.GetAmmoCount() > 0)
+            currentLoadedWeapon.GetAmmoCount() > 0 && !isReloading)
         {
             timer = 0;
             currentLoadedWeapon.Shoot();
+            audioSrc.PlayOneShot(currentLoadedWeapon.GetShotSfx());
             uiManager.UpdateBullets(currentLoadedWeapon.GetAmmoCount());
         }
+    }
+
+    IEnumerator WaitForSfxToEnd(){
+
+        while(audioSrc.isPlaying){
+            yield return null;
+        }
+
+        isReloading = false;
     }
 }
