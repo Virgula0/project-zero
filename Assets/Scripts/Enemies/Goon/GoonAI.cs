@@ -65,7 +65,7 @@ public class AI : MonoBehaviour, IEnemy
         GlobalWaypoints glob = GameObject.FindGameObjectWithTag(Utils.Const.GLOBAL_WAYPOINTS_TAG)
                                       .GetComponent<GlobalWaypoints>();
 
-        Debug.Log("before : " + Utils.Functions.Vector2ArrayToString(exitWaypoints));
+        // Debug.Log("before : " + Utils.Functions.Vector2ArrayToString(exitWaypoints));
         return glob;
     }
 
@@ -117,9 +117,9 @@ public class AI : MonoBehaviour, IEnemy
 
     private void FinalizeInitialization()
     {
-        Debug.Log("after: " + Utils.Functions.Vector2ArrayToString(exitWaypoints));
-        Debug.Log("connections after");
-        Utils.Functions.PrintDictionary(connectionGraph);
+        // Debug.Log("after: " + Utils.Functions.Vector2ArrayToString(exitWaypoints));
+        // Debug.Log("connections after");
+        // Utils.Functions.PrintDictionary(connectionGraph);
 
         // Create the BFS pathfinder using the finalized waypoint set and connection graph
         bfs = new BFSPathfinder(exitWaypoints, connectionGraph);
