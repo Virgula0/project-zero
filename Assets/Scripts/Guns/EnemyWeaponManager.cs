@@ -3,15 +3,20 @@ using System;
 
 public class EnemyWeaponManager : MonoBehaviour
 {
-    [SerializeField] private IGun currentLoadedWeapon; // an enemy will have always a gun at the beginning
+    [SerializeField] private IGun currentLoadedWeapon; // an enemy could have a gun at the beginning. If it does not have it it will start to search one.
     private float timer; // timer counts the timer elapsed from the last shot, in seconds
     [SerializeField] SpriteRenderer enemySpriteRenderer;
 
     private Sprite defaultEnemySprite;
     private bool isEnemyAlerted = false;
+    private bool needsToFindAWeapon = false;
 
     public void ChangeEnemyStatus(bool status){
         this.isEnemyAlerted = status;
+    }
+
+    public bool NeedsToFindAWeapon(){
+        return needsToFindAWeapon;
     }
 
     // this will be invoked externally
@@ -22,16 +27,16 @@ public class EnemyWeaponManager : MonoBehaviour
             throw new NullReferenceException("ENEMY LOAD CANNOT BE NULL, THE PASSED REFERENCE TO WEAPON MANAGER IS NULL");
         }
 
-        Debug.Log("Enemy loaded a weapon");
-
         /*
         if(playerSpriteRenderer == null){
            throw new NullReferenceException("ENEMY SPRITE RENDERER CANNOT BE NULL, THE PASSED REFERENCE OF THE PLAYER SPRITE RENDERER IS NULL"); 
         }
         */
 
+        Debug.Log("Enemy loaded a weapon");
         // must be done whatever a new gun gets loaded
         currentLoadedWeapon = weapon;
+        needsToFindAWeapon = false; // enemy do not needs to find a weapon anymore
 
         // we're allowed to shoot at te beginning 
         timer = float.PositiveInfinity;
@@ -62,7 +67,7 @@ public class EnemyWeaponManager : MonoBehaviour
     {
         if (currentLoadedWeapon == null)
         {
-            // TODO: Implement logic for finding a new gun
+            needsToFindAWeapon = true; // the enemy needs a gun!
             return;
         }
 

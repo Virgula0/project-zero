@@ -20,6 +20,7 @@ public class AI : MonoBehaviour, IEnemy
     private IMovement currentMovement;
     private IMovement patrolMovement;
     private IMovement chaseMovement;
+    private IMovement findForAWeapon;
     private EnemyWeaponManager weaponManager;
     private Detector playerDetector;
     private Rigidbody2D body;
@@ -129,6 +130,8 @@ public class AI : MonoBehaviour, IEnemy
             .New(patrolWaypoints, playerDetector, treeStructure, bfs, patrolSpeed);
         chaseMovement = gameObject.AddComponent<ChaseMovement>()
             .New(player, playerDetector, treeStructure, bfs, chaseSpeed, stoppingDistance);
+        findForAWeapon = gameObject.AddComponent<WeaponFinderMovement>()
+            .New();
 
         // Set the default movement and get the enemy weapon manager
         currentMovement = patrolMovement;
@@ -140,6 +143,15 @@ public class AI : MonoBehaviour, IEnemy
     {
         if (currentMovement == null)
         {
+            return;
+        }
+
+        // if enemy needs a gun we give priority to find a gun!
+        // this logic can change in another enemy type
+        if (weaponManager.NeedsToFindAWeapon())
+        {
+            currentMovement = findForAWeapon;
+            currentMovement.Move(body);
             return;
         }
 

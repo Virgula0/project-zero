@@ -309,4 +309,57 @@ public class KdTree
             NearestNeighborIgnorePoints(secondBranch, target, excludeSet, ref best, ref bestDistanceSqr, ref bestIndex);
         }
     }
+
+    // Given a target point, this method returns an array of all points stored in the kd-tree,
+    // where the 0th index is the nearest and the last index is the farthest from the target.
+    public Vector2[] FindFromNearestToFarthest(Vector2 target)
+    {
+        // Use a list to hold each node's point and the computed squared distance.
+        List<NodeDistance> distances = new List<NodeDistance>();
+        CollectNodes(root, target, distances);
+
+        // Sort the list by distance in ascending order.
+        distances.Sort((a, b) => a.distanceSqr.CompareTo(b.distanceSqr));
+
+        // Build an array with the sorted points.
+        Vector2[] sortedPoints = new Vector2[distances.Count];
+        for (int i = 0; i < distances.Count; i++)
+        {
+            sortedPoints[i] = distances[i].point;
+        }
+        return sortedPoints;
+    }
+
+    // Helper class to store a point along with its squared distance from the target.
+    private class NodeDistance
+    {
+        public Vector2 point;
+        public float distanceSqr;
+        public int index;
+
+        public NodeDistance(Vector2 point, float distanceSqr, int index)
+        {
+            this.point = point;
+            this.distanceSqr = distanceSqr;
+            this.index = index;
+        }
+    }
+
+    // Recursive helper function that traverses the tree and adds each node's point 
+    // along with its squared distance to the target into the provided list.
+    private void CollectNodes(Node node, Vector2 target, List<NodeDistance> distances)
+    {
+        if (node == null)
+        {
+            return;
+        }
+
+        // Calculate the squared distance from this node's point to the target.
+        float d = (node.Point - target).sqrMagnitude;
+        distances.Add(new NodeDistance(node.Point, d, node.Index));
+
+        // Continue with left and right subtrees.
+        CollectNodes(node.Left, target, distances);
+        CollectNodes(node.Right, target, distances);
+    }
 }
