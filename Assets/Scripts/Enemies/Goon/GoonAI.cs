@@ -151,7 +151,7 @@ public class AI : MonoBehaviour, IEnemy
         if (weaponManager.NeedsToFindAWeapon())
         {
             currentMovement = findForAWeapon;
-            currentMovement.Move(body);
+            //currentMovement.Move(body);
             return;
         }
 

@@ -6,6 +6,8 @@ public class WeaponFinder : MonoBehaviour
     private WeaponManager playerManager;
     private IGun weapon;
     private GameObject gameObjectRef;
+    private WeaponSpawner spawner;
+    private Transform tt;
 
     // Better to use awake since it is called before Start
     void Awake()
@@ -13,6 +15,7 @@ public class WeaponFinder : MonoBehaviour
         this.playerManager = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_MANAGER_TAG).GetComponent<WeaponManager>();
         this.weapon = GetComponentInParent<IGun>(); // in parent, the concrete script of the gun which implements Igun must be present
         this.gameObjectRef = transform.parent.gameObject;
+        this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER).GetComponent<WeaponSpawner>();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -29,6 +32,9 @@ public class WeaponFinder : MonoBehaviour
                 Debug.Log("You got a weapon! " + gameObject.name);
                 playerManager.LoadNewGun(weapon, collision.gameObject);
                 Destroy(this.gameObjectRef);
+                if (!spawner.RemoveAGunFromTheGroundPosition(gameObject.transform.position)){
+                    Debug.LogWarning("An element should have been removed and it was not!");
+                }
                 break;
             case (int)Utils.Enums.ObjectLayers.Enemy:
                 // get the manager of the enemy which callided with the gun
@@ -36,6 +42,9 @@ public class WeaponFinder : MonoBehaviour
                 Debug.Log("Enemy got a weapon! " + gameObject.name);
                 manager.LoadNewGun(weapon, collision.gameObject);
                 Destroy(this.gameObjectRef);
+                if (!spawner.RemoveAGunFromTheGroundPosition(gameObject.transform.position)){
+                    Debug.LogWarning("An element should have been removed and it was not!");
+                }
                 break;
         }
     }
