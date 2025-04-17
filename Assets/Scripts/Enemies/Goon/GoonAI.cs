@@ -158,7 +158,6 @@ public class AI : MonoBehaviour, IEnemy
         currentMovement = patrolMovement;
     }
 
-
     void FixedUpdate()
     {
         // nothing to do if we don't have a movement
@@ -217,6 +216,10 @@ public class AI : MonoBehaviour, IEnemy
     {
         if (transform.position == null)
             return;
+
+        if (patrolWaypoints == null || exitWaypoints == null){
+            return;
+        }
 
         float circleRadius = 0.8f;
         foreach (Vector2 point in patrolWaypoints)
