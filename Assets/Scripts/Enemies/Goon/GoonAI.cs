@@ -38,7 +38,7 @@ public class AI : MonoBehaviour, IEnemy
 
     // IMPORTANT! define the list of army that this type of enemy (in this case Goon) can equip
     private List<Type> typesThatCanBeEquipped = new List<Type>{
-        typeof(IRanged),
+        typeof(IRanged), // the order matters! it says to what type of weapon give priority when searching
         typeof(IMelee)
     };
 
@@ -152,7 +152,7 @@ public class AI : MonoBehaviour, IEnemy
         findForAWeapon = gameObject.AddComponent<WeaponFinderMovement>()
             .New(treeStructure, bfs, typesThatCanBeEquipped, spawner, weaponManager, findAWaponSpeed);
         cowardMovement = gameObject.AddComponent<CowardMovement>()
-            .New(exitWaypoints, glob.GetGlobalWaypointsNotRemappedVector(), treeStructure, bfs, playerDetector, runAwaySpeed);
+            .New(safeExitWaypointsCopy, glob.GetGlobalWaypointsNotRemappedVector(), treeStructure, bfs, playerDetector, runAwaySpeed);
 
         // Set the default movement and get the enemy weapon manager
         currentMovement = patrolMovement;

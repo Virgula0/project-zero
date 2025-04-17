@@ -16,8 +16,8 @@ public class CowardMovement : MonoBehaviour, IMovement
 
     public IMovement New(Vector2[] waypoints, Vector2[] globalWaypoints, KdTree treeStructure, BFSPathfinder bfs, Detector playerDetector, float speed)
     {
-        this.waypoints = RemoveAll(waypoints, globalWaypoints); // remove global waypoints from waypoints
-        this.waypoints = RemoveAtIndex(this.waypoints, 0); // remove element 0 because we don't want to enter the room anymore
+        this.waypoints = Utils.Functions.RemoveAll(waypoints, globalWaypoints); // remove global waypoints from waypoints
+        this.waypoints = Utils.Functions.RemoveAtIndex(this.waypoints, 0); // remove element 0 because we don't want to enter the room anymore
         this.kdTree = treeStructure;
         this.speed = speed;
         this.bfs = bfs;
@@ -78,7 +78,7 @@ public class CowardMovement : MonoBehaviour, IMovement
             }
         }
 
-        Vector2[] path = bfs.PathToPoint(closestPoint, this.waypoints[startIndex]);
+        Vector2[] path = bfs.PathToPoint(closestPoint, this.waypoints[startIndex % this.waypoints.Length]);
 
         // Step 1: move to the nearest point first
         foreach (Vector2 v in path)
@@ -87,7 +87,7 @@ public class CowardMovement : MonoBehaviour, IMovement
         }
 
         // Step 2: build the circular path (elements after the start index, then wrap)
-        List<Vector2> circularPath = GetCircularTraversal(startIndex);
+        List<Vector2> circularPath = GetCircularTraversal(startIndex % this.waypoints.Length);
 
         // Step 3: loop forever (or until stopped), visiting each point in order
         while (true)
@@ -101,7 +101,6 @@ public class CowardMovement : MonoBehaviour, IMovement
         }
     }
 
-    // Replaces LINQ's Skip + Concat with manual list manipulation
     private List<Vector2> GetCircularTraversal(int startIndex)
     {
         int count = waypoints.Length;
@@ -139,29 +138,7 @@ public class CowardMovement : MonoBehaviour, IMovement
 
     private void MoveTowards(Rigidbody2D rb, Vector2 targetPosition, float speedMultiplier = 1f)
     {
-        Vector2 newPos = Vector2.MoveTowards(
-            rb.position,
-            targetPosition,
-            speed * speedMultiplier * Time.fixedDeltaTime);
+        Vector2 newPos = Vector2.MoveTowards(rb.position,targetPosition, speed * speedMultiplier * Time.fixedDeltaTime);
         rb.MovePosition(newPos);
-    }
-
-    // Helper method to remove elements from the array
-    private Vector2[] RemoveAll(Vector2[] array, Vector2[] elementsToRemove)
-    {
-        List<Vector2> resultList = new List<Vector2>(array);
-        foreach (var element in elementsToRemove)
-        {
-            resultList.Remove(element);
-        }
-        return resultList.ToArray();
-    }
-
-    // Helper method to remove an element at a specific index
-    private Vector2[] RemoveAtIndex(Vector2[] array, int index)
-    {
-        List<Vector2> resultList = new List<Vector2>(array);
-        resultList.RemoveAt(index);
-        return resultList.ToArray();
     }
 }

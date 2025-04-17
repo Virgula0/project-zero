@@ -12,7 +12,7 @@ public class GlobalWaypoints : MonoBehaviour
     * THIS CAN BE IMPROVED
     * GlobalWaypoints could mantain remapped waypoints for all enemies in the scene . Then each enemy gets the full map from the global WayPoints.
     */
-    [SerializeField] private Vector2[] globalWaypoints;
+    [SerializeField] private readonly Vector2[] globalWaypoints;
     private Dictionary<int, int> globalWaypointsRemapped; // remapping with high indexes so they won't collide with real indexes of enemies graphs
     private int baseCounter = 100000; // starting from 100000
 
