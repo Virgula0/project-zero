@@ -121,7 +121,7 @@ public class ChaseMovement : MonoBehaviour, IMovement
         MoveTowardsTarget(enemyRB, playerBody.position);
     }
 
-    public void CustomSetter<T>(T var)
+    public void NeedsRepositioning(bool reposition)
     {
         return;
     }

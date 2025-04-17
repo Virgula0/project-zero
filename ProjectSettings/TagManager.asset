@@ -7,6 +7,8 @@ TagManager:
   - WeaponManager
   - PlayerTag
   - GlobalWaypoints
+  - GunOnTheGround
+  - WeaponSpawner
   layers:
   - Default
   - TransparentFX

@@ -83,12 +83,19 @@ public class GlobalWaypoints : MonoBehaviour
         return globalWaypoints[globalWaypointsRemapped.GetValueOrDefault(remappedIndex, -1)];
     }
 
+    public Vector2[] GetGlobalWaypointsNotRemappedVector(){
+        return globalWaypoints;
+    }
+
     // Debugging purposes you can ignore this
     private void OnDrawGizmos()
     {
         if (transform.position == null)
             return;
 
+        if (globalWaypoints == null)
+            return;
+        
         float circleRadius = 0.8f;
         foreach (Vector2 point in globalWaypoints)
         {

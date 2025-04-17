@@ -117,11 +117,7 @@ public class PatrolMovement : MonoBehaviour, IMovement
     }
 
 
-    public void CustomSetter<T>(T var)
-    {
-        if (var is bool booleanValue)
-        {
-            this.needsRepositioning = booleanValue;
-        }
+    public void NeedsRepositioning(bool reposition){
+        this.needsRepositioning = reposition;
     }
 }
