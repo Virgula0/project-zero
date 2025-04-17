@@ -7,7 +7,6 @@ public class WeaponFinder : MonoBehaviour
     private IGun weapon;
     private GameObject gameObjectRef;
     private WeaponSpawner spawner;
-    private Transform tt;
 
     // Better to use awake since it is called before Start
     void Awake()
@@ -20,32 +19,43 @@ public class WeaponFinder : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (weapon == null){
+        if (weapon == null)
+        {
             return;
         }
 
         Debug.Log("Collision detected with: " + collision.gameObject.name);
-        
-        switch (collision.gameObject.layer)
+
+        var obj = collision.gameObject;
+
+        switch (obj.layer)
         {
             case (int)Utils.Enums.ObjectLayers.Player:
                 Debug.Log("You got a weapon! " + gameObject.name);
-                playerManager.LoadNewGun(weapon, collision.gameObject);
-                Destroy(this.gameObjectRef);
-                if (!spawner.RemoveAGunFromTheGroundPosition(gameObject.transform.position)){
-                    Debug.LogWarning("An element should have been removed and it was not!");
-                }
+                playerManager.LoadNewGun(weapon, obj);
+                HandleWeaponPickup();
                 break;
+
             case (int)Utils.Enums.ObjectLayers.Enemy:
-                // get the manager of the enemy which callided with the gun
-                EnemyWeaponManager manager = collision.gameObject.transform.parent.GetComponentInChildren<EnemyWeaponManager>();
-                Debug.Log("Enemy got a weapon! " + gameObject.name);
-                manager.LoadNewGun(weapon, collision.gameObject);
-                Destroy(this.gameObjectRef);
-                if (!spawner.RemoveAGunFromTheGroundPosition(gameObject.transform.position)){
-                    Debug.LogWarning("An element should have been removed and it was not!");
+                EnemyWeaponManager manager = obj.transform.parent.GetComponentInChildren<EnemyWeaponManager>();
+                if (!manager.CanWeaponBeEquipped(weapon))
+                {
+                    Debug.Log("This enemy cannot equip this type of weapon");
+                    break;
                 }
+                Debug.Log("Enemy got a weapon! " + gameObject.name);
+                manager.LoadNewGun(weapon, obj);
+                HandleWeaponPickup();
                 break;
+        }
+    }
+
+    private void HandleWeaponPickup()
+    {
+        Destroy(this.gameObjectRef);
+        if (!spawner.RemoveAGunFromTheGroundPosition(gameObject.transform.position))
+        {
+            Debug.LogWarning("An element should have been removed and it was not!");
         }
     }
 }

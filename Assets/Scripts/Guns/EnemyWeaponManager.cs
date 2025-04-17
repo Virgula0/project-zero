@@ -1,22 +1,48 @@
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 
 public class EnemyWeaponManager : MonoBehaviour
 {
     [SerializeField] private IGun currentLoadedWeapon; // an enemy could have a gun at the beginning. If it does not have it it will start to search one.
     private float timer; // timer counts the timer elapsed from the last shot, in seconds
     [SerializeField] SpriteRenderer enemySpriteRenderer;
-
     private Sprite defaultEnemySprite;
     private bool isEnemyAlerted = false;
     private bool needsToFindAWeapon = false;
+    private List<Type> weaponTypesThatCanBeEquipped;
 
-    public void ChangeEnemyStatus(bool status){
+    public void ChangeEnemyStatus(bool status)
+    {
         this.isEnemyAlerted = status;
     }
 
-    public bool NeedsToFindAWeapon(){
+    public bool NeedsToFindAWeapon()
+    {
         return needsToFindAWeapon;
+    }
+
+    public void SetWeaponThatCanBeEquipped( List<Type> list){
+        this.weaponTypesThatCanBeEquipped = list;
+    }
+
+    public bool CanWeaponBeEquipped(object weapon)
+    {
+        if (weaponTypesThatCanBeEquipped == null || weapon == null)
+        {
+            return false;
+        }
+
+        Type weaponType = weapon.GetType();
+        foreach (Type type in weaponTypesThatCanBeEquipped)
+        {
+            if (type.IsAssignableFrom(weaponType))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // this will be invoked externally
@@ -71,12 +97,14 @@ public class EnemyWeaponManager : MonoBehaviour
             return;
         }
 
-        if (!isEnemyAlerted){
+        if (!isEnemyAlerted)
+        {
             timer = 0;
             return;
         }
 
-        if (currentLoadedWeapon.GetNumberOfReloads() < 1 && currentLoadedWeapon.GetAmmoCount() < 1){
+        if (currentLoadedWeapon.GetNumberOfReloads() < 1 && currentLoadedWeapon.GetAmmoCount() < 1)
+        {
             UnloadCurrentGun();
             return;
         }

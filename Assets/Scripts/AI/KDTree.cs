@@ -23,7 +23,7 @@ public class KdTree
         }
     }
 
-    public void UpdateVectorSet(Vector2 newPoint)
+    public void UpdateVectorSetOnInsert(Vector2 newPoint)
     {
         // Create a new array with one extra slot.
         Vector2[] newPoints = new Vector2[points.Length + 1];
@@ -41,6 +41,44 @@ public class KdTree
         }
 
         root = Build(indexedPoints, 0);
+    }
+
+    // Removes the first occurrence of the given point from the kd‑tree’s data set,
+    // rebuilds the tree, and returns true if the point was found and removed.
+    // Returns false if the point was not present.
+    public bool UpdateVectorSetOnDeleteFirstOccurence(Vector2 pointToRemove)
+    {
+        // Find index of the point to remove
+        int removeIndex = Array.FindIndex(points, p => p == pointToRemove);
+        if (removeIndex < 0)
+        {
+            // Point not found
+            return false;
+        }
+
+        // Create a new array one element smaller
+        Vector2[] newPoints = new Vector2[points.Length - 1];
+
+        // Copy elements before the removed point
+        if (removeIndex > 0)
+            Array.Copy(points, 0, newPoints, 0, removeIndex);
+
+        // Copy elements after the removed point
+        if (removeIndex < points.Length - 1)
+            Array.Copy(points, removeIndex + 1, newPoints, removeIndex, points.Length - removeIndex - 1);
+
+        // Update the internal point list
+        points = newPoints;
+
+        // Rebuild the kd‑tree from the updated set
+        IndexedPoint[] indexedPoints = new IndexedPoint[points.Length];
+        for (int i = 0; i < points.Length; i++)
+        {
+            indexedPoints[i] = new IndexedPoint(points[i], i);
+        }
+        root = Build(indexedPoints, 0);
+
+        return true;
     }
 
     // Internal tree node definition.

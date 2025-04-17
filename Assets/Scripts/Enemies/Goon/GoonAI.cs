@@ -7,6 +7,8 @@ public class AI : MonoBehaviour, IEnemy
 {
     [SerializeField] private float patrolSpeed = 3f;
     [SerializeField] private float chaseSpeed;
+    [SerializeField] private float findAWaponSpeed;
+
     [SerializeField] private float stoppingDistance = 5f;
     [SerializeField] private Vector2[] patrolWaypoints;
     // exitWaypoints is a vector containing the coordinates of doors or obstacles (manually defined in the editor) 
@@ -30,6 +32,13 @@ public class AI : MonoBehaviour, IEnemy
     private Vector2[] safeExitWaypointsCopy;
     private Dictionary<int, List<int>> connectionGraph;
     private Dictionary<int, List<int>> originalEnemyConnectionGraph;
+    private WeaponSpawner spawner;
+
+    // IMPORTANT! define the list of army that this type of enemy (in this case Goon) can equip
+    private List<Type> typesThatCanBeEquipped = new List<Type>{
+        typeof(IRanged),
+        typeof(IMelee)
+    };
 
     private void Awake()
     {
@@ -57,6 +66,9 @@ public class AI : MonoBehaviour, IEnemy
     {
         // Update speeds and obtain components
         this.chaseSpeed = patrolSpeed * 3 + chaseSpeed;
+        this.findAWaponSpeed = patrolSpeed * 1.5f + findAWaponSpeed;
+
+        this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER).GetComponent<WeaponSpawner>();
         this.body = transform.parent.GetComponentInChildren<Rigidbody2D>();
         player = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
         playerDetector = gameObject.GetComponent<Detector>();
@@ -85,7 +97,7 @@ public class AI : MonoBehaviour, IEnemy
             this.exitWaypoints = Utils.Functions.AddToVector2Array(this.exitWaypoints, elemToLink, out int addedIndex);
             this.connectionGraph.Add(addedIndex, new List<int> { index });
             this.connectionGraph[index].Add(addedIndex);
-            treeStructure.UpdateVectorSet(elemToLink);
+            treeStructure.UpdateVectorSetOnInsert(elemToLink);
         }
     }
 
@@ -111,7 +123,7 @@ public class AI : MonoBehaviour, IEnemy
             foreach (Vector2 node in enemyWaypoints)
             {
                 this.exitWaypoints = Utils.Functions.AddToVector2Array(this.exitWaypoints, node, out _);
-                treeStructure.UpdateVectorSet(node);
+                treeStructure.UpdateVectorSetOnInsert(node);
             }
         }
     }
@@ -125,17 +137,20 @@ public class AI : MonoBehaviour, IEnemy
         // Create the BFS pathfinder using the finalized waypoint set and connection graph
         bfs = new BFSPathfinder(exitWaypoints, connectionGraph);
 
+        // Enemy Weapon manager
+        weaponManager = transform.parent.GetComponentInChildren<EnemyWeaponManager>();
+        weaponManager.SetWeaponThatCanBeEquipped(typesThatCanBeEquipped);
+
         // Add movement components and initialize them
         patrolMovement = gameObject.AddComponent<PatrolMovement>()
             .New(patrolWaypoints, playerDetector, treeStructure, bfs, patrolSpeed);
         chaseMovement = gameObject.AddComponent<ChaseMovement>()
             .New(player, playerDetector, treeStructure, bfs, chaseSpeed, stoppingDistance);
         findForAWeapon = gameObject.AddComponent<WeaponFinderMovement>()
-            .New();
+            .New(treeStructure, bfs, typesThatCanBeEquipped, spawner, weaponManager, findAWaponSpeed);
 
         // Set the default movement and get the enemy weapon manager
         currentMovement = patrolMovement;
-        weaponManager = transform.parent.GetComponentInChildren<EnemyWeaponManager>();
     }
 
 
@@ -146,17 +161,20 @@ public class AI : MonoBehaviour, IEnemy
             return;
         }
 
-        // if enemy needs a gun we give priority to find a gun!
+        // if enemy needs a gun we give priority to find a gun, ignoring the player!
         // this logic can change in another enemy type
-        if (weaponManager.NeedsToFindAWeapon())
+        if (weaponManager.NeedsToFindAWeapon() && spawner.GetAllWeaponsOnTheGroundPosition().Length > 0)
         {
             currentMovement = findForAWeapon;
-            //currentMovement.Move(body);
+            currentMovement.Move(body);
             return;
         }
 
         if (!playerDetector.GetIsEnemyAwareOfPlayer())
         {
+            if (currentMovement != patrolMovement){
+                patrolMovement.NeedsRepositioning(true);
+            }
             currentMovement = patrolMovement;
             currentMovement.Move(body); // if the enemy does not know about the player
             weaponManager.ChangeEnemyStatus(false);
@@ -164,7 +182,6 @@ public class AI : MonoBehaviour, IEnemy
         }
 
         // if here enemy detected player, start shooting and chasing!
-        currentMovement.CustomSetter(varToSet: true); // CustomSetter will try to set the needsRepositioning to true
         currentMovement = chaseMovement;
         currentMovement?.Move(body); // ?. means that Move will called if currentMovement is not null
         weaponManager.ChangeEnemyStatus(true);
