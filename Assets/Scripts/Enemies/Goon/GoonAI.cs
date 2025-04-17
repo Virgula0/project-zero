@@ -7,6 +7,7 @@ public class AI : MonoBehaviour, IEnemy
 {
     [SerializeField] private float patrolSpeed = 3f;
     [SerializeField] private float chaseSpeed;
+    [SerializeField] private float runAwaySpeed;
     [SerializeField] private float findAWaponSpeed;
 
     [SerializeField] private float stoppingDistance = 5f;
@@ -23,6 +24,7 @@ public class AI : MonoBehaviour, IEnemy
     private IMovement patrolMovement;
     private IMovement chaseMovement;
     private IMovement findForAWeapon;
+    private IMovement cowardMovement;
     private EnemyWeaponManager weaponManager;
     private Detector playerDetector;
     private Rigidbody2D body;
@@ -59,14 +61,15 @@ public class AI : MonoBehaviour, IEnemy
         // Connect waypoints from other enemies using the global waypoints reference
         ConnectOtherEnemyWaypoints(glob);
         // Finalize the initialization: log info and set up pathfinder and movements
-        FinalizeInitialization();
+        FinalizeInitialization(glob);
     }
 
     private GlobalWaypoints InitializeParameters()
     {
         // Update speeds and obtain components
-        this.chaseSpeed = patrolSpeed * 3 + chaseSpeed;
-        this.findAWaponSpeed = patrolSpeed * 1.5f + findAWaponSpeed;
+        this.chaseSpeed = patrolSpeed * 3.5f + chaseSpeed;
+        this.findAWaponSpeed = patrolSpeed * 2f + findAWaponSpeed;
+        this.runAwaySpeed = patrolSpeed * 4 + runAwaySpeed;
 
         this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER).GetComponent<WeaponSpawner>();
         this.body = transform.parent.GetComponentInChildren<Rigidbody2D>();
@@ -128,7 +131,7 @@ public class AI : MonoBehaviour, IEnemy
         }
     }
 
-    private void FinalizeInitialization()
+    private void FinalizeInitialization(GlobalWaypoints glob)
     {
         // Debug.Log("after: " + Utils.Functions.Vector2ArrayToString(exitWaypoints));
         // Debug.Log("connections after");
@@ -148,6 +151,8 @@ public class AI : MonoBehaviour, IEnemy
             .New(player, playerDetector, treeStructure, bfs, chaseSpeed, stoppingDistance);
         findForAWeapon = gameObject.AddComponent<WeaponFinderMovement>()
             .New(treeStructure, bfs, typesThatCanBeEquipped, spawner, weaponManager, findAWaponSpeed);
+        cowardMovement = gameObject.AddComponent<CowardMovement>()
+            .New(exitWaypoints, glob.GetGlobalWaypointsNotRemappedVector(), treeStructure, bfs, playerDetector, runAwaySpeed);
 
         // Set the default movement and get the enemy weapon manager
         currentMovement = patrolMovement;
@@ -156,36 +161,46 @@ public class AI : MonoBehaviour, IEnemy
 
     void FixedUpdate()
     {
+        // nothing to do if we don't have a movement
         if (currentMovement == null)
-        {
             return;
-        }
 
-        // if enemy needs a gun we give priority to find a gun, ignoring the player!
-        // this logic can change in another enemy type
-        if (weaponManager.NeedsToFindAWeapon() && spawner.GetAllWeaponsOnTheGroundPosition().Length > 0)
+        // 1) Weapon‑find has top priority
+        if (weaponManager.NeedsToFindAWeapon())
         {
             currentMovement = findForAWeapon;
+
+            if (currentMovement is WeaponFinderMovement wp)
+            {
+                bool hasWeapon = wp.CloserWeaponToEnemy(body.position, null).HasValue;
+                wp.NeedsRepositioning(hasWeapon);  // stop/resume its internal routine
+                if (!hasWeapon)
+                    currentMovement = cowardMovement;
+            }
+
             currentMovement.Move(body);
             return;
         }
 
+        // 2) If enemy is not aware of the player, patrol
         if (!playerDetector.GetIsEnemyAwareOfPlayer())
         {
-            if (currentMovement != patrolMovement){
+            // if we just came from chase or weapon‑find, stop that coroutine
+            if (currentMovement != patrolMovement)
                 patrolMovement.NeedsRepositioning(true);
-            }
+
             currentMovement = patrolMovement;
-            currentMovement.Move(body); // if the enemy does not know about the player
             weaponManager.ChangeEnemyStatus(false);
+            currentMovement.Move(body);
             return;
         }
 
-        // if here enemy detected player, start shooting and chasing!
+        // 3) Otherwise chase the player
         currentMovement = chaseMovement;
-        currentMovement?.Move(body); // ?. means that Move will called if currentMovement is not null
         weaponManager.ChangeEnemyStatus(true);
+        currentMovement.Move(body);
     }
+
 
     public Vector2[] GetEnemyWaypoints()
     {

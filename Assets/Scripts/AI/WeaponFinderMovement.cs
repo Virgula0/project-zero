@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 using System.Collections;
+using System.Linq;
 
 public class WeaponFinderMovement : MonoBehaviour, IMovement
 {
@@ -12,6 +13,7 @@ public class WeaponFinderMovement : MonoBehaviour, IMovement
     private List<Type> typesThatCanBeEquipped;
     private EnemyWeaponManager enemyWeaponManager;
     private bool busy = false;
+    private bool atLeastAWeaponAvailable = true;
 
     public IMovement New(KdTree tree, BFSPathfinder bfs, List<Type> typesThatCanBeEquipped, WeaponSpawner spawner, EnemyWeaponManager enemyWeaponManager, float speed)
     {
@@ -35,11 +37,10 @@ public class WeaponFinderMovement : MonoBehaviour, IMovement
     // this functions using tree of ranged or melee weapons returns the coordintates of the weapoon closer to the enemy
     // this ignores bodies within the enemy and weapoins at the moment
     // also, as it is coded it gives priority to the first Type declared to typesThatCanBeEquipped, so the order matters
-    private Vector2? CloserWeaponToEnemy(Vector2 enemyPos, Vector2? closerWeaponToEnemy)
+    public Vector2? CloserWeaponToEnemy(Vector2 enemyPos, Vector2? closerWeaponToEnemy)
     {
         foreach (Type t in typesThatCanBeEquipped)
         {
-            Debug.Log(t);
             if (closerWeaponToEnemy != null)
             {
                 return closerWeaponToEnemy;
@@ -61,7 +62,7 @@ public class WeaponFinderMovement : MonoBehaviour, IMovement
     }
 
     public void Move(Rigidbody2D enemyTransform)
-    {
+    {        
         if (typesThatCanBeEquipped == null || typesThatCanBeEquipped.Count == 0)
         {
             return;
@@ -79,12 +80,18 @@ public class WeaponFinderMovement : MonoBehaviour, IMovement
 
         if (closerEquippableWeapon == null)
         {
-            Debug.LogWarning("closer weapon to enemy is null, nothing found");
+            atLeastAWeaponAvailable = false;
+            Debug.LogWarning("Closer weapon to enemy is null, nothing found");
             return;
         }
 
         busy = true;
+        atLeastAWeaponAvailable = true;
         StartCoroutine(MoveToThePointCoroutine(enemyTransform, (Vector2)closerEquippableWeapon));
+    }
+
+    public bool GetIsAtLeastAWeaponAvailable(){
+        return this.atLeastAWeaponAvailable;
     }
 
     private IEnumerator MoveToThePointCoroutine(Rigidbody2D enemyRB, Vector2 closerEquippableWeapon)
@@ -92,32 +99,41 @@ public class WeaponFinderMovement : MonoBehaviour, IMovement
         Vector2 targetWaypoint = kdTree.FindNearest(closerEquippableWeapon, out _);
         Vector2 enemyCloserWaypoint = kdTree.FindNearest(enemyRB.position, out _);
         Vector2[] path = bfs.PathToPoint(enemyCloserWaypoint, targetWaypoint);
+
+        // walk the path
         foreach (Vector2 waypoint in path)
-        {
-            while (Vector2.Distance(enemyRB.position, waypoint) > 0.1f)
-            {
-                if (!enemyWeaponManager.NeedsToFindAWeapon())
-                {
-                    busy = false;
-                    yield break;
-                }
-                // TODO: check it the gun still exist on the ground
-                MoveTowardsTarget(enemyRB, waypoint);
-                yield return new WaitForFixedUpdate();
-            }
-        }
-        // and then move towards the targetWaypoint
-        while (Vector2.Distance(enemyRB.position, closerEquippableWeapon) > 0.1f)
+            yield return MoveToDestinationWithChecks(enemyRB, waypoint, closerEquippableWeapon);
+
+        // final leg: go to the actual weapon
+        yield return MoveToDestinationWithChecks(enemyRB, closerEquippableWeapon, closerEquippableWeapon);
+
+        busy = false;
+    }
+
+    /// Moves towards 'destination', but on each FixedUpdate checks:
+    /// 1) if we still need to find a weapon  
+    /// 2) if the weapon is still on the ground  
+    /// Exits early (and clears busy) if either check fails.
+    private IEnumerator MoveToDestinationWithChecks(Rigidbody2D enemyRB, Vector2 destination,Vector2 weaponPosition)
+    {
+        while (Vector2.Distance(enemyRB.position, destination) > 0.1f)
         {
             if (!enemyWeaponManager.NeedsToFindAWeapon())
             {
                 busy = false;
                 yield break;
             }
-            MoveTowardsTarget(enemyRB, closerEquippableWeapon);
+
+            if (!spawner.GetAllWeaponsOnTheGroundPosition().Contains(weaponPosition))
+            {
+                Debug.Log("Weapon does not exist anymore");
+                busy = false;
+                yield break;
+            }
+
+            MoveTowardsTarget(enemyRB, destination);
             yield return new WaitForFixedUpdate();
         }
-        busy = false;
     }
 
     public void NeedsRepositioning(bool reposition)

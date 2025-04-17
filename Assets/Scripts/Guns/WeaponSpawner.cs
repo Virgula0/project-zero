@@ -6,7 +6,6 @@ public class WeaponSpawner : MonoBehaviour
     private List<Vector2> allWeaponsPositions;
     private List<Vector2> rangedWeaponsPositions;
     private List<Vector2> meleeWeaponsPositions;
-    private KdTree allWeaponStructure;
     private KdTree rangedStructure;
     private KdTree meleeStructure;
 
@@ -33,14 +32,8 @@ public class WeaponSpawner : MonoBehaviour
                 continue;
             }
         }
-        this.allWeaponStructure = new KdTree(allWeaponsPositions.ToArray());
         this.rangedStructure = new KdTree(rangedWeaponsPositions.ToArray());
         this.meleeStructure = new KdTree(meleeWeaponsPositions.ToArray());
-    }
-
-    public KdTree GetAllWeapoonTree()
-    {
-        return allWeaponStructure;
     }
 
     public KdTree GetRangedTree()
@@ -70,8 +63,7 @@ public class WeaponSpawner : MonoBehaviour
 
     public bool RemoveAGunFromTheGroundPosition(Vector2 toRemove)
     {
-        bool removedAll = allWeaponsPositions.Remove(toRemove)
-                             && allWeaponStructure.UpdateVectorSetOnDeleteFirstOccurence(toRemove);
+        bool removedAll = allWeaponsPositions.Remove(toRemove);
 
         bool removedRanged = rangedWeaponsPositions.Remove(toRemove)
                              && rangedStructure.UpdateVectorSetOnDeleteFirstOccurence(toRemove);

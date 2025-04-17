@@ -83,6 +83,10 @@ public class GlobalWaypoints : MonoBehaviour
         return globalWaypoints[globalWaypointsRemapped.GetValueOrDefault(remappedIndex, -1)];
     }
 
+    public Vector2[] GetGlobalWaypointsNotRemappedVector(){
+        return globalWaypoints;
+    }
+
     // Debugging purposes you can ignore this
     private void OnDrawGizmos()
     {

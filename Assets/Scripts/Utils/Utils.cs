@@ -52,6 +52,28 @@ namespace Utils
             addedIndex = array.Length;
             return newArray;
         }
+        /// Returns a new array containing only those points in <paramref name="source"/>
+        /// that are not exactly equal to any point in <paramref name="toRemove"/>.
+        public static Vector2[] RemoveAll(Vector2[] source, Vector2[] toRemove)
+        {
+            // build a HashSet for O(1) lookups
+            var removeSet = new HashSet<Vector2>(toRemove);
+            return source
+                .Where(v => !removeSet.Contains(v))
+                .ToArray();
+        }
+
+        public static Vector2[] RemoveAtIndex(Vector2[] source, int index)
+        {
+            // Defensive check
+            if (index < 0 || index >= source.Length)
+                throw new System.ArgumentOutOfRangeException(nameof(index));
+
+            // Convert to List, remove, convert back
+            var list = source.ToList();       // O(n)
+            list.RemoveAt(index);             // O(n) shift
+            return list.ToArray();            // O(n)
+        }
 
         public static string Vector2ArrayToString(Vector2[] vectors)
         {
