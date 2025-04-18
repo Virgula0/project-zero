@@ -10,19 +10,24 @@ public class SimpleGun : MonoBehaviour, IGun, IRanged
     private int ammoCount;
 
     [SerializeField] private SpriteRenderer staticWeaponSprite;
-    [SerializeField] private Sprite equippedSprite; 
+    [SerializeField] private Sprite equippedSprite;
     [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private Sprite bulletSprite;
     [SerializeField] private AudioClip shotSound;
     [SerializeField] private AudioClip reloadSound;
     [SerializeField] private AudioClip equipSound;
-    
+
     private GameObject shooterObject;
 
     public void Setup(GameObject player)
     {
-        this.ammoCount = this.magCap;
         shooterObject = player;
+    }
+
+    void Awake()
+    {
+        // Needed because otherwise when executing SaveStatus the start will run after the save
+        this.ammoCount = this.magCap;
     }
 
     void Start()
@@ -107,5 +112,11 @@ public class SimpleGun : MonoBehaviour, IGun, IRanged
     public AudioClip GetEquipSfx()
     {
         return this.equipSound;
+    }
+
+    public void SaveStatus(IGun other)
+    {
+        this.numberOfReloads = other.GetNumberOfReloads();
+        this.ammoCount = other.GetAmmoCount();
     }
 }

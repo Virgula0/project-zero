@@ -71,7 +71,7 @@ public class AI : MonoBehaviour, IEnemy
         this.findAWaponSpeed = patrolSpeed * 2f + findAWaponSpeed;
         this.runAwaySpeed = patrolSpeed * 4 + runAwaySpeed;
 
-        this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER).GetComponent<WeaponSpawner>();
+        this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER_TAG).GetComponent<WeaponSpawner>();
         this.body = transform.parent.GetComponentInChildren<Rigidbody2D>();
         player = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
         playerDetector = gameObject.GetComponent<Detector>();

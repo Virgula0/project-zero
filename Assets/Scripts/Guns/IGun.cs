@@ -12,6 +12,7 @@ public interface IGun
     int GetNumberOfReloads();
     int GetMegCap();
     float GetFireRate();
+    void SaveStatus(IGun weapon);
     Sprite GetEquippedSprite();
     Sprite GetStaticWeaponSprite();
     AudioClip GetShotSfx();

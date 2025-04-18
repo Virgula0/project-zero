@@ -1478,6 +1478,10 @@ PrefabInstance:
       propertyPath: ui
       value: 
       objectReference: {fileID: 813213565}
+    - target: {fileID: 75392682884187312, guid: aba9230473b29874c86dcef7d2d169ed, type: 3}
+      propertyPath: gunPrefab
+      value: 
+      objectReference: {fileID: 5829556277332518347, guid: 71b6dbee4d80f424cbeecc56a58ed163, type: 3}
     - target: {fileID: 637570073800689327, guid: aba9230473b29874c86dcef7d2d169ed, type: 3}
       propertyPath: m_Name
       value: Player

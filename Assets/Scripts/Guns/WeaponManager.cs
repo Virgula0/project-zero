@@ -9,15 +9,24 @@ public class WeaponManager : MonoBehaviour
     private UIManager uiManager;
     private Sprite defaultPlayerSprite;
     private bool isReloading = false;
+    private Rigidbody2D playerBody;
+    private Camera mainCamera;
+    private WeaponSpawner spawner;
 
     [SerializeField] SpriteRenderer playerSpriteRenderer;
     [SerializeField] Canvas ui;
     [SerializeField] AudioSource audioSrc;
+    [SerializeField] private GameObject gunPrefab;
+    private float forwardSpawnGunPrefabOffset = 3f;
+    private float upOffsetSpawnGunPrefab = 1f;
 
     void Start()
     {
+        this.mainCamera = Camera.main;
+        this.playerBody = GetComponentInParent<Rigidbody2D>();
         this.defaultPlayerSprite = playerSpriteRenderer.sprite;
         this.uiManager = ui.GetComponent<UIManager>();
+        this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER_TAG).GetComponent<WeaponSpawner>();
     }
 
 
@@ -34,7 +43,8 @@ public class WeaponManager : MonoBehaviour
             throw new NullReferenceException("PLAYER SPRITE RENDERER CANNOT BE NULL, THE PASSED REFERENCE TO THE PLAYER SPRITE RENDERER IS NULL");
         }
 
-        if (currentLoadedWeapon != null){ 
+        if (currentLoadedWeapon != null)
+        {
             UnloadCurrentGun();
         }
 
@@ -49,7 +59,7 @@ public class WeaponManager : MonoBehaviour
         uiManager.UpdateWeaponIcon(currentLoadedWeapon.GetStaticWeaponSprite());
         uiManager.UpdateBullets(currentLoadedWeapon.GetAmmoCount());
         uiManager.UpdateReloads(currentLoadedWeapon.GetNumberOfReloads());
-        
+
     }
 
     private void UnloadCurrentGun()
@@ -58,9 +68,23 @@ public class WeaponManager : MonoBehaviour
         {
             throw new NullReferenceException("GUN CANNOT BE DELOADED IF NO ONE HAS BEEN LOADED");
         }
-
         Debug.Log("Weapon deloaded");
         audioSrc.PlayOneShot(currentLoadedWeapon.GetEquipSfx());
+
+        if (currentLoadedWeapon.GetAmmoCount() > 0 || currentLoadedWeapon.GetNumberOfReloads() > 0)
+        {
+            Vector3 mouseWorld3D = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            Vector2 mouseWorld2D = new Vector2(mouseWorld3D.x, mouseWorld3D.y);
+            Vector2 origin = playerBody.position;
+            Vector2 forward = (mouseWorld2D - origin).normalized;
+            Vector2 up = new Vector2(-forward.y, forward.x); // rotate forward by 90° CCW
+            Vector2 spawnPos = origin + forward * forwardSpawnGunPrefabOffset + up * upOffsetSpawnGunPrefab;
+            
+            GameObject newPrefab = Instantiate(gunPrefab, spawnPos, Quaternion.identity);
+            newPrefab.GetComponent<IGun>().SaveStatus(currentLoadedWeapon); // save current status
+            spawner.AddAvailableGunOnTheGroundPosition(spawnPos, currentLoadedWeapon);
+        }
+
         currentLoadedWeapon = null;
         timer = 0;
         playerSpriteRenderer.sprite = defaultPlayerSprite;
@@ -80,7 +104,8 @@ public class WeaponManager : MonoBehaviour
 
         timer += Time.deltaTime;
 
-        if (isReloading){
+        if (isReloading)
+        {
             return;
         }
 
@@ -91,7 +116,7 @@ public class WeaponManager : MonoBehaviour
             return;
         }
 
-        if (Input.GetKeyDown(KeyCode.R) && currentLoadedWeapon.GetNumberOfReloads() > 0 
+        if (Input.GetKeyDown(KeyCode.R) && currentLoadedWeapon.GetNumberOfReloads() > 0
             && currentLoadedWeapon.GetAmmoCount() < currentLoadedWeapon.GetMegCap())
         {
             currentLoadedWeapon.Reload();
@@ -99,7 +124,7 @@ public class WeaponManager : MonoBehaviour
             uiManager.UpdateBullets(currentLoadedWeapon.GetAmmoCount());
             audioSrc.PlayOneShot(currentLoadedWeapon.GetReloadSfx());
             isReloading = true;
-            StartCoroutine(WaitForSfxToEnd()); 
+            StartCoroutine(WaitForSfxToEnd());
             return;
         }
 
@@ -114,9 +139,11 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
-    IEnumerator WaitForSfxToEnd(){
+    IEnumerator WaitForSfxToEnd()
+    {
 
-        while(audioSrc.isPlaying){
+        while (audioSrc.isPlaying)
+        {
             yield return null;
         }
 

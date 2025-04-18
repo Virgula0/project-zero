@@ -19,87 +19,11 @@ public class EnemyWeaponManager : MonoBehaviour
     private List<Type> weaponTypesThatCanBeEquipped;
     private bool isReloading = false;
     private bool needsToPLayOnLoad = true; // this avoid to play the equip sound when scene start on already equipped weapons
-
-    public void ChangeEnemyStatus(bool status)
-    {
-        this.isEnemyAlerted = status;
-    }
-
-    public bool NeedsToFindAWeapon()
-    {
-        return needsToFindAWeapon;
-    }
-
-    public void SetWeaponThatCanBeEquipped(List<Type> list)
-    {
-        this.weaponTypesThatCanBeEquipped = list;
-    }
-
-    public bool CanWeaponBeEquipped(object weapon)
-    {
-        if (weaponTypesThatCanBeEquipped == null || weapon == null)
-        {
-            return false;
-        }
-
-        Type weaponType = weapon.GetType();
-        foreach (Type type in weaponTypesThatCanBeEquipped)
-        {
-            if (type.IsAssignableFrom(weaponType))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    // this will be invoked externally
-    public void LoadNewGun(IGun weapon, GameObject shooter)
-    {
-        if (weapon == null)
-        {
-            throw new NullReferenceException("ENEMY LOAD CANNOT BE NULL, THE PASSED REFERENCE TO WEAPON MANAGER IS NULL");
-        }
-
-        /*
-        if(playerSpriteRenderer == null){
-           throw new NullReferenceException("ENEMY SPRITE RENDERER CANNOT BE NULL, THE PASSED REFERENCE OF THE PLAYER SPRITE RENDERER IS NULL"); 
-        }
-        */
-
-        Debug.Log("Enemy loaded a weapon");
-        // must be done whatever a new gun gets loaded
-        currentLoadedWeapon = weapon;
-
-        // we're allowed to shoot at te beginning 
-        timer = float.PositiveInfinity;
-        currentLoadedWeapon.Setup(shooter);
-        needsToFindAWeapon = false; // enemy do not needs to find a weapon anymore
-        if (needsToPLayOnLoad)
-        {
-            audioSrc.PlayOneShot(currentLoadedWeapon.GetEquipSfx());
-        }
-        needsToPLayOnLoad = true;
-        // playerSpriteRenderer.sprite = weapon.GetEquippedSprite();
-    }
-
-    private void UnloadCurrentGun()
-    {
-        if (currentLoadedWeapon == null)
-        {
-            throw new NullReferenceException("ENEMY GUN CANNOT BE DELOADED IF NO ONE HAS BEEN LOADED");
-        }
-
-        Debug.Log("Enemy deloaded a weapon");
-        audioSrc.PlayOneShot(currentLoadedWeapon.GetEquipSfx());
-        currentLoadedWeapon = null;
-        timer = 0;
-        // playerSpriteRenderer.sprite = defaultPlayerSprite;
-    }
+    private Rigidbody2D enemyBody;
 
     void Start()
     {
+        enemyBody = transform.parent.GetComponentInChildren<Rigidbody2D>();
         // if prefab is not null enemy will spawn with an already equipped weapon
         if (weaponTemplatePrefab != null)
         {
@@ -126,8 +50,7 @@ public class EnemyWeaponManager : MonoBehaviour
             if (newGun == null)
                 throw new InvalidCastException($"Added component {compType.Name} doesn’t implement IGun?");
 
-            GameObject enemyObj = transform.parent.GetComponentInChildren<Rigidbody2D>().gameObject;
-            LoadNewGun(newGun, enemyObj);
+            LoadNewGun(newGun, enemyBody.gameObject);
         }
         // this.defaultPlayerSprite = playerSpriteRenderer.sprite;
     }
@@ -177,6 +100,85 @@ public class EnemyWeaponManager : MonoBehaviour
         }
 
         timer += Time.deltaTime;
+    }
+
+    // this will be invoked externally
+    public void LoadNewGun(IGun weapon, GameObject shooter)
+    {
+        if (weapon == null)
+        {
+            throw new NullReferenceException("ENEMY LOAD CANNOT BE NULL, THE PASSED REFERENCE TO WEAPON MANAGER IS NULL");
+        }
+
+        /*
+        if(playerSpriteRenderer == null){
+           throw new NullReferenceException("ENEMY SPRITE RENDERER CANNOT BE NULL, THE PASSED REFERENCE OF THE PLAYER SPRITE RENDERER IS NULL"); 
+        }
+        */
+
+        Debug.Log("Enemy loaded a weapon");
+        // must be done whatever a new gun gets loaded
+        currentLoadedWeapon = weapon;
+
+        // we're allowed to shoot at te beginning 
+        timer = float.PositiveInfinity;
+        currentLoadedWeapon.Setup(shooter);
+        needsToFindAWeapon = false; // enemy do not needs to find a weapon anymore
+        if (needsToPLayOnLoad)
+        {
+            audioSrc.PlayOneShot(currentLoadedWeapon.GetEquipSfx());
+        }
+        needsToPLayOnLoad = true;
+        // playerSpriteRenderer.sprite = weapon.GetEquippedSprite();
+    }
+
+    private void UnloadCurrentGun()
+    {
+        if (currentLoadedWeapon == null)
+        {
+            throw new NullReferenceException("ENEMY GUN CANNOT BE DELOADED IF NO ONE HAS BEEN LOADED");
+        }
+
+        Debug.Log("Enemy deloaded a weapon");
+        audioSrc.PlayOneShot(currentLoadedWeapon.GetEquipSfx());
+        // Instantiate a new prefab on the ground if there are some ammo
+        currentLoadedWeapon = null;
+        timer = 0;
+        // playerSpriteRenderer.sprite = defaultPlayerSprite;
+    }
+
+    public void ChangeEnemyStatus(bool status)
+    {
+        this.isEnemyAlerted = status;
+    }
+
+    public bool NeedsToFindAWeapon()
+    {
+        return needsToFindAWeapon;
+    }
+
+    public void SetWeaponThatCanBeEquipped(List<Type> list)
+    {
+        this.weaponTypesThatCanBeEquipped = list;
+    }
+
+    public bool CanWeaponBeEquipped(object weapon)
+    {
+        if (weaponTypesThatCanBeEquipped == null || weapon == null)
+        {
+            return false;
+        }
+
+        Type weaponType = weapon.GetType();
+        foreach (Type type in weaponTypesThatCanBeEquipped)
+        {
+            if (type.IsAssignableFrom(weaponType))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     IEnumerator WaitForSfxToEnd()
