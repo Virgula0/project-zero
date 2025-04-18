@@ -79,7 +79,7 @@ public class CowardMovement : MonoBehaviour, IMovement
         Vector2[] path = bfs.PathToTheFirst(closestPoint);
 
         // Step 1: move to the nearest point first
-        foreach (Vector2 v in path.Take(path.Length-1)) // ignore the point inside the room
+        foreach (Vector2 v in path.Take(path.Length-1)) 
         {
             yield return MoveToWithChecks(rb, v);
         }
@@ -128,7 +128,7 @@ public class CowardMovement : MonoBehaviour, IMovement
                 busy = false;
                 yield break;
             }
-
+            
             MoveTowards(rb, destination);
             yield return new WaitForFixedUpdate();
         }

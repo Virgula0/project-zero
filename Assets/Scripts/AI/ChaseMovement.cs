@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class ChaseMovement : MonoBehaviour, IMovement
@@ -12,7 +13,7 @@ public class ChaseMovement : MonoBehaviour, IMovement
     private BFSPathfinder bfs;
     private Vector2 enemyLatestPosition;
     private bool busy = false;
-    private float additionalSpeedWhenFollowingPath = 1.5f;
+    private float additionalSpeedWhenFollowingPath = 2f;
 
     public IMovement New(GameObject player, Detector detector, KdTree tree, BFSPathfinder bfs, float chaseSpeed, float stoppingDistance)
     {
@@ -36,6 +37,17 @@ public class ChaseMovement : MonoBehaviour, IMovement
         enemyRB.MovePosition(newPos);
     }
 
+    public Vector2 FindClosestWayPoint(Rigidbody2D enemyRigidbody, Vector2[] toExclude, out int index)
+    {
+        if (kdTree == null)
+        {
+            throw new InvalidOperationException("KdTree is not built. Make sure doorWayPoint array is assigned.");
+        }
+
+        return kdTree.FindNearestExcluding(enemyRigidbody.position, toExclude, out index);
+    }
+
+
     private IEnumerator MoveDoorWaypointsCoroutine(Rigidbody2D enemyRB, Vector2 startPoint)
     {
         // Determine the best waypoint on the player’s side.
@@ -45,12 +57,27 @@ public class ChaseMovement : MonoBehaviour, IMovement
         // What we can do: we can create another function called FindFromNearestToFarthest which returns a Vector2[]
         // for each point we make a raycast from the player, at each cycle if an hit succeed with try with its successor 
         // the line between ----- attempts to solve this problem in a similar way as done in patrol a coward coroutines
-        
         // ---------------------------------------------------------------------------------------------
-        
+        bool clearPath = false;
+        Vector2 playerBestWaypoint = new();
+        List<Vector2> vectorsToExclude = new List<Vector2>();
+        while (!clearPath)
+        {
+            playerBestWaypoint = FindClosestWayPoint(playerBody, vectorsToExclude.ToArray(), out _);
+            Vector2 directionToClosest = (playerBestWaypoint - playerBody.position).normalized;
+            float distanceToClosest = Vector2.Distance(playerBody.position, playerBestWaypoint);
+            RaycastHit2D hit = Physics2D.Raycast(playerBody.position, directionToClosest, distanceToClosest, playerDetector.GetObstacleLayers());
+            clearPath = hit.collider == null;
+
+            if (!clearPath)
+            {
+                vectorsToExclude.Add(playerBestWaypoint);
+                Debug.Log("Obstacle detected between player and closest waypoint while trying to chasing. Recalculating.");
+            }
+        }
         // ---------------------------------------------------------------------------------------------
 
-        Vector2 playerBestWaypoint = kdTree.FindNearest(playerBody.position, out _);
+        //Vector2 playerBestWaypoint = kdTree.FindNearest(playerBody.position, out _);
         Vector2[] path = bfs.PathToPoint(startPoint, playerBestWaypoint);
 
         foreach (Vector2 waypoint in path)
