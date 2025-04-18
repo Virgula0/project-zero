@@ -76,7 +76,8 @@ public class EnemyWeaponManager : MonoBehaviour
         timer = float.PositiveInfinity;
         currentLoadedWeapon.Setup(shooter);
         needsToFindAWeapon = false; // enemy do not needs to find a weapon anymore
-        if (needsToPLayOnLoad) {
+        if (needsToPLayOnLoad)
+        {
             audioSrc.PlayOneShot(currentLoadedWeapon.GetEquipSfx());
         }
         needsToPLayOnLoad = true;
@@ -100,7 +101,9 @@ public class EnemyWeaponManager : MonoBehaviour
     void Start()
     {
         // if prefab is not null enemy will spawn with an already equipped weapon
-        if (weaponTemplatePrefab != null){
+        if (weaponTemplatePrefab != null)
+        {
+            needsToPLayOnLoad = false;
             // 1) Find the prefab’s MonoBehaviour that implements IGun
             var templateMono = weaponTemplatePrefab
                 .GetComponents<MonoBehaviour>()
@@ -112,7 +115,7 @@ public class EnemyWeaponManager : MonoBehaviour
 
             // 2) Add a new empty component of that exact type to the enemy
             var compType = templateMono.GetType();
-            var newMono  = (MonoBehaviour)gameObject.AddComponent(compType);
+            var newMono = (MonoBehaviour)gameObject.AddComponent(compType);
 
             // 3) Copy *all* serialized data via JsonUtility
             string json = JsonUtility.ToJson(templateMono);
@@ -123,10 +126,8 @@ public class EnemyWeaponManager : MonoBehaviour
             if (newGun == null)
                 throw new InvalidCastException($"Added component {compType.Name} doesn’t implement IGun?");
 
-            GameObject enemyObj = transform.parent.gameObject.GetComponentInChildren<Rigidbody2D>().gameObject;
+            GameObject enemyObj = transform.parent.GetComponentInChildren<Rigidbody2D>().gameObject;
             LoadNewGun(newGun, enemyObj);
-
-            needsToPLayOnLoad = false;
         }
         // this.defaultPlayerSprite = playerSpriteRenderer.sprite;
     }
@@ -178,9 +179,11 @@ public class EnemyWeaponManager : MonoBehaviour
         timer += Time.deltaTime;
     }
 
-    IEnumerator WaitForSfxToEnd(){
+    IEnumerator WaitForSfxToEnd()
+    {
 
-        while(audioSrc.isPlaying){
+        while (audioSrc.isPlaying)
+        {
             yield return null;
         }
 
