@@ -45,13 +45,12 @@ public class GlobalWaypoints : MonoBehaviour
 
         foreach (IEnemy enemy in enemRef)
         {
-            
+
             while (!enemy.AwakeReady()){
                 yield return null;
             }
             
             enemies.Add(enemy);
-            Debug.Log(Utils.Functions.Vector2ArrayToString(enemy.GetEnemyWaypoints()));
             enemyWaypointsMap.Add(enemy, enemy.GetEnemyWaypoints());
             enemyConnectionMap.Add(enemy, enemy.GetEnemyConnections());
         }

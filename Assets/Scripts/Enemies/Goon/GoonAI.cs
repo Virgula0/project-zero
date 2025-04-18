@@ -136,9 +136,6 @@ public class AI : MonoBehaviour, IEnemy
             if (enemyWaypoints == null || enemyWaypoints.Length < 1)
                 continue;
 
-            Debug.Log(Utils.Functions.Vector2ArrayToString(enemyWaypoints));
-            Utils.Functions.PrintDictionary(glob.GetConnectionMapForAnEnemy(enemy));
-
             // Merge connection graphs using the linker helper
             this.connectionGraph = linker.LinkGraphs(
                 this.connectionGraph,
