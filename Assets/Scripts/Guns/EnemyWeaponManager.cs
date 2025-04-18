@@ -9,15 +9,16 @@ public class EnemyWeaponManager : MonoBehaviour
     [Tooltip("Drag gun prefab here for already equipped enemy")]
     [SerializeField] private GameObject weaponTemplatePrefab;
     [SerializeField] AudioSource audioSrc;
+    [SerializeField] SpriteRenderer enemySpriteRenderer;
+
     private IGun currentLoadedWeapon; // an enemy could have a gun at the beginning. If it does not have it it will start to search one.
     private float timer; // timer counts the timer elapsed from the last shot, in seconds
-    [SerializeField] SpriteRenderer enemySpriteRenderer;
     private Sprite defaultEnemySprite;
     private bool isEnemyAlerted = false;
     private bool needsToFindAWeapon = false;
     private List<Type> weaponTypesThatCanBeEquipped;
     private bool isReloading = false;
-    private bool needsToPLayOnLoad = false; // this avoid to play the equip sound when scene start on already equipped weapons
+    private bool needsToPLayOnLoad = true; // this avoid to play the equip sound when scene start on already equipped weapons
 
     public void ChangeEnemyStatus(bool status)
     {
@@ -98,6 +99,7 @@ public class EnemyWeaponManager : MonoBehaviour
 
     void Start()
     {
+        // if prefab is not null enemy will spawn with an already equipped weapon
         if (weaponTemplatePrefab != null){
             // 1) Find the prefab’s MonoBehaviour that implements IGun
             var templateMono = weaponTemplatePrefab
@@ -123,6 +125,8 @@ public class EnemyWeaponManager : MonoBehaviour
 
             GameObject enemyObj = transform.parent.gameObject.GetComponentInChildren<Rigidbody2D>().gameObject;
             LoadNewGun(newGun, enemyObj);
+
+            needsToPLayOnLoad = false;
         }
         // this.defaultPlayerSprite = playerSpriteRenderer.sprite;
     }

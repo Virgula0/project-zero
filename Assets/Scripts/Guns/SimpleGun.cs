@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 
+// This class is associated directly to prefabs and defines the entire "GunType" behaviour
 public class SimpleGun : MonoBehaviour, IGun, IRanged
 {
     private readonly float fireRate = 0.5f; // in seconds, 0.5 seconds between each shot
