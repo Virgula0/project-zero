@@ -182,10 +182,18 @@ public class AI : MonoBehaviour, IEnemy
 
     void FixedUpdate()
     {
+        if (weaponManager == null){
+            return;
+        }
+
+        // set if player is in shootable area and if aware indipendently from the rest 
+        weaponManager.SetIsPlayerBehindAWall(playerDetector.GetIsPlayerHiddenByObstacle());
+        weaponManager.ChangeEnemyStatus(playerDetector.GetIsEnemyAwareOfPlayer());
+
         // nothing to do if we don't have a movement
         if (currentMovement == null)
             return;
-
+        
         // 1) Weapon‑find has top priority
         if (weaponManager.NeedsToFindAWeapon())
         {
@@ -211,14 +219,14 @@ public class AI : MonoBehaviour, IEnemy
                 patrolMovement.NeedsRepositioning(true);
 
             currentMovement = patrolMovement;
-            weaponManager.ChangeEnemyStatus(false);
+            // weaponManager.ChangeEnemyStatus(false);
             currentMovement.Move(body);
             return;
         }
 
         // 3) Otherwise chase the player
         currentMovement = chaseMovement;
-        weaponManager.ChangeEnemyStatus(true);
+        // weaponManager.ChangeEnemyStatus(true);
         currentMovement.Move(body);
     }
 

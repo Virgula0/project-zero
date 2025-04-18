@@ -20,6 +20,7 @@ public class EnemyWeaponManager : MonoBehaviour
     private bool isReloading = false;
     private bool needsToPLayOnLoad = true; // this avoid to play the equip sound when scene start on already equipped weapons
     private Rigidbody2D enemyBody;
+    private bool isPlayerBehindAWall = false;
 
     void Start()
     {
@@ -70,9 +71,8 @@ public class EnemyWeaponManager : MonoBehaviour
             return;
         }
 
-        if (!isEnemyAlerted)
+        if (!isEnemyAlerted || isPlayerBehindAWall)
         {
-            timer = 0;
             return;
         }
 
@@ -160,6 +160,10 @@ public class EnemyWeaponManager : MonoBehaviour
     public void SetWeaponThatCanBeEquipped(List<Type> list)
     {
         this.weaponTypesThatCanBeEquipped = list;
+    }
+
+    public void SetIsPlayerBehindAWall(bool condition){
+        this.isPlayerBehindAWall = condition;
     }
 
     public bool CanWeaponBeEquipped(object weapon)
