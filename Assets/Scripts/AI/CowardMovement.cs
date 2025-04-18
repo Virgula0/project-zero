@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class CowardMovement : MonoBehaviour, IMovement
@@ -17,7 +18,7 @@ public class CowardMovement : MonoBehaviour, IMovement
     public IMovement New(Vector2[] waypoints, Vector2[] globalWaypoints, KdTree treeStructure, BFSPathfinder bfs, Detector playerDetector, float speed)
     {
         this.waypoints = Utils.Functions.RemoveAll(waypoints, globalWaypoints); // remove global waypoints from waypoints
-        // this.waypoints = Utils.Functions.RemoveAtIndex(this.waypoints, 0); // remove element 0 because we don't want to enter the room anymore
+        this.waypoints = Utils.Functions.RemoveAtIndex(this.waypoints, 0); // remove element 0 because we don't want to enter the room anymore
         this.kdTree = treeStructure;
         this.speed = speed;
         this.bfs = bfs;
@@ -78,7 +79,7 @@ public class CowardMovement : MonoBehaviour, IMovement
         Vector2[] path = bfs.PathToTheFirst(closestPoint);
 
         // Step 1: move to the nearest point first
-        foreach (Vector2 v in path)
+        foreach (Vector2 v in path.Take(path.Length-1)) // ignore the point inside the room
         {
             yield return MoveToWithChecks(rb, v);
         }

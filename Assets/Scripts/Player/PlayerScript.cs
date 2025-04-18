@@ -6,7 +6,6 @@ public class PlayerScript : MonoBehaviour
     public Rigidbody2D playerRb;
     private Vector2 moveDirection;
     private SpriteRenderer playerSprite;
-    
     private Vector2 lastMoveDirection = Vector2.right; // Default direction
     private DashScript dash;
 

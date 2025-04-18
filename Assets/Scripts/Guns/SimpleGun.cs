@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 // This class is associated directly to prefabs and defines the entire "GunType" behaviour
@@ -18,7 +19,7 @@ public class SimpleGun : MonoBehaviour, IGun, IRanged
     [SerializeField] private AudioClip equipSound;
     private bool isGoingToBePickedUp = false;
     private GameObject shooterObject;
-    
+    private bool awakeExecuted = false;
 
     public void Setup(GameObject player)
     {
@@ -28,7 +29,9 @@ public class SimpleGun : MonoBehaviour, IGun, IRanged
     void Awake()
     {
         // Needed because otherwise when executing SaveStatus the start will run after the save
+        // the weird fact is that in the build the contrary happens
         this.ammoCount = this.magCap;
+        awakeExecuted = true;
     }
 
     void Start()
@@ -115,8 +118,11 @@ public class SimpleGun : MonoBehaviour, IGun, IRanged
         return this.equipSound;
     }
 
-    public void SaveStatus(IGun other)
+    public IEnumerator SaveStatus(IGun other)
     {
+        while (!awakeExecuted){
+            yield return null;
+        }
         this.numberOfReloads = other.GetNumberOfReloads();
         this.ammoCount = other.GetAmmoCount();
     }

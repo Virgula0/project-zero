@@ -10,7 +10,6 @@ public class WeaponManager : MonoBehaviour
     private Sprite defaultPlayerSprite;
     private bool isReloading = false;
     private Rigidbody2D playerBody;
-    private Camera mainCamera;
     private WeaponSpawner spawner;
     private GameObject gunPrefab;
 
@@ -23,7 +22,6 @@ public class WeaponManager : MonoBehaviour
 
     void Start()
     {
-        this.mainCamera = Camera.main;
         this.playerBody = GetComponentInParent<Rigidbody2D>();
         this.defaultPlayerSprite = playerSpriteRenderer.sprite;
         this.uiManager = ui.GetComponent<UIManager>();
@@ -74,14 +72,14 @@ public class WeaponManager : MonoBehaviour
 
         if (currentLoadedWeapon.GetAmmoCount() > 0 || currentLoadedWeapon.GetNumberOfReloads() > 0)
         {
-            Vector3 mouseWorld3D = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            Vector3 mouseWorld3D = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector2 mouseWorld2D = new Vector2(mouseWorld3D.x, mouseWorld3D.y);
             Vector2 origin = playerBody.position;
             Vector2 forward = (mouseWorld2D - origin).normalized;
             Vector2 up = new Vector2(-forward.y, forward.x); // rotate forward by 90° CCW
             Vector2 spawnPos = origin + forward * forwardSpawnGunPrefabOffset + up * upOffsetSpawnGunPrefab;
             GameObject newPrefab = Instantiate(gunPrefab, spawnPos, Quaternion.identity);
-            newPrefab.GetComponent<IGun>().SaveStatus(currentLoadedWeapon); // save current status
+            StartCoroutine(newPrefab.GetComponent<IGun>().SaveStatus(currentLoadedWeapon)); // will save the status after awaked, that's why a coroutine
             newPrefab.SetActive(true);
             spawner.AddAvailableGunOnTheGroundPosition(spawnPos, currentLoadedWeapon);
         }
