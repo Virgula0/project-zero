@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class WeaponManager : MonoBehaviour
 {
@@ -12,11 +14,12 @@ public class WeaponManager : MonoBehaviour
     private Rigidbody2D playerBody;
     private Camera mainCamera;
     private WeaponSpawner spawner;
+    private GameObject gunPrefab;
 
     [SerializeField] SpriteRenderer playerSpriteRenderer;
     [SerializeField] Canvas ui;
     [SerializeField] AudioSource audioSrc;
-    [SerializeField] private GameObject gunPrefab;
+
     private float forwardSpawnGunPrefabOffset = 3f;
     private float upOffsetSpawnGunPrefab = 1f;
 
@@ -29,9 +32,8 @@ public class WeaponManager : MonoBehaviour
         this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER_TAG).GetComponent<WeaponSpawner>();
     }
 
-
     // this will be invoked externally
-    public void LoadNewGun(IGun weapon, GameObject shooter)
+    public void LoadNewGun(IGun weapon, GameObject shooter, string prefabName)
     {
         if (weapon == null)
         {
@@ -48,6 +50,9 @@ public class WeaponManager : MonoBehaviour
             UnloadCurrentGun();
         }
 
+        //this.gunPrefab = Resources.Load<GameObject>("Prefab/"+prefabName);
+        StartCoroutine(LoadWeaponPrefab(prefabName));
+
         // must be done whatever a new gun gets loaded
         currentLoadedWeapon = weapon;
 
@@ -60,6 +65,20 @@ public class WeaponManager : MonoBehaviour
         uiManager.UpdateBullets(currentLoadedWeapon.GetAmmoCount());
         uiManager.UpdateReloads(currentLoadedWeapon.GetNumberOfReloads());
 
+    }
+
+    private IEnumerator LoadWeaponPrefab(string address)
+    {
+        AsyncOperationHandle<GameObject> handle = Addressables.LoadAssetAsync<GameObject>(address);
+        yield return handle;
+
+        if (handle.Status == AsyncOperationStatus.Succeeded)
+        {
+            this.gunPrefab = handle.Result;
+            yield break;
+        }
+
+        Debug.LogError("Failed to load: " + address);
     }
 
     private void UnloadCurrentGun()
@@ -79,7 +98,7 @@ public class WeaponManager : MonoBehaviour
             Vector2 forward = (mouseWorld2D - origin).normalized;
             Vector2 up = new Vector2(-forward.y, forward.x); // rotate forward by 90° CCW
             Vector2 spawnPos = origin + forward * forwardSpawnGunPrefabOffset + up * upOffsetSpawnGunPrefab;
-            
+
             GameObject newPrefab = Instantiate(gunPrefab, spawnPos, Quaternion.identity);
             newPrefab.GetComponent<IGun>().SaveStatus(currentLoadedWeapon); // save current status
             spawner.AddAvailableGunOnTheGroundPosition(spawnPos, currentLoadedWeapon);

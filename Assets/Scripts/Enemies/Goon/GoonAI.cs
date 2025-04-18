@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq; // pay attention, as far as I read this library is not that fast
+using System.Linq;
+using System.Collections; // pay attention, as far as I read this library is not that fast
 
 public class AI : MonoBehaviour, IEnemy
 {
@@ -42,20 +43,38 @@ public class AI : MonoBehaviour, IEnemy
         typeof(IMelee)
     };
 
+    private bool awakeReady = false;
+
+    public bool AwakeReady(){
+        return awakeReady;
+    }
+
     private void Awake()
     {
+        if (exitWaypoints == null || exitWaypoints.Length == 0)
+        {
+            Debug.LogError("ExitWaypoints is null or empty in Awake!");
+            return;
+        }
+
         this.linker = new GraphLinker();
         this.safeExitWaypointsCopy = new Vector2[exitWaypoints.Length];
         Array.Copy(exitWaypoints, 0, safeExitWaypointsCopy, 0, exitWaypoints.Length);
         this.originalEnemyConnectionGraph = linker.GenerateConnections(exitWaypoints);
         this.connectionGraph = originalEnemyConnectionGraph.ToDictionary(entry => entry.Key, entry => new List<int>(entry.Value)); // deep copy
+        awakeReady = true;
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    IEnumerator Start()
     {
         // Perform initializations and get global waypoints
         GlobalWaypoints glob = InitializeParameters();
+
+        while (!glob.GetIsGlobalReady()){
+            yield return null;
+        }
+
         // Connect the global waypoints into our local graph
         ConnectGlobalWaypoints(glob);
         // Connect waypoints from other enemies using the global waypoints reference
@@ -113,6 +132,12 @@ public class AI : MonoBehaviour, IEnemy
         foreach (IEnemy enemy in otherEnemies)
         {
             Vector2[] enemyWaypoints = glob.GetWaypointMapForAnEnemy(enemy);
+
+            if (enemyWaypoints == null || enemyWaypoints.Length < 1)
+                continue;
+
+            Debug.Log(Utils.Functions.Vector2ArrayToString(enemyWaypoints));
+            Utils.Functions.PrintDictionary(glob.GetConnectionMapForAnEnemy(enemy));
 
             // Merge connection graphs using the linker helper
             this.connectionGraph = linker.LinkGraphs(
@@ -217,7 +242,8 @@ public class AI : MonoBehaviour, IEnemy
         if (transform.position == null)
             return;
 
-        if (patrolWaypoints == null || exitWaypoints == null){
+        if (patrolWaypoints == null || exitWaypoints == null)
+        {
             return;
         }
 

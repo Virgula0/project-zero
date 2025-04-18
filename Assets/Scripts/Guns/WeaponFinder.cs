@@ -27,12 +27,13 @@ public class WeaponFinder : MonoBehaviour
         Debug.Log("Collision detected with: " + collision.gameObject.name);
 
         var obj = collision.gameObject;
+        string name = gameObjectRef.name.Replace("(Clone)", "");
 
         switch (obj.layer)
         {
             case (int)Utils.Enums.ObjectLayers.Player:
                 Debug.Log("You got a weapon! " + gameObject.name);
-                playerManager.LoadNewGun(weapon, obj);
+                playerManager.LoadNewGun(weapon, obj, name);
                 HandleWeaponPickup();
                 break;
 
@@ -43,7 +44,7 @@ public class WeaponFinder : MonoBehaviour
                     Debug.Log("This enemy cannot equip this type of weapon");
                     break;
                 }
-                Debug.Log("Enemy got a weapon! " + gameObject.name);
+                Debug.Log("Enemy got a weapon! " + name);
                 manager.LoadNewGun(weapon, obj);
                 HandleWeaponPickup();
                 break;
