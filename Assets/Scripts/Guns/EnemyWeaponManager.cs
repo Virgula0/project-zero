@@ -2,11 +2,13 @@ using UnityEngine;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Collections;
 
 public class EnemyWeaponManager : MonoBehaviour
 {
     [Tooltip("Drag gun prefab here for already equipped enemy")]
     [SerializeField] private GameObject weaponTemplatePrefab;
+    [SerializeField] AudioSource audioSrc;
     private IGun currentLoadedWeapon; // an enemy could have a gun at the beginning. If it does not have it it will start to search one.
     private float timer; // timer counts the timer elapsed from the last shot, in seconds
     [SerializeField] SpriteRenderer enemySpriteRenderer;
@@ -14,6 +16,8 @@ public class EnemyWeaponManager : MonoBehaviour
     private bool isEnemyAlerted = false;
     private bool needsToFindAWeapon = false;
     private List<Type> weaponTypesThatCanBeEquipped;
+    private bool isReloading = false;
+    private bool needsToPLayOnLoad = false; // this avoid to play the equip sound when scene start on already equipped weapons
 
     public void ChangeEnemyStatus(bool status)
     {
@@ -71,6 +75,10 @@ public class EnemyWeaponManager : MonoBehaviour
         timer = float.PositiveInfinity;
         currentLoadedWeapon.Setup(shooter);
         needsToFindAWeapon = false; // enemy do not needs to find a weapon anymore
+        if (needsToPLayOnLoad) {
+            audioSrc.PlayOneShot(currentLoadedWeapon.GetEquipSfx());
+        }
+        needsToPLayOnLoad = true;
         // playerSpriteRenderer.sprite = weapon.GetEquippedSprite();
     }
 
@@ -82,6 +90,7 @@ public class EnemyWeaponManager : MonoBehaviour
         }
 
         Debug.Log("Enemy deloaded a weapon");
+        audioSrc.PlayOneShot(currentLoadedWeapon.GetEquipSfx());
         currentLoadedWeapon = null;
         timer = 0;
         // playerSpriteRenderer.sprite = defaultPlayerSprite;
@@ -121,6 +130,12 @@ public class EnemyWeaponManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        if (isReloading)
+        {
+            return;
+        }
+
         if (currentLoadedWeapon == null)
         {
             needsToFindAWeapon = true; // the enemy needs a gun!
@@ -142,6 +157,9 @@ public class EnemyWeaponManager : MonoBehaviour
         if (currentLoadedWeapon.GetNumberOfReloads() > 0 && currentLoadedWeapon.GetAmmoCount() < 1)
         {
             currentLoadedWeapon.Reload();
+            audioSrc.PlayOneShot(currentLoadedWeapon.GetReloadSfx());
+            isReloading = true;
+            StartCoroutine(WaitForSfxToEnd());
             return;
         }
 
@@ -149,9 +167,19 @@ public class EnemyWeaponManager : MonoBehaviour
         {
             timer = 0;
             currentLoadedWeapon.Shoot();
+            audioSrc.PlayOneShot(currentLoadedWeapon.GetShotSfx());
             return;
         }
 
         timer += Time.deltaTime;
+    }
+
+    IEnumerator WaitForSfxToEnd(){
+
+        while(audioSrc.isPlaying){
+            yield return null;
+        }
+
+        isReloading = false;
     }
 }
