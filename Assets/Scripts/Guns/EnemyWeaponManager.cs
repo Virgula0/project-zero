@@ -1,10 +1,13 @@
 using UnityEngine;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 public class EnemyWeaponManager : MonoBehaviour
 {
-    [SerializeField] private IGun currentLoadedWeapon; // an enemy could have a gun at the beginning. If it does not have it it will start to search one.
+    [Tooltip("Drag gun prefab here for already equipped enemy")]
+    [SerializeField] private GameObject weaponTemplatePrefab;
+    private IGun currentLoadedWeapon; // an enemy could have a gun at the beginning. If it does not have it it will start to search one.
     private float timer; // timer counts the timer elapsed from the last shot, in seconds
     [SerializeField] SpriteRenderer enemySpriteRenderer;
     private Sprite defaultEnemySprite;
@@ -22,7 +25,8 @@ public class EnemyWeaponManager : MonoBehaviour
         return needsToFindAWeapon;
     }
 
-    public void SetWeaponThatCanBeEquipped( List<Type> list){
+    public void SetWeaponThatCanBeEquipped(List<Type> list)
+    {
         this.weaponTypesThatCanBeEquipped = list;
     }
 
@@ -62,11 +66,11 @@ public class EnemyWeaponManager : MonoBehaviour
         Debug.Log("Enemy loaded a weapon");
         // must be done whatever a new gun gets loaded
         currentLoadedWeapon = weapon;
-        needsToFindAWeapon = false; // enemy do not needs to find a weapon anymore
 
         // we're allowed to shoot at te beginning 
         timer = float.PositiveInfinity;
         currentLoadedWeapon.Setup(shooter);
+        needsToFindAWeapon = false; // enemy do not needs to find a weapon anymore
         // playerSpriteRenderer.sprite = weapon.GetEquippedSprite();
     }
 
@@ -85,6 +89,32 @@ public class EnemyWeaponManager : MonoBehaviour
 
     void Start()
     {
+        if (weaponTemplatePrefab != null){
+            // 1) Find the prefab’s MonoBehaviour that implements IGun
+            var templateMono = weaponTemplatePrefab
+                .GetComponents<MonoBehaviour>()
+                .FirstOrDefault(mb => mb is IGun);
+
+            if (templateMono == null)
+                throw new InvalidOperationException(
+                    $"Prefab {weaponTemplatePrefab.name} has no component implementing IGun");
+
+            // 2) Add a new empty component of that exact type to the enemy
+            var compType = templateMono.GetType();
+            var newMono  = (MonoBehaviour)gameObject.AddComponent(compType);
+
+            // 3) Copy *all* serialized data via JsonUtility
+            string json = JsonUtility.ToJson(templateMono);
+            JsonUtility.FromJsonOverwrite(json, newMono);
+
+            // 4) Cast back to IGun and finish setup
+            var newGun = newMono as IGun;
+            if (newGun == null)
+                throw new InvalidCastException($"Added component {compType.Name} doesn’t implement IGun?");
+
+            GameObject enemyObj = transform.parent.gameObject.GetComponentInChildren<Rigidbody2D>().gameObject;
+            LoadNewGun(newGun, enemyObj);
+        }
         // this.defaultPlayerSprite = playerSpriteRenderer.sprite;
     }
 

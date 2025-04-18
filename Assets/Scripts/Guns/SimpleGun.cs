@@ -1,26 +1,27 @@
 using System;
 using UnityEngine;
 
-public class SimpleGun : MonoBehaviour, IGun , IRanged
+public class SimpleGun : MonoBehaviour, IGun, IRanged
 {
     private readonly float fireRate = 0.5f; // in seconds, 0.5 seconds between each shot
     private readonly int magCap = 10;
     private int numberOfReloads = 5; // total bullets available can be seen as numberOfReloads*magCap
     private int ammoCount;
 
-    [SerializeField] private Sprite equippedSprite;
+    [SerializeField] private SpriteRenderer staticWeaponSprite;
+    [SerializeField] private Sprite equippedSprite; 
     [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private Sprite bulletSprite;
     [SerializeField] private AudioClip shotSound;
     [SerializeField] private AudioClip reloadSound;
     [SerializeField] private AudioClip equipSound;
+    
     private GameObject shooterObject;
 
     public void Setup(GameObject player)
     {
         this.ammoCount = this.magCap;
         shooterObject = player;
-        
     }
 
     void Start()
@@ -88,14 +89,17 @@ public class SimpleGun : MonoBehaviour, IGun , IRanged
     public Sprite GetStaticWeaponSprite()
     {
         // this method returns the sprite of grounded weapon so that it can be used as an icon in the ui.
-        return this.gameObject.GetComponentsInChildren<SpriteRenderer>()[1].sprite;
+        // return this.gameObject.GetComponentsInChildren<SpriteRenderer>()[1].sprite;
+        return this.staticWeaponSprite.sprite;
     }
 
-    public AudioClip GetShotSfx(){
+    public AudioClip GetShotSfx()
+    {
         return this.shotSound;
     }
 
-    public AudioClip GetReloadSfx(){
+    public AudioClip GetReloadSfx()
+    {
         return this.reloadSound;
     }
 

@@ -43,7 +43,13 @@ public class ChaseMovement : MonoBehaviour, IMovement
         // behind an obstacle but enemy wants to chase it anyway
         // this of course may be improved
         // What we can do: we can create another function called FindFromNearestToFarthest which returns a Vector2[]
-        // for each poyint we make a raycast from the player, at each cycle if an hit succeed with try with its successor 
+        // for each point we make a raycast from the player, at each cycle if an hit succeed with try with its successor 
+        // the line between ----- attempts to solve this problem in a similar way as done in patrol a coward coroutines
+        
+        // ---------------------------------------------------------------------------------------------
+        
+        // ---------------------------------------------------------------------------------------------
+
         Vector2 playerBestWaypoint = kdTree.FindNearest(playerBody.position, out _);
         Vector2[] path = bfs.PathToPoint(startPoint, playerBestWaypoint);
 

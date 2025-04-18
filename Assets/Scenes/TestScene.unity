@@ -1522,6 +1522,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8302184713731113973, guid: aba9230473b29874c86dcef7d2d169ed, type: 3}
+      propertyPath: m_ExcludeLayers.m_Bits
+      value: 256
+      objectReference: {fileID: 0}
+    - target: {fileID: 8302184713731113973, guid: aba9230473b29874c86dcef7d2d169ed, type: 3}
+      propertyPath: m_IncludeLayers.m_Bits
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1693,7 +1701,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6192630023241039525, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6192630023241039525, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
       propertyPath: m_TagString
@@ -2277,7 +2285,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5829556277332518347, guid: 71b6dbee4d80f424cbeecc56a58ed163, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7247755495829575684, guid: 71b6dbee4d80f424cbeecc56a58ed163, type: 3}
       propertyPath: m_Layer
@@ -2473,6 +2481,18 @@ PrefabInstance:
       propertyPath: exitWaypoints.Array.data[12].y
       value: -8.87
       objectReference: {fileID: 0}
+    - target: {fileID: 3965410167010162294, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
+      propertyPath: initializedGunPrefab
+      value: 
+      objectReference: {fileID: 5829556277332518347, guid: 71b6dbee4d80f424cbeecc56a58ed163, type: 3}
+    - target: {fileID: 3965410167010162294, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
+      propertyPath: weaponTemplatePrefab
+      value: 
+      objectReference: {fileID: 5829556277332518347, guid: 71b6dbee4d80f424cbeecc56a58ed163, type: 3}
+    - target: {fileID: 3965410167010162294, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
+      propertyPath: initializedWeaponPrefab
+      value: 
+      objectReference: {fileID: 5829556277332518347, guid: 71b6dbee4d80f424cbeecc56a58ed163, type: 3}
     - target: {fileID: 5895775542303761209, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
       propertyPath: m_LocalPosition.x
       value: 8.42
