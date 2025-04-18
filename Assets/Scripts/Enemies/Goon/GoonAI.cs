@@ -194,7 +194,7 @@ public class AI : MonoBehaviour, IEnemy
             if (currentMovement is WeaponFinderMovement wp)
             {
                 bool hasWeapon = wp.CloserWeaponToEnemy(body.position, null).HasValue;
-                wp.NeedsRepositioning(hasWeapon);  // stop/resume its internal routine
+                cowardMovement.NeedsRepositioning(hasWeapon); //  we stop coward coroutine based on weapon presence on the ground
                 if (!hasWeapon)
                     currentMovement = cowardMovement;
             }

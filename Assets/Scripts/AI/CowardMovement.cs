@@ -17,7 +17,7 @@ public class CowardMovement : MonoBehaviour, IMovement
     public IMovement New(Vector2[] waypoints, Vector2[] globalWaypoints, KdTree treeStructure, BFSPathfinder bfs, Detector playerDetector, float speed)
     {
         this.waypoints = Utils.Functions.RemoveAll(waypoints, globalWaypoints); // remove global waypoints from waypoints
-        this.waypoints = Utils.Functions.RemoveAtIndex(this.waypoints, 0); // remove element 0 because we don't want to enter the room anymore
+        // this.waypoints = Utils.Functions.RemoveAtIndex(this.waypoints, 0); // remove element 0 because we don't want to enter the room anymore
         this.kdTree = treeStructure;
         this.speed = speed;
         this.bfs = bfs;
@@ -28,7 +28,6 @@ public class CowardMovement : MonoBehaviour, IMovement
     public void Move(Rigidbody2D enemyRB)
     {
         if (busy || stopCowardMovement) return;
-
         busy = true;
         _cowardRoutine = StartCoroutine(MoveInCircleRoutine(enemyRB));
     }
@@ -61,11 +60,9 @@ public class CowardMovement : MonoBehaviour, IMovement
         bool clearPath = false;
         Vector2 closestPoint = new();
         List<Vector2> vectorsToExclude = new List<Vector2>();
-        int startIndex = 0;
-
         while (!clearPath)
         {
-            closestPoint = FindClosestWayPoint(rb, vectorsToExclude.ToArray(), out startIndex);
+            closestPoint = FindClosestWayPoint(rb, vectorsToExclude.ToArray(), out _);
             Vector2 directionToClosest = (closestPoint - rb.position).normalized;
             float distanceToClosest = Vector2.Distance(rb.position, closestPoint);
             RaycastHit2D hit = Physics2D.Raycast(rb.position, directionToClosest, distanceToClosest, playerDetector.GetObstacleLayers());
@@ -78,7 +75,7 @@ public class CowardMovement : MonoBehaviour, IMovement
             }
         }
 
-        Vector2[] path = bfs.PathToPoint(closestPoint, this.waypoints[startIndex % this.waypoints.Length]);
+        Vector2[] path = bfs.PathToTheFirst(closestPoint);
 
         // Step 1: move to the nearest point first
         foreach (Vector2 v in path)
@@ -87,7 +84,7 @@ public class CowardMovement : MonoBehaviour, IMovement
         }
 
         // Step 2: build the circular path (elements after the start index, then wrap)
-        List<Vector2> circularPath = GetCircularTraversal(startIndex % this.waypoints.Length);
+        List<Vector2> circularPath = GetCircularTraversal(0); 
 
         // Step 3: loop forever (or until stopped), visiting each point in order
         while (true)

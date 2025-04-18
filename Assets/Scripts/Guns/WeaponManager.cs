@@ -1,8 +1,6 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class WeaponManager : MonoBehaviour
 {
@@ -33,7 +31,7 @@ public class WeaponManager : MonoBehaviour
     }
 
     // this will be invoked externally
-    public void LoadNewGun(IGun weapon, GameObject shooter, string prefabName)
+    public void LoadNewGun(IGun weapon, GameObject shooter, GameObject prefab)
     {
         if (weapon == null)
         {
@@ -50,10 +48,8 @@ public class WeaponManager : MonoBehaviour
             UnloadCurrentGun();
         }
 
-        //this.gunPrefab = Resources.Load<GameObject>("Prefab/"+prefabName);
-        StartCoroutine(LoadWeaponPrefab(prefabName));
-
         // must be done whatever a new gun gets loaded
+        this.gunPrefab = prefab;
         currentLoadedWeapon = weapon;
 
         // we're allowed to shoot at te beginning 
@@ -64,21 +60,7 @@ public class WeaponManager : MonoBehaviour
         uiManager.UpdateWeaponIcon(currentLoadedWeapon.GetStaticWeaponSprite());
         uiManager.UpdateBullets(currentLoadedWeapon.GetAmmoCount());
         uiManager.UpdateReloads(currentLoadedWeapon.GetNumberOfReloads());
-
-    }
-
-    private IEnumerator LoadWeaponPrefab(string address)
-    {
-        AsyncOperationHandle<GameObject> handle = Addressables.LoadAssetAsync<GameObject>(address);
-        yield return handle;
-
-        if (handle.Status == AsyncOperationStatus.Succeeded)
-        {
-            this.gunPrefab = handle.Result;
-            yield break;
-        }
-
-        Debug.LogError("Failed to load: " + address);
+        currentLoadedWeapon.SetIsGoingToBePickedUp(false);
     }
 
     private void UnloadCurrentGun()
@@ -98,13 +80,14 @@ public class WeaponManager : MonoBehaviour
             Vector2 forward = (mouseWorld2D - origin).normalized;
             Vector2 up = new Vector2(-forward.y, forward.x); // rotate forward by 90° CCW
             Vector2 spawnPos = origin + forward * forwardSpawnGunPrefabOffset + up * upOffsetSpawnGunPrefab;
-
             GameObject newPrefab = Instantiate(gunPrefab, spawnPos, Quaternion.identity);
             newPrefab.GetComponent<IGun>().SaveStatus(currentLoadedWeapon); // save current status
+            newPrefab.SetActive(true);
             spawner.AddAvailableGunOnTheGroundPosition(spawnPos, currentLoadedWeapon);
         }
 
         currentLoadedWeapon = null;
+        Destroy(this.gunPrefab);
         timer = 0;
         playerSpriteRenderer.sprite = defaultPlayerSprite;
         uiManager.UpdateBullets(0);

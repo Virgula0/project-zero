@@ -14,13 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_GroupName: Default Local Group
   m_GUID: 7210532d8c3e24a6aa3a9e417e0ec032
-  m_SerializeEntries:
-  - m_GUID: 71b6dbee4d80f424cbeecc56a58ed163
-    m_Address: Assets/Prefab/SimpleGun.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - SimpleGun
-    FlaggedDuringContentUpdateRestriction: 0
+  m_SerializeEntries: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 880cbf042de9cfd4a86f1ed2968008a2, type: 2}
   m_SchemaSet:

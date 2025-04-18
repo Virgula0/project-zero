@@ -16,8 +16,9 @@ public class SimpleGun : MonoBehaviour, IGun, IRanged
     [SerializeField] private AudioClip shotSound;
     [SerializeField] private AudioClip reloadSound;
     [SerializeField] private AudioClip equipSound;
-
+    private bool isGoingToBePickedUp = false;
     private GameObject shooterObject;
+    
 
     public void Setup(GameObject player)
     {
@@ -118,5 +119,13 @@ public class SimpleGun : MonoBehaviour, IGun, IRanged
     {
         this.numberOfReloads = other.GetNumberOfReloads();
         this.ammoCount = other.GetAmmoCount();
+    }
+
+    public bool IsGoingToBePickedUp() {
+        return isGoingToBePickedUp;
+    }
+
+    public void SetIsGoingToBePickedUp(bool status){
+        this.isGoingToBePickedUp = status;
     }
 }

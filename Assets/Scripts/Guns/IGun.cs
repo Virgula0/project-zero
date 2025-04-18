@@ -13,6 +13,8 @@ public interface IGun
     int GetMegCap();
     float GetFireRate();
     void SaveStatus(IGun weapon);
+    bool IsGoingToBePickedUp();
+    void SetIsGoingToBePickedUp(bool status);
     Sprite GetEquippedSprite();
     Sprite GetStaticWeaponSprite();
     AudioClip GetShotSfx();
