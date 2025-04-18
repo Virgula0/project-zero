@@ -54,8 +54,6 @@ public class ChaseMovement : MonoBehaviour, IMovement
         // The problem here is that it is allowed to be hidden because the player could be 
         // behind an obstacle but enemy wants to chase it anyway
         // this of course may be improved
-        // What we can do: we can create another function called FindFromNearestToFarthest which returns a Vector2[]
-        // for each point we make a raycast from the player, at each cycle if an hit succeed with try with its successor 
         // the line between ----- attempts to solve this problem in a similar way as done in patrol a coward coroutines
         // ---------------------------------------------------------------------------------------------
         bool clearPath = false;
