@@ -31,7 +31,6 @@ public class WeaponFinder : MonoBehaviour
         weapon.SetIsGoingToBePickedUp(true);
         Debug.Log("Collision detected with: " + collision.gameObject.name);
         var obj = collision.gameObject;
-        
 
         switch (obj.layer)
         {

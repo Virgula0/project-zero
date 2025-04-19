@@ -31,6 +31,7 @@ namespace Utils
         public const string GLOBAL_WAYPOINTS_TAG = "GlobalWaypoints";
         public const string GUN_ON_THE_GROUND_TAG = "GunOnTheGround";
         public const string WEAPON_SPAWNER_TAG = "WeaponSpawner";
+        public const string CURSOR_CHANGER_TAG = "CursorChanger";
     }
 
     public class Functions
