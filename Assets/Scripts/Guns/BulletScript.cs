@@ -85,14 +85,17 @@ public class SingleBulletScript : MonoBehaviour
     /// Checks if bullet has left the camera's viewable area
     private bool IsOutsideCameraView()
     {
+        Vector2 viewportPos = playerCamera.WorldToViewportPoint(transform.position);
         if (isPlayer){
-            Vector2 viewportPos = playerCamera.WorldToViewportPoint(transform.position);
             return viewportPos.x < 0 || viewportPos.x > 1 || viewportPos.y < 0 || viewportPos.y > 1;
         }
 
         // if the bullet is far away for enemies because they may want to shoot the player even when outside the 
         // camera
-        return transform.position.x < -100 || transform.position.x > 100 || transform.position.y < -100 || transform.position.y > 100;
+        return (transform.position.x < -100 && viewportPos.x < 0)
+                || (transform.position.x > 100 && viewportPos.x > 1)
+                || (transform.position.y < -100 && viewportPos.y < 0)
+                || (transform.position.y > 100 && viewportPos.y > 1);
     }
 
     /// Handles collision effects and logging
