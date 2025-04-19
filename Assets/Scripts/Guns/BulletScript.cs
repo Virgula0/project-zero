@@ -88,7 +88,8 @@ public class SingleBulletScript : MonoBehaviour
     private bool IsOutsideCameraView()
     {
         Vector2 viewportPos = playerCamera.WorldToViewportPoint(transform.position);
-        if (isPlayer){
+        if (isPlayer)
+        {
             return viewportPos.x < 0 || viewportPos.x > 1 || viewportPos.y < 0 || viewportPos.y > 1;
         }
 
@@ -114,10 +115,14 @@ public class SingleBulletScript : MonoBehaviour
                 break;
             case (int)Utils.Enums.ObjectLayers.Enemy:
                 Debug.Log("Hit Enemy");
-                if (collider.transform.parent.GetComponentInChildren<IEnemy>() is IEnemy enemy){
-                    // TODO: change the player sprite to a dead one, update IEnemy interface
-                    if (!enemy.IsEnemyDead()) // avoid to reload dead sprite eventually when hitting the enemy again
+                if (collider.transform.parent.GetComponentInChildren<IEnemy>() is IEnemy enemy)
+                {
+                    if (!enemy.IsEnemyDead()) // avoid to do actions on already died enemy
+                    {
+                        // TODO: change the player sprite to a dead one, update IEnemy interface
                         enemy.SetIsEnemyDead(true);
+                        logic.AddEnemyKilledPoints(enemy as IPoints);
+                    }
                 }
                 break;
         }

@@ -2,9 +2,10 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using System.Collections; // pay attention, as far as I read this library is not that fast
+using System.Collections;
+using System.Runtime.InteropServices.WindowsRuntime;
 
-public class AI : MonoBehaviour, IEnemy
+public class AI : MonoBehaviour, IEnemy, IPoints
 {
     [SerializeField] private float patrolSpeed = 3f;
     [SerializeField] private float chaseSpeed;
@@ -46,6 +47,7 @@ public class AI : MonoBehaviour, IEnemy
 
     private bool awakeReady = false;
     private bool isEnemyDead = false;
+    private int basePoint = 10;
 
     public bool AwakeReady(){
         return awakeReady;
@@ -188,6 +190,7 @@ public class AI : MonoBehaviour, IEnemy
         if (isEnemyDead || !playerScript.IsPlayerAlive()) // if enemy or player dead
         {
             body.linearVelocity = Vector2.zero;
+            playerDetector.SetStopDetector(true); // stop detector as raycast circle all can be expensive
             weaponManager.ChangeEnemyStatus(false); // stop shooting
             return;
         }
@@ -307,5 +310,20 @@ public class AI : MonoBehaviour, IEnemy
 
     public void SetIsEnemyDead(bool cond){
         this.isEnemyDead = cond;
+    }
+
+    public int GetBasePoints()
+    {
+        return basePoint;
+    }
+
+    public int GetTotalShotsDelivered()
+    {
+        return weaponManager.GetTotalShotsDelivered();
+    }
+
+    public float GetTotalChasedTime()
+    {
+        return playerDetector.GetTotalChasedTime();
     }
 }

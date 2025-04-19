@@ -15,7 +15,6 @@ public class WeaponManager : MonoBehaviour
     private CursorChanger cursorChanger;
 
     [SerializeField] SpriteRenderer playerSpriteRenderer;
-    [SerializeField] Canvas ui;
     [SerializeField] AudioSource audioSrc;
 
     private float forwardSpawnGunPrefabOffset = 3f;
@@ -27,7 +26,7 @@ public class WeaponManager : MonoBehaviour
         this.cursorChanger = GameObject.FindGameObjectWithTag(Utils.Const.CURSOR_CHANGER_TAG).GetComponent<CursorChanger>();
         this.playerBody = GetComponentInParent<Rigidbody2D>();
         this.defaultPlayerSprite = playerSpriteRenderer.sprite;
-        this.uiManager = ui.GetComponent<UIManager>();
+        this.uiManager = GameObject.FindGameObjectWithTag(Utils.Const.UI_MANAGER_TAG).GetComponent<UIManager>();
         this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER_TAG).GetComponent<WeaponSpawner>();
         this.playerScript = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponent<PlayerScript>();
     }

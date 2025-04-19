@@ -35,15 +35,18 @@ public class CowardMovement : MonoBehaviour, IMovement
 
     public void NeedsRepositioning(bool stop)
     {
-        stopCowardMovement = stop;
+        this.stopCowardMovement = stop;
+    }
 
-        if (stopCowardMovement && _cowardRoutine != null)
-        {
-            StopCoroutine(_cowardRoutine);
-            _cowardRoutine = null;
-            busy = false;
-            stopCowardMovement = false;
-        }
+    private IEnumerator CheckIfStopCoroutines()
+    {
+        // wait until both conditions are met
+        yield return new WaitUntil(() => (_cowardRoutine != null && playerDetector.IsDetectorStopped()) 
+                                    || (_cowardRoutine != null && stopCowardMovement));
+        // now stop and clear the handle
+        StopCoroutine(_cowardRoutine);
+        _cowardRoutine = null;
+        Debug.Log("Coward coroutine stopped");
     }
 
     public Vector2 FindClosestWayPoint(Rigidbody2D enemyRigidbody, Vector2[] toExclude, out int index)
@@ -58,6 +61,8 @@ public class CowardMovement : MonoBehaviour, IMovement
 
     private IEnumerator MoveInCircleRoutine(Rigidbody2D rb)
     {
+        Debug.Log("Coward Coroutine started");
+        StartCoroutine(CheckIfStopCoroutines());
         bool clearPath = false;
         Vector2 closestPoint = new();
         List<Vector2> vectorsToExclude = new List<Vector2>();
@@ -79,13 +84,13 @@ public class CowardMovement : MonoBehaviour, IMovement
         Vector2[] path = bfs.PathToTheFirst(closestPoint);
 
         // Step 1: move to the nearest point first
-        foreach (Vector2 v in path.Take(path.Length-1)) 
+        foreach (Vector2 v in path.Take(path.Length - 1))
         {
             yield return MoveToWithChecks(rb, v);
         }
 
         // Step 2: build the circular path (elements after the start index, then wrap)
-        List<Vector2> circularPath = GetCircularTraversal(0); 
+        List<Vector2> circularPath = GetCircularTraversal(0);
 
         // Step 3: loop forever (or until stopped), visiting each point in order
         while (true)
@@ -128,7 +133,7 @@ public class CowardMovement : MonoBehaviour, IMovement
                 busy = false;
                 yield break;
             }
-            
+
             MoveTowards(rb, destination);
             yield return new WaitForFixedUpdate();
         }
@@ -136,7 +141,7 @@ public class CowardMovement : MonoBehaviour, IMovement
 
     private void MoveTowards(Rigidbody2D rb, Vector2 targetPosition, float speedMultiplier = 1f)
     {
-        Vector2 newPos = Vector2.MoveTowards(rb.position,targetPosition, speed * speedMultiplier * Time.fixedDeltaTime);
+        Vector2 newPos = Vector2.MoveTowards(rb.position, targetPosition, speed * speedMultiplier * Time.fixedDeltaTime);
         rb.MovePosition(newPos);
     }
 }

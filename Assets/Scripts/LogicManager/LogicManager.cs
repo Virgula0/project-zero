@@ -13,10 +13,54 @@ public class LogicManager : MonoBehaviour
     [SerializeField] private GameObject playerUI;
     [SerializeField] private GameObject gameOverPrefab;
     private const string ScreenOverlay = "ScreenOverlay";
+    private CursorChanger cursorChanger;
+    private UIManager ui;
 
     void Start()
     {
         this.playerReference = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponent<PlayerScript>();
+        this.ui = GameObject.FindGameObjectWithTag(Utils.Const.UI_MANAGER_TAG).GetComponent<UIManager>();
+        this.cursorChanger = GameObject.FindGameObjectWithTag(Utils.Const.CURSOR_CHANGER_TAG).GetComponent<CursorChanger>();
+    }
+
+    void Update()
+    {
+        // only poll until we know the room is clear
+        if (!isTheRoomClear)
+            CheckAllEnemiesDead();
+        CheckRestartGame();
+    }
+
+    public bool IsTheRoomClear()
+    {
+        return isTheRoomClear;
+    }
+
+    public void GameOver()
+    {
+        // manages game over
+        cursorChanger.ChangeToDefaultCursor();
+        playerUI.SetActive(false);
+        gameOverPrefab.SetActive(true);
+        playerReference.SetIsPlayerAlive(false);
+    }
+
+    public void ReloadSceneWithFade()
+    {
+        // Make sure the black overlay starts fully transparent:
+        fadeCanvasGroup.alpha = 0f;
+        gameOverPrefab.transform.Find(ScreenOverlay).gameObject.SetActive(false);
+        StartCoroutine(FadeWhileLoading());
+    }
+
+    public void AddEnemyKilledPoints(IPoints points)
+    {
+        if (points == null)
+        {
+            return;
+        }
+        totalPoints += CalculateScore(points);
+        ui.UpdatePoints(totalPoints);
     }
 
     private void CheckRestartGame()
@@ -30,50 +74,45 @@ public class LogicManager : MonoBehaviour
 
     private void CheckAllEnemiesDead()
     {
+        // cache this if your room composition doesn't change mid‐room!
+        var enemies = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None)
+                          .OfType<IEnemy>();
 
-        IEnemy[] enemRef = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).
-                OfType<IEnemy>().
-                ToArray();
-
-        foreach (var enemy in enemRef)
-        {
-            if (!enemy.IsEnemyDead())
-            {
+        // if any enemy is still alive
+        foreach (var e in enemies)
+            if (!e.IsEnemyDead())
                 return;
-            }
-        }
 
-        this.isTheRoomClear = true;
+        // nobody left standing
+        isTheRoomClear = true;
     }
 
-
-    void Update()
+    /* 
+     * FORMULA:
+      *  More shots → higher score
+      *  The term w₁·S grows linearly with shots delivered.
+      *
+      *  Less chase time → higher score
+      *  The term w₂·(1/(T+ε)) is largest when T is small, and falls off as T increases.
+      *
+      *  Plus base points
+      *  You simply add your existing GetBasePoints().
+      * in other words:
+      *
+      * - the less is the TotalChasedTime, the higher will be the point
+      * - the higher are the total shots delivered, the higher will be the point
+      * - sum the base points to the calculation done on the first 2
+    */
+    private int CalculateScore(IPoints points, float weightShots = 5f, float weightChase = 100f, float epsilon = 0.1f)
     {
-        // check actively if all enemies in the room are dead
-        CheckAllEnemiesDead();
-        CheckRestartGame();
-    }
+        int P0 = points.GetBasePoints();
+        int S = points.GetTotalShotsDelivered();
+        float T = points.GetTotalChasedTime();
 
-    public bool IsTheRoomClear()
-    {
-        return isTheRoomClear;
-    }
+        float shotsScore = weightShots * S;
+        float chaseScore = weightChase / (T + epsilon);
 
-    public void GameOver()
-    {
-        // manages game over
-        playerUI.SetActive(false);
-        gameOverPrefab.SetActive(true);
-        playerReference.SetIsPlayerAlive(false);
-    }
-
-
-    public void ReloadSceneWithFade()
-    {
-        // Make sure the black overlay starts fully transparent:
-        fadeCanvasGroup.alpha = 0f;
-        gameOverPrefab.transform.parent.Find(ScreenOverlay).gameObject.SetActive(false);        
-        StartCoroutine(FadeWhileLoading());
+        return P0 + Mathf.RoundToInt(shotsScore + chaseScore);
     }
 
     private IEnumerator FadeWhileLoading()
