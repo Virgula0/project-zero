@@ -9,6 +9,7 @@ TagManager:
   - GlobalWaypoints
   - GunOnTheGround
   - WeaponSpawner
+  - CursorChanger
   layers:
   - Default
   - TransparentFX
