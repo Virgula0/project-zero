@@ -6,6 +6,7 @@ public class SingleBulletScript : MonoBehaviour
     private const float speed = 120f;    // Bullet travel speed in units per second
     private Vector2 moveDirection;       // Normalized direction vector for bullet movement
     private bool isPlayer = false;
+    private LogicManager logic;
 
     [SerializeField] private LayerMask hitLayers; // Layers that can be hit by the bullet
     [SerializeField] private float collisionBuffer = 0.1f; // Small distance buffer to prevent edge-case misses
@@ -23,6 +24,7 @@ public class SingleBulletScript : MonoBehaviour
     {
         // Camera reference for viewport calculations
         playerCamera = Camera.main; // needed for both player and UI
+        this.logic = GameObject.FindGameObjectWithTag(Utils.Const.LOGIC_MANAGER_TAG).GetComponent<LogicManager>();
 
         // If is the player that is shooting
         if (isPlayer)
@@ -105,12 +107,18 @@ public class SingleBulletScript : MonoBehaviour
         {
             case (int)Utils.Enums.ObjectLayers.Player:
                 Debug.Log("Hit Player");
+                this.logic.GameOver();
                 break;
             case (int)Utils.Enums.ObjectLayers.Wall:
                 Debug.Log("Hit Wall");
                 break;
             case (int)Utils.Enums.ObjectLayers.Enemy:
                 Debug.Log("Hit Enemy");
+                if (collider.transform.parent.GetComponentInChildren<IEnemy>() is IEnemy enemy){
+                    // TODO: change the player sprite to a dead one, update IEnemy interface
+                    if (!enemy.IsEnemyDead()) // avoid to reload dead sprite eventually when hitting the enemy again
+                        enemy.SetIsEnemyDead(true);
+                }
                 break;
         }
     }

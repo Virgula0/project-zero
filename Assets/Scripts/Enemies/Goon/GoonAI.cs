@@ -36,6 +36,7 @@ public class AI : MonoBehaviour, IEnemy
     private Dictionary<int, List<int>> connectionGraph;
     private Dictionary<int, List<int>> originalEnemyConnectionGraph;
     private WeaponSpawner spawner;
+    private PlayerScript playerScript;
 
     // IMPORTANT! define the list of army that this type of enemy (in this case Goon) can equip
     private List<Type> typesThatCanBeEquipped = new List<Type>{
@@ -44,6 +45,7 @@ public class AI : MonoBehaviour, IEnemy
     };
 
     private bool awakeReady = false;
+    private bool isEnemyDead = false;
 
     public bool AwakeReady(){
         return awakeReady;
@@ -94,6 +96,7 @@ public class AI : MonoBehaviour, IEnemy
         this.body = transform.parent.GetComponentInChildren<Rigidbody2D>();
         player = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
         playerDetector = gameObject.GetComponent<Detector>();
+        playerScript = player.GetComponent<PlayerScript>();
         treeStructure = new KdTree(exitWaypoints);
 
         // Get the global waypoints object locally (no new instance variable)
@@ -182,6 +185,13 @@ public class AI : MonoBehaviour, IEnemy
 
     void FixedUpdate()
     {
+        if (isEnemyDead || !playerScript.IsPlayerAlive()) // if enemy or player dead
+        {
+            body.linearVelocity = Vector2.zero;
+            weaponManager.ChangeEnemyStatus(false); // stop shooting
+            return;
+        }
+
         if (weaponManager == null){
             return;
         }
@@ -288,5 +298,14 @@ public class AI : MonoBehaviour, IEnemy
             // Draw a line connecting the two circles to illustrate the cast path
             Gizmos.DrawLine(startPoint, endPoint);
         }
+    }
+
+    public bool IsEnemyDead()
+    {
+        return isEnemyDead;
+    }
+
+    public void SetIsEnemyDead(bool cond){
+        this.isEnemyDead = cond;
     }
 }

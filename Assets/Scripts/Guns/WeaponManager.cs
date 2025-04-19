@@ -20,6 +20,7 @@ public class WeaponManager : MonoBehaviour
 
     private float forwardSpawnGunPrefabOffset = 3f;
     private float upOffsetSpawnGunPrefab = 1f;
+    private PlayerScript playerScript;
 
     void Start()
     {
@@ -28,6 +29,7 @@ public class WeaponManager : MonoBehaviour
         this.defaultPlayerSprite = playerSpriteRenderer.sprite;
         this.uiManager = ui.GetComponent<UIManager>();
         this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER_TAG).GetComponent<WeaponSpawner>();
+        this.playerScript = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponent<PlayerScript>();
     }
 
     // this will be invoked externally
@@ -106,7 +108,7 @@ public class WeaponManager : MonoBehaviour
     void Update()
     {
         // we do nothing if we do not have a loaded weapon already
-        if (currentLoadedWeapon == null)
+        if (currentLoadedWeapon == null || !playerScript.IsPlayerAlive())
         {
             return;
         }
