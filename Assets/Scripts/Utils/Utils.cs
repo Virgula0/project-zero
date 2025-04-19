@@ -32,6 +32,8 @@ namespace Utils
         public const string GUN_ON_THE_GROUND_TAG = "GunOnTheGround";
         public const string WEAPON_SPAWNER_TAG = "WeaponSpawner";
         public const string CURSOR_CHANGER_TAG = "CursorChanger";
+        public const string LOGIC_MANAGER_TAG = "LogicManager";
+        public const string UI_MANAGER_TAG = "UIManager";
     }
 
     public class Functions

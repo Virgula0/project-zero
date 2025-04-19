@@ -21,6 +21,7 @@ public class EnemyWeaponManager : MonoBehaviour
     private bool needsToPLayOnLoad = true; // this avoid to play the equip sound when scene start on already equipped weapons
     private Rigidbody2D enemyBody;
     private bool isPlayerBehindAWall = false;
+    private int totalShotsDelivered;
 
     void Start()
     {
@@ -91,15 +92,22 @@ public class EnemyWeaponManager : MonoBehaviour
             return;
         }
 
-        if (timer >= currentLoadedWeapon.GetFireRate() && currentLoadedWeapon.GetAmmoCount() > 0)
+        int beforeShootAmmo = currentLoadedWeapon.GetAmmoCount();
+        if (timer >= currentLoadedWeapon.GetFireRate() && beforeShootAmmo > 0)
         {
             timer = 0;
             currentLoadedWeapon.Shoot();
+            totalShotsDelivered +=  Mathf.Max(0, beforeShootAmmo - currentLoadedWeapon.GetAmmoCount()); // Mathf.Max avoid negative values
             audioSrc.PlayOneShot(currentLoadedWeapon.GetShotSfx());
             return;
         }
 
         timer += Time.deltaTime;
+    }
+
+
+    public int GetTotalShotsDelivered() {
+        return totalShotsDelivered;
     }
 
     // this will be invoked externally

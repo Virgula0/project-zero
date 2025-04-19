@@ -10,6 +10,8 @@ TagManager:
   - GunOnTheGround
   - WeaponSpawner
   - CursorChanger
+  - LogicManager
+  - UIManager
   layers:
   - Default
   - TransparentFX
