@@ -18,6 +18,7 @@ public class WeaponManager : MonoBehaviour
     {
         this.defaultPlayerSprite = playerSpriteRenderer.sprite;
         this.uiManager = ui.GetComponent<UIManager>();
+        ResizePlayerCollider();
     }
 
 
@@ -116,21 +117,11 @@ public class WeaponManager : MonoBehaviour
 
     public void ResizePlayerCollider(){
         BoxCollider2D playerCollider = gameObject.GetComponentInParent<BoxCollider2D>();
-    
-        // Get the sprite size in local units
         Vector2 spriteSize = playerSpriteRenderer.sprite.bounds.size;
-        
-        // Apply the localScale of the parent (since collider is on the parent)
-        Vector3 parentScale = gameObject.transform.parent.localScale;
-
-        // Multiply the sprite size by the parent’s scale (since the BoxCollider2D is attached to the parent)
-        Vector2 scaledSize = new Vector2(spriteSize.x * parentScale.x, spriteSize.y * parentScale.y);
-
-        // Apply it to the collider
+        //Vector3 spriteScale = gameObject.transform.parent.localScale;
+        Vector3 spriteScale = GameObject.FindGameObjectWithTag("PlayerTag").GetComponentInChildren<SpriteRenderer>().transform.localScale;
+        Vector2 scaledSize = new Vector2(spriteSize.x * spriteScale.x, spriteSize.y * spriteScale.y); // Multiply the sprite size by the parent’s scale
         playerCollider.size = scaledSize;
-
-        // Set offset — center it on the sprite’s pivot
-        //playerCollider.offset = playerSpriteRenderer.sprite.bounds.center;
     }
 
     IEnumerator WaitForSfxToEnd(){
