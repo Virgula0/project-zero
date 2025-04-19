@@ -5,4 +5,5 @@ public interface IEnemy
 {
     public Vector2[] GetEnemyWaypoints();
     public Dictionary<int, List<int>> GetEnemyConnections();
+    bool AwakeReady();
 }

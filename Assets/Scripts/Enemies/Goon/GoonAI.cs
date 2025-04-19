@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq; // pay attention, as far as I read this library is not that fast
+using System.Linq;
+using System.Collections; // pay attention, as far as I read this library is not that fast
 
 public class AI : MonoBehaviour, IEnemy
 {
@@ -42,20 +43,38 @@ public class AI : MonoBehaviour, IEnemy
         typeof(IMelee)
     };
 
+    private bool awakeReady = false;
+
+    public bool AwakeReady(){
+        return awakeReady;
+    }
+
     private void Awake()
     {
+        if (exitWaypoints == null || exitWaypoints.Length == 0)
+        {
+            Debug.LogError("ExitWaypoints is null or empty in Awake!");
+            return;
+        }
+
         this.linker = new GraphLinker();
         this.safeExitWaypointsCopy = new Vector2[exitWaypoints.Length];
         Array.Copy(exitWaypoints, 0, safeExitWaypointsCopy, 0, exitWaypoints.Length);
         this.originalEnemyConnectionGraph = linker.GenerateConnections(exitWaypoints);
         this.connectionGraph = originalEnemyConnectionGraph.ToDictionary(entry => entry.Key, entry => new List<int>(entry.Value)); // deep copy
+        awakeReady = true;
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    IEnumerator Start()
     {
         // Perform initializations and get global waypoints
         GlobalWaypoints glob = InitializeParameters();
+
+        while (!glob.GetIsGlobalReady()){
+            yield return null;
+        }
+
         // Connect the global waypoints into our local graph
         ConnectGlobalWaypoints(glob);
         // Connect waypoints from other enemies using the global waypoints reference
@@ -71,7 +90,7 @@ public class AI : MonoBehaviour, IEnemy
         this.findAWaponSpeed = patrolSpeed * 2f + findAWaponSpeed;
         this.runAwaySpeed = patrolSpeed * 4 + runAwaySpeed;
 
-        this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER).GetComponent<WeaponSpawner>();
+        this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER_TAG).GetComponent<WeaponSpawner>();
         this.body = transform.parent.GetComponentInChildren<Rigidbody2D>();
         player = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
         playerDetector = gameObject.GetComponent<Detector>();
@@ -113,6 +132,9 @@ public class AI : MonoBehaviour, IEnemy
         foreach (IEnemy enemy in otherEnemies)
         {
             Vector2[] enemyWaypoints = glob.GetWaypointMapForAnEnemy(enemy);
+
+            if (enemyWaypoints == null || enemyWaypoints.Length < 1)
+                continue;
 
             // Merge connection graphs using the linker helper
             this.connectionGraph = linker.LinkGraphs(
@@ -160,10 +182,18 @@ public class AI : MonoBehaviour, IEnemy
 
     void FixedUpdate()
     {
+        if (weaponManager == null){
+            return;
+        }
+
+        // set if player is in shootable area and if aware indipendently from the rest 
+        weaponManager.SetIsPlayerBehindAWall(playerDetector.GetIsPlayerHiddenByObstacle());
+        weaponManager.ChangeEnemyStatus(playerDetector.GetIsEnemyAwareOfPlayer());
+
         // nothing to do if we don't have a movement
         if (currentMovement == null)
             return;
-
+        
         // 1) Weapon‑find has top priority
         if (weaponManager.NeedsToFindAWeapon())
         {
@@ -172,7 +202,7 @@ public class AI : MonoBehaviour, IEnemy
             if (currentMovement is WeaponFinderMovement wp)
             {
                 bool hasWeapon = wp.CloserWeaponToEnemy(body.position, null).HasValue;
-                wp.NeedsRepositioning(hasWeapon);  // stop/resume its internal routine
+                cowardMovement.NeedsRepositioning(hasWeapon); //  we stop coward coroutine based on weapon presence on the ground
                 if (!hasWeapon)
                     currentMovement = cowardMovement;
             }
@@ -189,14 +219,14 @@ public class AI : MonoBehaviour, IEnemy
                 patrolMovement.NeedsRepositioning(true);
 
             currentMovement = patrolMovement;
-            weaponManager.ChangeEnemyStatus(false);
+            // weaponManager.ChangeEnemyStatus(false);
             currentMovement.Move(body);
             return;
         }
 
         // 3) Otherwise chase the player
         currentMovement = chaseMovement;
-        weaponManager.ChangeEnemyStatus(true);
+        // weaponManager.ChangeEnemyStatus(true);
         currentMovement.Move(body);
     }
 
@@ -217,7 +247,8 @@ public class AI : MonoBehaviour, IEnemy
         if (transform.position == null)
             return;
 
-        if (patrolWaypoints == null || exitWaypoints == null){
+        if (patrolWaypoints == null || exitWaypoints == null)
+        {
             return;
         }
 

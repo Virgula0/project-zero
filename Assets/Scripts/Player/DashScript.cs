@@ -14,7 +14,7 @@ public class DashScript : MonoBehaviour
     [SerializeField] float startDashTime = 0.07f;
     [SerializeField] float dashSpeed = 50f;
     [SerializeField] AudioClip dashSound;
-    [SerializeField] float dashCooldown = 3f;
+    [SerializeField] float dashCooldown = 2f;
     [SerializeField] AudioClip dashCooldownAlert;
 
     public void Start()

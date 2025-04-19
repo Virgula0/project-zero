@@ -61,6 +61,40 @@ public class WeaponSpawner : MonoBehaviour
         return allWeaponsPositions.ToArray();
     }
 
+    public bool AddAvailableGunOnTheGroundPosition(Vector2 toAdd, IGun gunObject)
+    {
+        bool addedAll = !allWeaponsPositions.Contains(toAdd);
+        if (addedAll) allWeaponsPositions.Add(toAdd);
+
+        bool addedRanged = false;
+        bool addedMelee = false;
+
+        // Check for IRanged (no else-if; allows both checks to run)
+        if (gunObject is IRanged)
+        {
+            addedRanged = !rangedWeaponsPositions.Contains(toAdd);
+            if (addedRanged)
+            {
+                rangedWeaponsPositions.Add(toAdd);
+                rangedStructure.UpdateVectorSetOnInsert(toAdd);
+            }
+        }
+
+        // Check for IMelee separately (not mutually exclusive)
+        if (gunObject is IMelee)
+        {
+            addedMelee = !meleeWeaponsPositions.Contains(toAdd);
+            if (addedMelee)
+            {
+                meleeWeaponsPositions.Add(toAdd);
+                meleeStructure.UpdateVectorSetOnInsert(toAdd);
+            }
+        }
+
+        return addedAll | addedRanged | addedMelee;
+    }
+
+
     public bool RemoveAGunFromTheGroundPosition(Vector2 toRemove)
     {
         bool removedAll = allWeaponsPositions.Remove(toRemove);

@@ -30,7 +30,7 @@ namespace Utils
         public const string WEAPON_MANAGER_TAG = "WeaponManager";
         public const string GLOBAL_WAYPOINTS_TAG = "GlobalWaypoints";
         public const string GUN_ON_THE_GROUND_TAG = "GunOnTheGround";
-        public const string WEAPON_SPAWNER = "WeaponSpawner";
+        public const string WEAPON_SPAWNER_TAG = "WeaponSpawner";
     }
 
     public class Functions

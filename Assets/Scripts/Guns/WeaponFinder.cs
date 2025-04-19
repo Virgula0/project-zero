@@ -14,7 +14,7 @@ public class WeaponFinder : MonoBehaviour
         this.playerManager = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_MANAGER_TAG).GetComponent<WeaponManager>();
         this.weapon = GetComponentInParent<IGun>(); // in parent, the concrete script of the gun which implements Igun must be present
         this.gameObjectRef = transform.parent.gameObject;
-        this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER).GetComponent<WeaponSpawner>();
+        this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER_TAG).GetComponent<WeaponSpawner>();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -24,18 +24,22 @@ public class WeaponFinder : MonoBehaviour
             return;
         }
 
-        Debug.Log("Collision detected with: " + collision.gameObject.name);
+        if (weapon.IsGoingToBePickedUp()){
+            return;
+        }
 
+        weapon.SetIsGoingToBePickedUp(true);
+        Debug.Log("Collision detected with: " + collision.gameObject.name);
         var obj = collision.gameObject;
+        
 
         switch (obj.layer)
         {
             case (int)Utils.Enums.ObjectLayers.Player:
                 Debug.Log("You got a weapon! " + gameObject.name);
-                playerManager.LoadNewGun(weapon, obj);
+                playerManager.LoadNewGun(weapon, obj, this.gameObjectRef);
                 HandleWeaponPickup();
                 break;
-
             case (int)Utils.Enums.ObjectLayers.Enemy:
                 EnemyWeaponManager manager = obj.transform.parent.GetComponentInChildren<EnemyWeaponManager>();
                 if (!manager.CanWeaponBeEquipped(weapon))
@@ -52,7 +56,8 @@ public class WeaponFinder : MonoBehaviour
 
     private void HandleWeaponPickup()
     {
-        Destroy(this.gameObjectRef);
+        // Destroy(this.gameObjectRef);
+        gameObjectRef.SetActive(false);
         if (!spawner.RemoveAGunFromTheGroundPosition(gameObject.transform.position))
         {
             Debug.LogWarning("An element should have been removed and it was not!");
