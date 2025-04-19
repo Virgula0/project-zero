@@ -119,7 +119,7 @@ public class SingleBulletScript : MonoBehaviour
                 {
                     if (!enemy.IsEnemyDead()) // avoid to do actions on already died enemy
                     {
-                        // TODO: change the player sprite to a dead one, update IEnemy interface
+                        // TODO: change the enemy sprite to a dead one, update IEnemy interface
                         enemy.SetIsEnemyDead(true);
                         logic.AddEnemyKilledPoints(enemy as IPoints);
                     }
