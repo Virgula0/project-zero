@@ -118,7 +118,7 @@ public class WeaponManager : MonoBehaviour
     public void ResizePlayerCollider(){
         BoxCollider2D playerCollider = gameObject.GetComponentInParent<BoxCollider2D>();
         Vector2 spriteSize = playerSpriteRenderer.sprite.bounds.size;
-        Vector3 spriteScale = GameObject.FindGameObjectWithTag("PlayerTag").GetComponentInChildren<SpriteRenderer>().transform.localScale; // Get the player sprite scale
+        Vector3 spriteScale = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponentInChildren<SpriteRenderer>().transform.localScale; // Get the player sprite scale
         Vector2 scaledSize = new Vector2(spriteSize.x * spriteScale.x, spriteSize.y * spriteScale.y); // Multiply the sprite size by the parent’s scale
         playerCollider.size = scaledSize;
     }

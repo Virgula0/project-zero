@@ -2268,7 +2268,7 @@ PrefabInstance:
     - target: {fileID: 3884041588852964277, guid: 71b6dbee4d80f424cbeecc56a58ed163, type: 3}
       propertyPath: equippedSprite
       value: 
-      objectReference: {fileID: 7834454112102350060, guid: 69efdfc9446b69949957ca515493fa68, type: 3}
+      objectReference: {fileID: -7641184391651269689, guid: 16e1925dc1eeff544a44e8cddefc999d, type: 3}
     - target: {fileID: 5829556277332518347, guid: 71b6dbee4d80f424cbeecc56a58ed163, type: 3}
       propertyPath: m_Name
       value: SimpleGun
