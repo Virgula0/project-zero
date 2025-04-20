@@ -92,6 +92,7 @@ public class Detector : MonoBehaviour
         // CircleCast does not work becuase it does not work for stationary objects.
         // CircleCast is the equivalent of ShpereCast for 2D
         // For this reason we use OverlaCircleAll here which seems to works better and circumnvent the problem
+        // TODO: switch to OverlapCircleNonAlloc (or OverlapCirle) since they do not allocate memory on the heap at each Update() call
         Collider2D[] hits = Physics2D.OverlapCircleAll(body.position, circleRadius, physicalLayer);
         bool detectedPlayer = false;
 
