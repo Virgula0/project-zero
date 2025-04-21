@@ -8,6 +8,11 @@ TagManager:
   - PlayerTag
   - GlobalWaypoints
   - GoonEnemyTag
+  - GunOnTheGround
+  - WeaponSpawner
+  - CursorChanger
+  - LogicManager
+  - UIManager
   layers:
   - Default
   - TransparentFX

@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -20,28 +21,40 @@ public class GlobalWaypoints : MonoBehaviour
     private Dictionary<IEnemy, Dictionary<int, List<int>>> enemyConnectionMap;
     private List<IEnemy> enemies;
 
+    private bool isGlobalReady = false;
+
+    public bool GetIsGlobalReady(){
+        return isGlobalReady;
+    }
+
     void Awake()
     {
         this.globalWaypointsRemapped = GenerateMapping(); // for global waypoints
-        this.PopulateEnemyWaypointsMap();
+        StartCoroutine(this.PopulateEnemyWaypointsMap());
     }
 
-    private void PopulateEnemyWaypointsMap()
+    private IEnumerator PopulateEnemyWaypointsMap()
     {
         this.enemyWaypointsMap = new Dictionary<IEnemy, Vector2[]>();
         this.enemyConnectionMap = new Dictionary<IEnemy, Dictionary<int, List<int>>>();
         this.enemies = new List<IEnemy>();
-        
+                
         IEnemy[] enemRef = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).
                 OfType<IEnemy>().
                 ToArray();
 
         foreach (IEnemy enemy in enemRef)
         {
+
+            while (!enemy.AwakeReady()){
+                yield return null;
+            }
+            
             enemies.Add(enemy);
             enemyWaypointsMap.Add(enemy, enemy.GetEnemyWaypoints());
             enemyConnectionMap.Add(enemy, enemy.GetEnemyConnections());
         }
+        isGlobalReady = true;
     }
 
     private Dictionary<int, int> GenerateMapping()
@@ -83,12 +96,19 @@ public class GlobalWaypoints : MonoBehaviour
         return globalWaypoints[globalWaypointsRemapped.GetValueOrDefault(remappedIndex, -1)];
     }
 
+    public Vector2[] GetGlobalWaypointsNotRemappedVector(){
+        return globalWaypoints;
+    }
+
     // Debugging purposes you can ignore this
     private void OnDrawGizmos()
     {
         if (transform.position == null)
             return;
 
+        if (globalWaypoints == null)
+            return;
+        
         float circleRadius = 0.8f;
         foreach (Vector2 point in globalWaypoints)
         {

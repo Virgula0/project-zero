@@ -1,45 +1,111 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class WeaponSpawner : MonoBehaviour
 {
-
-    // this code will be changed, it's just for testing purposes.
-    [SerializeField] private GameObject prefabToSpawn;
-    [SerializeField] private Camera mainCamera; 
+    private List<Vector2> allWeaponsPositions;
+    private List<Vector2> rangedWeaponsPositions;
+    private List<Vector2> meleeWeaponsPositions;
+    private KdTree rangedStructure;
+    private KdTree meleeStructure;
 
     void Start()
     {
-        if (prefabToSpawn != null && mainCamera != null)
+        allWeaponsPositions = new List<Vector2>();
+        rangedWeaponsPositions = new List<Vector2>();
+        meleeWeaponsPositions = new List<Vector2>();
+        GameObject[] weaponsInTheScene = GameObject.FindGameObjectsWithTag(Utils.Const.GUN_ON_THE_GROUND_TAG);
+
+        foreach (GameObject obj in weaponsInTheScene)
         {
-            SpawnPrefabInRandomPosition();
+            allWeaponsPositions.Add((Vector2)obj.transform.position); // they're not physical object so this is fine
+            IGun weapon = obj.GetComponentInChildren<IGun>(); // all weapons extend IGun, sorry the name is a little bit misleading
+            if (weapon is IRanged)
+            {
+                rangedWeaponsPositions.Add((Vector2)obj.transform.position);
+                continue;
+            }
+
+            if (weapon is IMelee)
+            {
+                meleeWeaponsPositions.Add((Vector2)obj.transform.position);
+                continue;
+            }
         }
-        else
-        {
-            Debug.LogError("Prefab or Main Camera is not assigned in RandomSpawner.");
-        }
+        this.rangedStructure = new KdTree(rangedWeaponsPositions.ToArray());
+        this.meleeStructure = new KdTree(meleeWeaponsPositions.ToArray());
     }
 
-    void SpawnPrefabInRandomPosition()
+    public KdTree GetRangedTree()
     {
-        // Get the camera's visible bounds
-        Vector2 randomPosition = GetRandomPositionInView();
-
-        // Instantiate the prefab at the random position
-        Instantiate(prefabToSpawn, randomPosition, Quaternion.identity);
+        return rangedStructure;
     }
 
-    Vector2 GetRandomPositionInView()
+    public KdTree GetMeleeTree()
     {
-        // Get camera boundaries
-        float minX = mainCamera.ViewportToWorldPoint(new Vector3(0, 0, 0)).x;
-        float maxX = mainCamera.ViewportToWorldPoint(new Vector3(1, 0, 0)).x;
-        float minY = mainCamera.ViewportToWorldPoint(new Vector3(0, 0, 0)).y;
-        float maxY = mainCamera.ViewportToWorldPoint(new Vector3(0, 1, 0)).y;
+        return meleeStructure;
+    }
 
-        // Generate a random position within the screen bounds
-        float randomX = Random.Range(minX, maxX);
-        float randomY = Random.Range(minY, maxY);
+    public Vector2[] GetRangedOnTheGroundPosition()
+    {
+        return rangedWeaponsPositions.ToArray();
+    }
 
-        return new Vector2(randomX, randomY);
+    public Vector2[] GetMeleeOnTheGroundPosition()
+    {
+        return meleeWeaponsPositions.ToArray();
+    }
+
+    public Vector2[] GetAllWeaponsOnTheGroundPosition()
+    {
+        return allWeaponsPositions.ToArray();
+    }
+
+    public bool AddAvailableGunOnTheGroundPosition(Vector2 toAdd, IGun gunObject)
+    {
+        bool addedAll = !allWeaponsPositions.Contains(toAdd);
+        if (addedAll) allWeaponsPositions.Add(toAdd);
+
+        bool addedRanged = false;
+        bool addedMelee = false;
+
+        // Check for IRanged (no else-if; allows both checks to run)
+        if (gunObject is IRanged)
+        {
+            addedRanged = !rangedWeaponsPositions.Contains(toAdd);
+            if (addedRanged)
+            {
+                rangedWeaponsPositions.Add(toAdd);
+                rangedStructure.UpdateVectorSetOnInsert(toAdd);
+            }
+        }
+
+        // Check for IMelee separately (not mutually exclusive)
+        if (gunObject is IMelee)
+        {
+            addedMelee = !meleeWeaponsPositions.Contains(toAdd);
+            if (addedMelee)
+            {
+                meleeWeaponsPositions.Add(toAdd);
+                meleeStructure.UpdateVectorSetOnInsert(toAdd);
+            }
+        }
+
+        return addedAll | addedRanged | addedMelee;
+    }
+
+
+    public bool RemoveAGunFromTheGroundPosition(Vector2 toRemove)
+    {
+        bool removedAll = allWeaponsPositions.Remove(toRemove);
+
+        bool removedRanged = rangedWeaponsPositions.Remove(toRemove)
+                             && rangedStructure.UpdateVectorSetOnDeleteFirstOccurence(toRemove);
+
+        bool removedMelee = meleeWeaponsPositions.Remove(toRemove)
+                             && meleeStructure.UpdateVectorSetOnDeleteFirstOccurence(toRemove);
+
+        // The single '|' ensures all three were executed; returns true if any succeeded.
+        return removedAll | removedRanged | removedMelee;
     }
 }

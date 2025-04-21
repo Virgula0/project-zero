@@ -77,6 +77,8 @@ public class DirectorySceneLoader : MonoBehaviour
             yield return null;
         }
 
+        SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene()); // unload current scene
+
         // Set that scene as the active scene
         Scene firstScene = SceneManager.GetSceneByName(firstSceneName);
         if (firstScene.IsValid())

@@ -15,6 +15,8 @@ public class Detector : MonoBehaviour
 
     private Rigidbody2D body;
     private bool playerWasHiddenByObstacle = false;
+    private bool stopDetector = false;
+    private float totalChasedTime = 0f;
 
     void Start()
     {
@@ -24,6 +26,18 @@ public class Detector : MonoBehaviour
     public LayerMask GetObstacleLayers()
     {
         return obstacleLayer;
+    }
+
+    public void SetStopDetector(bool pred){
+        this.stopDetector = pred;
+    }
+
+    public float GetTotalChasedTime(){
+        return totalChasedTime;
+    }
+
+    public bool IsDetectorStopped(){
+        return stopDetector;
     }
 
     private bool PlayerDetected()
@@ -61,6 +75,12 @@ public class Detector : MonoBehaviour
 
     void Update()
     {
+
+        if (stopDetector)
+        {
+            return;
+        }
+
         // After N seconds without detection, reset the alert status
         if (elapsedLatestDetectionOfPlayerInSeconds > alertedEnemySeconds)
         {
@@ -80,6 +100,7 @@ public class Detector : MonoBehaviour
             if (hitCollider.gameObject.layer == (int)Utils.Enums.ObjectLayers.Player)
             {
                 // Debug.Log("Player detected because he was in visible area");
+                totalChasedTime += Time.deltaTime;
                 detectedPlayer = DefineIsPlayerIsDetected(hitCollider);
                 break;
             }
