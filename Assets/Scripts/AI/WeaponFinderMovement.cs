@@ -14,6 +14,7 @@ public class WeaponFinderMovement : MonoBehaviour, IMovement
     private EnemyWeaponManager enemyWeaponManager;
     private bool busy = false;
     private bool atLeastAWeaponAvailable = true;
+    private Coroutine _finderCoroutine;
 
     public IMovement New(KdTree tree, BFSPathfinder bfs, List<Type> typesThatCanBeEquipped, WeaponSpawner spawner, EnemyWeaponManager enemyWeaponManager, float speed)
     {
@@ -62,7 +63,7 @@ public class WeaponFinderMovement : MonoBehaviour, IMovement
     }
 
     public void Move(Rigidbody2D enemyTransform)
-    {        
+    {
         if (typesThatCanBeEquipped == null || typesThatCanBeEquipped.Count == 0)
         {
             return;
@@ -87,10 +88,11 @@ public class WeaponFinderMovement : MonoBehaviour, IMovement
 
         busy = true;
         atLeastAWeaponAvailable = true;
-        StartCoroutine(MoveToThePointCoroutine(enemyTransform, (Vector2)closerEquippableWeapon));
+        _finderCoroutine = StartCoroutine(MoveToThePointCoroutine(enemyTransform, (Vector2)closerEquippableWeapon));
     }
 
-    public bool GetIsAtLeastAWeaponAvailable(){
+    public bool GetIsAtLeastAWeaponAvailable()
+    {
         return this.atLeastAWeaponAvailable;
     }
 
@@ -114,10 +116,11 @@ public class WeaponFinderMovement : MonoBehaviour, IMovement
     /// 1) if we still need to find a weapon  
     /// 2) if the weapon is still on the ground  
     /// Exits early (and clears busy) if either check fails.
-    private IEnumerator MoveToDestinationWithChecks(Rigidbody2D enemyRB, Vector2 destination,Vector2 weaponPosition)
+    private IEnumerator MoveToDestinationWithChecks(Rigidbody2D enemyRB, Vector2 destination, Vector2 weaponPosition)
     {
-        while (Vector2.Distance(enemyRB.position, destination) > 0.1f)
+        while (busy && Vector2.Distance(enemyRB.position, destination) > 0.1f)
         {
+            Debug.Log("searching");
             if (!enemyWeaponManager.NeedsToFindAWeapon())
             {
                 busy = false;
@@ -136,8 +139,20 @@ public class WeaponFinderMovement : MonoBehaviour, IMovement
         }
     }
 
+
     public void NeedsRepositioning(bool reposition)
     {
         return;
+    }
+
+    public void StopCoroutines(bool stop)
+    {
+        if (!stop || _finderCoroutine == null){
+            return;
+        }
+        busy = false;
+        StopCoroutine(_finderCoroutine);
+        Debug.Log("stopped");
+        _finderCoroutine = null;
     }
 }

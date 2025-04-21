@@ -26,6 +26,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     private IMovement chaseMovement;
     private IMovement findForAWeapon;
     private IMovement cowardMovement;
+    private List<IMovement> listOfMovements = new List<IMovement>();
     private EnemyWeaponManager weaponManager;
     private Detector playerDetector;
     private Rigidbody2D body;
@@ -48,7 +49,8 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     private bool isEnemyDead = false;
     private int basePoint = 10;
 
-    public bool AwakeReady(){
+    public bool AwakeReady()
+    {
         return awakeReady;
     }
 
@@ -74,7 +76,8 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         // Perform initializations and get global waypoints
         GlobalWaypoints glob = InitializeParameters();
 
-        while (!glob.GetIsGlobalReady()){
+        while (!glob.GetIsGlobalReady())
+        {
             yield return null;
         }
 
@@ -180,21 +183,30 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         cowardMovement = gameObject.AddComponent<CowardMovement>()
             .New(safeExitWaypointsCopy, glob.GetGlobalWaypointsNotRemappedVector(), treeStructure, bfs, playerDetector, runAwaySpeed);
 
+        listOfMovements.Add(patrolMovement);
+        listOfMovements.Add(chaseMovement);
+        listOfMovements.Add(findForAWeapon);
+        listOfMovements.Add(cowardMovement);
+
         // Set the default movement and get the enemy weapon manager
         currentMovement = patrolMovement;
     }
 
     void FixedUpdate()
     {
+        if (weaponManager == null || currentMovement == null) // nothing to do if we don't have a movement
+            return;
+
         if (isEnemyDead || !playerScript.IsPlayerAlive()) // if enemy or player dead
         {
             body.linearVelocity = Vector2.zero;
-            playerDetector.SetStopDetector(true); // stop detector as raycast circle all can be expensive
+            playerDetector.SetStopDetector(true); // stop detector since raycast circle call can be expensive
             weaponManager.ChangeEnemyStatus(false); // stop shooting
-            return;
-        }
-
-        if (weaponManager == null){
+            foreach (IMovement mov in listOfMovements)
+            {
+                mov.StopCoroutines(true);
+            }
+            currentMovement = null;
             return;
         }
 
@@ -202,10 +214,6 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         weaponManager.SetIsPlayerBehindAWall(playerDetector.GetIsPlayerHiddenByObstacle());
         weaponManager.ChangeEnemyStatus(playerDetector.GetIsEnemyAwareOfPlayer());
 
-        // nothing to do if we don't have a movement
-        if (currentMovement == null)
-            return;
-        
         // 1) Weapon‑find has top priority
         if (weaponManager.NeedsToFindAWeapon())
         {
@@ -214,9 +222,12 @@ public class AI : MonoBehaviour, IEnemy, IPoints
             if (currentMovement is WeaponFinderMovement wp)
             {
                 bool hasWeapon = wp.CloserWeaponToEnemy(body.position, null).HasValue;
-                cowardMovement.NeedsRepositioning(hasWeapon); //  we stop coward coroutine based on weapon presence on the ground
                 if (!hasWeapon)
                     currentMovement = cowardMovement;
+                else
+                {
+                    cowardMovement.StopCoroutines(true); //  we stop coward coroutine based on weapon presence on the ground
+                }
             }
 
             currentMovement.Move(body);
@@ -307,7 +318,8 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         return isEnemyDead;
     }
 
-    public void SetIsEnemyDead(bool cond){
+    public void SetIsEnemyDead(bool cond)
+    {
         this.isEnemyDead = cond;
     }
 

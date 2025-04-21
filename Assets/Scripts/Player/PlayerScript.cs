@@ -9,6 +9,7 @@ public class PlayerScript : MonoBehaviour
     private Vector2 lastMoveDirection = Vector2.right; // Default direction
     private DashScript dash;
     private bool isPlayerAlive = true;
+    [SerializeField] private bool godMode = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -21,7 +22,8 @@ public class PlayerScript : MonoBehaviour
 
     void Update()
     {
-        if (!this.isPlayerAlive){
+        if (!this.isPlayerAlive)
+        {
             playerRb.linearVelocity = Vector2.zero;
             return;
         }
@@ -33,7 +35,8 @@ public class PlayerScript : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (!this.isPlayerAlive){
+        if (!this.isPlayerAlive)
+        {
             playerRb.linearVelocity = Vector2.zero;
             return;
         }
@@ -54,7 +57,13 @@ public class PlayerScript : MonoBehaviour
 
     public void SetIsPlayerAlive(bool cond)
     {
-        this.isPlayerAlive = cond;
+        if (!godMode)
+            this.isPlayerAlive = cond;
+    }
+
+    public bool IsGodMode()
+    {
+        return godMode;
     }
 
     private void ProcessInputs()

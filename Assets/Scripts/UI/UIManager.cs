@@ -15,26 +15,45 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
-       SetLevelText(); 
+        SetLevelText();
     }
 
-    public void UpdateBullets(int numBullets){
+    public void UpdateBullets(int numBullets)
+    {
+        if (numBullets == int.MaxValue)
+        {
+            bulletsText.GetComponent<TextMeshProUGUI>().text = "∞";
+            return;
+        }
         bulletsText.GetComponent<TextMeshProUGUI>().text = numBullets.ToString();
     }
 
-    public void UpdateReloads(int numReloads){
+    public void UpdateReloads(int numReloads)
+    {
+        if (numReloads == int.MaxValue)
+        {
+            reloadsText.GetComponent<TextMeshProUGUI>().text = "∞";
+            return;
+        }
         reloadsText.GetComponent<TextMeshProUGUI>().text = numReloads.ToString();
     }
 
-    public void UpdateCharges(int numCharges){
+    public void UpdateCharges(int numCharges)
+    {
+        if (numCharges == int.MaxValue)
+        {
+            chargesText.GetComponent<TextMeshProUGUI>().text = "∞";
+        }
         chargesText.GetComponent<TextMeshProUGUI>().text = "CHARGES: " + numCharges.ToString();
     }
 
-    public void UpdatePoints(int points){
+    public void UpdatePoints(int points)
+    {
         pointsText.GetComponent<TextMeshProUGUI>().text = points.ToString() + " pts";
     }
 
-    public void UpdateWeaponIcon(Sprite newSprite){
+    public void UpdateWeaponIcon(Sprite newSprite)
+    {
         Color currentColor = weaponIcon.color;
         currentColor.a = 1f - weaponIcon.color.a;
         weaponIcon.color = currentColor;
@@ -43,8 +62,9 @@ public class UIManager : MonoBehaviour
 
     //TODO: add method for updating secondary sprite.
 
-    private void SetLevelText(){
+    private void SetLevelText()
+    {
         levelText.GetComponent<TextMeshProUGUI>().text = SceneManager.GetActiveScene().name;
     }
-    
+
 }

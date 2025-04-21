@@ -13,6 +13,7 @@ public class PatrolMovement : MonoBehaviour, IMovement
     private Detector playerDetector;
     private KdTree kdTree;
     private BFSPathfinder bfs;
+    private Coroutine _patrolCoroutine;
 
     public PatrolMovement New(Vector2[] waypoints, Detector playerDetector, KdTree kdTree, BFSPathfinder bfs, float speed)
     {
@@ -41,7 +42,7 @@ public class PatrolMovement : MonoBehaviour, IMovement
         {
             Debug.Log("Returning to Door Way point for patrolling");
             busy = true;
-            StartCoroutine(MoveDoorWaypointsCoroutine(enemyTransform));
+            _patrolCoroutine = StartCoroutine(MoveDoorWaypointsCoroutine(enemyTransform));
             return;
         }
 
@@ -119,5 +120,15 @@ public class PatrolMovement : MonoBehaviour, IMovement
 
     public void NeedsRepositioning(bool reposition){
         this.needsRepositioning = reposition;
+    }
+
+    public void StopCoroutines(bool stop)
+    {
+        if (!stop || _patrolCoroutine == null){
+            return;
+        }
+        busy = false;
+        StopCoroutine(_patrolCoroutine);
+        _patrolCoroutine = null;
     }
 }

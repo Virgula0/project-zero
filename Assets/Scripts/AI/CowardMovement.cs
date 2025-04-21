@@ -11,7 +11,6 @@ public class CowardMovement : MonoBehaviour, IMovement
     private KdTree kdTree;
     private float speed;
     private bool busy;
-    private bool stopCowardMovement;
     private Coroutine _cowardRoutine;
     private Detector playerDetector;
 
@@ -28,25 +27,8 @@ public class CowardMovement : MonoBehaviour, IMovement
 
     public void Move(Rigidbody2D enemyRB)
     {
-        if (busy || stopCowardMovement) return;
-        busy = true;
+        if (busy) return;
         _cowardRoutine = StartCoroutine(MoveInCircleRoutine(enemyRB));
-    }
-
-    public void NeedsRepositioning(bool stop)
-    {
-        this.stopCowardMovement = stop;
-    }
-
-    private IEnumerator CheckIfStopCoroutines()
-    {
-        // wait until both conditions are met
-        yield return new WaitUntil(() => (_cowardRoutine != null && playerDetector.IsDetectorStopped()) 
-                                    || (_cowardRoutine != null && stopCowardMovement));
-        // now stop and clear the handle
-        StopCoroutine(_cowardRoutine);
-        _cowardRoutine = null;
-        Debug.Log("Coward coroutine stopped");
     }
 
     public Vector2 FindClosestWayPoint(Rigidbody2D enemyRigidbody, Vector2[] toExclude, out int index)
@@ -62,11 +44,11 @@ public class CowardMovement : MonoBehaviour, IMovement
     private IEnumerator MoveInCircleRoutine(Rigidbody2D rb)
     {
         Debug.Log("Coward Coroutine started");
-        StartCoroutine(CheckIfStopCoroutines());
+        busy = true;
         bool clearPath = false;
         Vector2 closestPoint = new();
         List<Vector2> vectorsToExclude = new List<Vector2>();
-        while (!clearPath)
+        while (busy && !clearPath)
         {
             closestPoint = FindClosestWayPoint(rb, vectorsToExclude.ToArray(), out _);
             Vector2 directionToClosest = (closestPoint - rb.position).normalized;
@@ -93,13 +75,11 @@ public class CowardMovement : MonoBehaviour, IMovement
         List<Vector2> circularPath = GetCircularTraversal(0);
 
         // Step 3: loop forever (or until stopped), visiting each point in order
-        while (true)
+        while (busy)
         {
             foreach (var point in circularPath)
             {
                 yield return MoveToWithChecks(rb, point);
-                if (stopCowardMovement)
-                    yield break;
             }
         }
     }
@@ -126,14 +106,8 @@ public class CowardMovement : MonoBehaviour, IMovement
 
     private IEnumerator MoveToWithChecks(Rigidbody2D rb, Vector2 destination)
     {
-        while (Vector2.Distance(rb.position, destination) > 0.1f)
+        while (busy && Vector2.Distance(rb.position, destination) > 0.1f)
         {
-            if (stopCowardMovement)
-            {
-                busy = false;
-                yield break;
-            }
-
             MoveTowards(rb, destination);
             yield return new WaitForFixedUpdate();
         }
@@ -143,5 +117,20 @@ public class CowardMovement : MonoBehaviour, IMovement
     {
         Vector2 newPos = Vector2.MoveTowards(rb.position, targetPosition, speed * speedMultiplier * Time.fixedDeltaTime);
         rb.MovePosition(newPos);
+    }
+
+    public void StopCoroutines(bool stop)
+    {
+        if (!stop || _cowardRoutine == null){
+            return;
+        }
+        busy = false;
+        StopCoroutine(_cowardRoutine);
+        _cowardRoutine = null;
+    }
+
+    public void NeedsRepositioning(bool reposition)
+    {
+        return;
     }
 }

@@ -127,7 +127,8 @@ public class WeaponManager : MonoBehaviour
         }
 
         if (Input.GetKeyDown(KeyCode.R) && currentLoadedWeapon.GetNumberOfReloads() > 0
-            && currentLoadedWeapon.GetAmmoCount() < currentLoadedWeapon.GetMegCap())
+            && currentLoadedWeapon.GetAmmoCount() < currentLoadedWeapon.GetMegCap() &&
+            currentLoadedWeapon is IRanged)
         {
             currentLoadedWeapon.Reload();
             uiManager.UpdateReloads(currentLoadedWeapon.GetNumberOfReloads());

@@ -125,6 +125,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 20
   playerRb: {fileID: 8302184713731113973}
+  godMode: 1
 --- !u!82 &6756813065876353688
 AudioSource:
   m_ObjectHideFlags: 0
@@ -372,7 +373,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerSpriteRenderer: {fileID: 7458322534783978370}
-  ui: {fileID: 3539627044964418842, guid: 252f61995e5fa07febdde239a4573022, type: 3}
   audioSrc: {fileID: 6518969331765319709}
 --- !u!82 &6518969331765319709
 AudioSource:

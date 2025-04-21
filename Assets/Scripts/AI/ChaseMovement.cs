@@ -14,6 +14,7 @@ public class ChaseMovement : MonoBehaviour, IMovement
     private Vector2 enemyLatestPosition;
     private bool busy = false;
     private float additionalSpeedWhenFollowingPath = 2f;
+    private Coroutine _chaseCoroutine;
 
     public IMovement New(GameObject player, Detector detector, KdTree tree, BFSPathfinder bfs, float chaseSpeed, float stoppingDistance)
     {
@@ -141,7 +142,7 @@ public class ChaseMovement : MonoBehaviour, IMovement
             Vector2? bestWaypoint = FindClosestWayPoint(enemyPos);
             Debug.Log("Using DoorWayPoint to find an exit");
             busy = true;
-            StartCoroutine(MoveDoorWaypointsCoroutine(enemyRB, bestWaypoint.Value));
+            _chaseCoroutine = StartCoroutine(MoveDoorWaypointsCoroutine(enemyRB, bestWaypoint.Value));
             return;
         }
 
@@ -155,5 +156,16 @@ public class ChaseMovement : MonoBehaviour, IMovement
     public void NeedsRepositioning(bool reposition)
     {
         return;
+    }
+
+    public void StopCoroutines(bool stop)
+    {
+        if (!stop || _chaseCoroutine == null)
+        {
+            return;
+        }
+        busy = false;
+        StopCoroutine(_chaseCoroutine);
+        _chaseCoroutine = null;
     }
 }
