@@ -32,11 +32,13 @@ public class EnemyWeaponManager : MonoBehaviour
 
         // must be done whatever a new gun gets loaded
         currentLoadedWeapon = weapon;
+        enemySpriteRenderer.sprite = weapon.GetEquippedSprite();     
 
         // we're allowed to shoot at te beginning 
         timer = float.PositiveInfinity;
         currentLoadedWeapon.Setup(shooter);
-        // playerSpriteRenderer.sprite = weapon.GetEquippedSprite();
+        Debug.Log("Should Resize");
+        ResizeEnemyCollider();
     }
 
     private void UnloadCurrentGun()
@@ -49,12 +51,14 @@ public class EnemyWeaponManager : MonoBehaviour
         Debug.Log("Enemy deloaded a weapon");
         currentLoadedWeapon = null;
         timer = 0;
-        // playerSpriteRenderer.sprite = defaultPlayerSprite;
+        enemySpriteRenderer.sprite = defaultEnemySprite;
+        ResizeEnemyCollider();
     }
 
     void Start()
     {
-        // this.defaultPlayerSprite = playerSpriteRenderer.sprite;
+        this.defaultEnemySprite = enemySpriteRenderer.sprite;
+        ResizeEnemyCollider();
     }
 
     // Update is called once per frame
@@ -90,5 +94,11 @@ public class EnemyWeaponManager : MonoBehaviour
         }
 
         timer += Time.deltaTime;
+    }
+
+    public void ResizeEnemyCollider(){
+        BoxCollider2D enemyCollider = gameObject.transform.parent.GetComponentInChildren<BoxCollider2D>();
+        Vector2 spriteSize = enemySpriteRenderer.sprite.bounds.size;
+        enemyCollider.size = spriteSize;
     }
 }

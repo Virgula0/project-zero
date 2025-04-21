@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 23de2ca8d55802d4f94f0dc4cde64dfe
+guid: bb87ec48979b43f44b80f044648af0fc
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 93326520250165974
-    second: sprPlayerShotgun_placeholder_0
+      213: 3936353881694242086
+    second: sprEnemyPistol_placeholder_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: sprPlayerShotgun_placeholder_0
+      name: sprEnemyPistol_placeholder_0
       rect:
         serializedVersion: 2
-        x: 12
-        y: 6
-        width: 32
-        height: 19
+        x: 4
+        y: 4
+        width: 38
+        height: 15
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6da62a7c9ff8b4100800000000000000
-      internalID: 93326520250165974
+      spriteID: 6258d9ceffcb0a630800000000000000
+      internalID: 3936353881694242086
       vertices: []
       indices: 
       edges: []
@@ -134,8 +134,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      sprPlayerShotgun_placeholder_0: 93326520250165974
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
