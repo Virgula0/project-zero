@@ -19,12 +19,12 @@ public class SimpleSword : MonoBehaviour, IGun, IMelee
     private GameObject wielder;
     private bool isGoingToBePickedUp = false;
     private SwardScript currentInitScript;
-    private GameObject currentInitPrefab;
+    private GameObject currentInitPrefab; 
 
     public void Setup(GameObject player)
     {
         wielder = player;
-        GameObject currentInitPrefab = Instantiate(swingPrefab, wielder.transform.position, Quaternion.identity);
+        currentInitPrefab = Instantiate(swingPrefab, wielder.transform.position, Quaternion.identity);
         currentInitScript = currentInitPrefab.GetComponent<SwardScript>();
         currentInitScript.Initialize(wielder, swingSound);
     }
@@ -61,9 +61,15 @@ public class SimpleSword : MonoBehaviour, IGun, IMelee
 
     public IEnumerator SaveStatus(IGun other)
     {
+        Destroy(other as MonoBehaviour);
         yield break;
     }
 
     public bool IsGoingToBePickedUp() => isGoingToBePickedUp;
     public void SetIsGoingToBePickedUp(bool status) => isGoingToBePickedUp = status;
+
+    public void PostSetup()
+    {
+        Destroy(currentInitPrefab);
+    }
 }

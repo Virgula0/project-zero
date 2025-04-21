@@ -17,8 +17,8 @@ public class WeaponManager : MonoBehaviour
     [SerializeField] SpriteRenderer playerSpriteRenderer;
     [SerializeField] AudioSource audioSrc;
 
-    private float forwardSpawnGunPrefabOffset = 3f;
-    private float upOffsetSpawnGunPrefab = 1f;
+    private float forwardSpawnGunPrefabOffset = 5f;
+    private float upOffsetSpawnGunPrefab = 2f;
     private PlayerScript playerScript;
 
     void Start()
@@ -79,11 +79,12 @@ public class WeaponManager : MonoBehaviour
             RecreatePrefab();
         }
 
-        currentLoadedWeapon = null;
+        currentLoadedWeapon.PostSetup();
         cursorChanger.ChangeToDefaultCursor();
         Destroy(this.gunPrefab);
         timer = 0;
         playerSpriteRenderer.sprite = defaultPlayerSprite;
+        currentLoadedWeapon = null;
         uiManager.UpdateBullets(0);
         uiManager.UpdateReloads(0);
         uiManager.UpdateWeaponIcon(null);

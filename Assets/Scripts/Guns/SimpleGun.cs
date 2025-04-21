@@ -134,4 +134,9 @@ public class SimpleGun : MonoBehaviour, IGun, IRanged
     public void SetIsGoingToBePickedUp(bool status){
         this.isGoingToBePickedUp = status;
     }
+
+    public void PostSetup()
+    {
+        return;
+    }
 }

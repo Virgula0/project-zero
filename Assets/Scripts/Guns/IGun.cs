@@ -5,6 +5,7 @@ using UnityEngine;
 public interface IInitializableWeapon
 {
     void Setup(GameObject player);
+    void PostSetup();
 }
 
 // Anything that can fire projectiles

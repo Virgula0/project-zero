@@ -157,6 +157,7 @@ public class EnemyWeaponManager : MonoBehaviour
 
         Debug.Log("Enemy deloaded a weapon");
         audioSrc.PlayOneShot(currentLoadedWeapon.GetEquipSfx());
+        currentLoadedWeapon.PostSetup();
         // Instantiate a new prefab on the ground if there are some ammo
         currentLoadedWeapon = null;
         timer = 0;
