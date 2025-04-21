@@ -9,26 +9,40 @@ public class SwardScript : MonoBehaviour
     private bool canSwing = true;
     private GameObject wielder;
     private AudioClip swingSound;
-
-    private LayerMask enemyLayer;
+    [SerializeField] private LayerMask hitLayers;
     private float fireRate = 1f;
     private LogicManager logic;
+    private LayerMask finalHitLayers;
+    private GameObject player;
 
-    public void Initialize(GameObject wielder, AudioClip swingSound, LayerMask enemyLayer)
+    public void Initialize(GameObject wielder, AudioClip swingSound)
     {
+        player = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
         if (wielder.layer == (int)Utils.Enums.ObjectLayers.Player)
         {
-            // gameObject.layer = (int)Utils.Enums.ObjectLayers.BulletByPlayer; // set a layer to be detected by enemies but we need to do this because it will detect only if it's by the player
+            gameObject.layer = (int)Utils.Enums.ObjectLayers.SwingByPlayer;
             isPlayer = true;
         }
+
         this.wielder = wielder;
         this.swingSound = swingSound;
-        this.enemyLayer = enemyLayer;
+
+        int shooterLayerValue;
+        if (isPlayer)
+        {
+            shooterLayerValue = 1 << (int)Utils.Enums.ObjectLayers.Player;
+            finalHitLayers = hitLayers & ~shooterLayerValue;
+            return;
+        }
+
+        shooterLayerValue = 1 << (int)Utils.Enums.ObjectLayers.Enemy;
+        finalHitLayers = hitLayers & ~shooterLayerValue;
     }
 
     void Start()
     {
-        this.logic = GameObject.FindGameObjectWithTag(Utils.Const.LOGIC_MANAGER_TAG).GetComponent<LogicManager>();
+        logic = GameObject.FindGameObjectWithTag(Utils.Const.LOGIC_MANAGER_TAG)
+                         .GetComponent<LogicManager>();
     }
 
     public bool GetCanSwing()
@@ -38,7 +52,21 @@ public class SwardScript : MonoBehaviour
 
     public void Swing()
     {
-        transform.position = wielder.transform.position; // update current position
+        // point the sword toward input (player) or toward player (enemy)
+        Vector2 dir;
+        if (isPlayer)
+        {
+            Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            dir = mouseWorld - wielder.transform.position;
+        }
+        else
+        {
+            dir = player.transform.position - wielder.transform.position;
+        }
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.Euler(0f, 0f, angle);
+
+        transform.position = wielder.transform.position;
         StartCoroutine(SwingCoroutine());
     }
 
@@ -51,10 +79,10 @@ public class SwardScript : MonoBehaviour
 
         yield return new WaitForSeconds(0.1f);
 
-        Transform hitOrigin = wielder.transform;
+        // use this object's transform for origin & forward
+        Transform hitOrigin = transform;
 
-        // update the enemy layer adding the player layer too to let this to be equipped by enemies too
-        Collider2D[] hits = Physics2D.OverlapCircleAll((Vector2)hitOrigin.position, coneRange, enemyLayer);
+        Collider2D[] hits = Physics2D.OverlapCircleAll((Vector2)hitOrigin.position,coneRange,finalHitLayers);
 
         for (int i = 0; i < hits.Length; i++)
         {
@@ -69,28 +97,24 @@ public class SwardScript : MonoBehaviour
         canSwing = true;
     }
 
-
     private void HandleHit(Collider2D collider)
     {
         switch (collider.gameObject.layer)
         {
             case (int)Utils.Enums.ObjectLayers.Player:
-                Debug.Log("Hit Player");
-                this.logic.GameOver();
+                Debug.Log("Hit player");
+                logic.GameOver();
                 break;
             case (int)Utils.Enums.ObjectLayers.Wall:
-                Debug.Log("Hit Wall");
+                Debug.Log("Hit wall");
                 break;
             case (int)Utils.Enums.ObjectLayers.Enemy:
-                Debug.Log("Hit Enemy");
-                if (collider.transform.parent.GetComponentInChildren<IEnemy>() is IEnemy enemy)
+                Debug.Log("Hit enemy");
+                if (collider.transform.parent.GetComponentInChildren<IEnemy>() is IEnemy enemy &&
+                    !enemy.IsEnemyDead())
                 {
-                    if (!enemy.IsEnemyDead()) // avoid to do actions on already died enemy
-                    {
-                        // TODO: change the enemy sprite to a dead one, update IEnemy interface
-                        enemy.SetIsEnemyDead(true);
-                        logic.AddEnemyKilledPoints(enemy as IPoints);
-                    }
+                    enemy.SetIsEnemyDead(true);
+                    logic.AddEnemyKilledPoints(enemy as IPoints);
                 }
                 break;
         }
@@ -105,10 +129,8 @@ public class SwardScript : MonoBehaviour
         Vector2 origin = hitOrigin.position;
         float halfAngle = coneAngle * 0.5f;
 
-        // Draw range circle
         Gizmos.DrawWireSphere(origin, coneRange);
 
-        // Draw cone lines
         Vector2 forward = hitOrigin.right;
         Quaternion leftRot = Quaternion.Euler(0f, 0f, halfAngle);
         Quaternion rightRot = Quaternion.Euler(0f, 0f, -halfAngle);

@@ -26,7 +26,7 @@ public class SimpleSword : MonoBehaviour, IGun, IMelee
         wielder = player;
         GameObject currentInitPrefab = Instantiate(swingPrefab, wielder.transform.position, Quaternion.identity);
         currentInitScript = currentInitPrefab.GetComponent<SwardScript>();
-        currentInitScript.Initialize(wielder, swingSound, enemyLayer);
+        currentInitScript.Initialize(wielder, swingSound);
     }
 
     void Awake()
@@ -49,7 +49,6 @@ public class SimpleSword : MonoBehaviour, IGun, IMelee
 
 
     public void Reload(){}
-
     public int GetNumberOfReloads() => numberOfReloads;
     public float GetFireRate() => fireRate;
     public int GetMegCap() => magCap;

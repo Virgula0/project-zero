@@ -11,7 +11,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     [SerializeField] private float runAwaySpeed;
     [SerializeField] private float findAWaponSpeed;
 
-    [SerializeField] private float stoppingDistance = 5f;
+    [SerializeField] private float stoppingDistance = 2f; // set to a lower distance when it can equip melee too
     [SerializeField] private Vector2[] patrolWaypoints;
     // exitWaypoints is a vector containing the coordinates of doors or obstacles (manually defined in the editor) 
     // in order to surpass them when chasing the player
@@ -252,7 +252,6 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         // weaponManager.ChangeEnemyStatus(true);
         currentMovement.Move(body);
     }
-
 
     public Vector2[] GetEnemyWaypoints()
     {

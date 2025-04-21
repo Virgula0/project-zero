@@ -59,6 +59,10 @@ public class EnemyWeaponManager : MonoBehaviour
         // this.defaultPlayerSprite = playerSpriteRenderer.sprite;
     }
 
+    public IGun GetCurrentLoadedWeapon(){
+        return currentLoadedWeapon;
+    }
+
     // Update is called once per frame
     void Update()
     {

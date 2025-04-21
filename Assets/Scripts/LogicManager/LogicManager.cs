@@ -40,7 +40,7 @@ public class LogicManager : MonoBehaviour
     {
         if (playerReference.IsGodMode())
         {
-            Debug.LogWarning("Unabel to game over, god mode is activated");
+            Debug.LogWarning("Unable to game over, god mode is activated");
             return;
         }
         // manages game over

@@ -49,7 +49,7 @@ MonoBehaviour:
   chaseSpeed: 0
   runAwaySpeed: 0
   findAWaponSpeed: 0
-  stoppingDistance: 5
+  stoppingDistance: 2
   patrolWaypoints:
   - {x: 8.42, y: 7.1}
   - {x: 8.42, y: -1.5}

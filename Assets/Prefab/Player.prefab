@@ -125,7 +125,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 20
   playerRb: {fileID: 8302184713731113973}
-  godMode: 1
+  godMode: 0
 --- !u!82 &6756813065876353688
 AudioSource:
   m_ObjectHideFlags: 0

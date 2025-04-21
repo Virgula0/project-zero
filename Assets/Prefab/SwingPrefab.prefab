@@ -91,5 +91,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 778c26c0e2e9a4cbc9354fd8747c7253, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  coneAngle: 90
-  coneRange: 3
+  coneAngle: 130
+  coneRange: 5
+  hitLayers:
+    serializedVersion: 2
+    m_Bits: 200

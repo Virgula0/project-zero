@@ -111,6 +111,13 @@ public class Detector : MonoBehaviour
                 detectedPlayer = DefineIsPlayerIsDetected(hitCollider);
                 break;
             }
+
+            if (hitCollider.gameObject.layer == (int)Utils.Enums.ObjectLayers.SwingByPlayer)
+            {
+                // Debug.Log("Player detected because of a bullet");
+                detectedPlayer = DefineIsPlayerIsDetected(hitCollider);
+                break;
+            }
         }
 
         if (!detectedPlayer) // optimization, this may be not needed

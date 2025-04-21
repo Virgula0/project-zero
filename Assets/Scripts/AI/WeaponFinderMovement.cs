@@ -120,7 +120,6 @@ public class WeaponFinderMovement : MonoBehaviour, IMovement
     {
         while (busy && Vector2.Distance(enemyRB.position, destination) > 0.1f)
         {
-            Debug.Log("searching");
             if (!enemyWeaponManager.NeedsToFindAWeapon())
             {
                 busy = false;
@@ -152,7 +151,6 @@ public class WeaponFinderMovement : MonoBehaviour, IMovement
         }
         busy = false;
         StopCoroutine(_finderCoroutine);
-        Debug.Log("stopped");
         _finderCoroutine = null;
     }
 }
