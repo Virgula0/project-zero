@@ -15,9 +15,11 @@ public class WeaponFinderMovement : MonoBehaviour, IMovement
     private bool busy = false;
     private bool atLeastAWeaponAvailable = true;
     private Coroutine _finderCoroutine;
+    private Detector playerDetector;
 
-    public IMovement New(KdTree tree, BFSPathfinder bfs, List<Type> typesThatCanBeEquipped, WeaponSpawner spawner, EnemyWeaponManager enemyWeaponManager, float speed)
+    public IMovement New(KdTree tree, BFSPathfinder bfs, List<Type> typesThatCanBeEquipped, Detector playerDetector, WeaponSpawner spawner, EnemyWeaponManager enemyWeaponManager, float speed)
     {
+        this.playerDetector = playerDetector;
         this.enemyWeaponManager = enemyWeaponManager;
         this.spawner = spawner;
         this.kdTree = tree;
@@ -96,11 +98,39 @@ public class WeaponFinderMovement : MonoBehaviour, IMovement
         return this.atLeastAWeaponAvailable;
     }
 
+    public Vector2 FindClosestWayPoint(Rigidbody2D enemyRigidbody, Vector2[] toExclude, out int index)
+    {
+        if (kdTree == null)
+        {
+            throw new InvalidOperationException("KdTree is not built. Make sure doorWayPoint array is assigned.");
+        }
+
+        return kdTree.FindNearestExcluding(enemyRigidbody.position, toExclude, out index);
+    }
+
     private IEnumerator MoveToThePointCoroutine(Rigidbody2D enemyRB, Vector2 closerEquippableWeapon)
     {
         Vector2 targetWaypoint = kdTree.FindNearest(closerEquippableWeapon, out _);
-        Vector2 enemyCloserWaypoint = kdTree.FindNearest(enemyRB.position, out _);
-        Vector2[] path = bfs.PathToPoint(enemyCloserWaypoint, targetWaypoint);
+
+        bool clearPath = false;
+        Vector2 closestPoint = new();
+        List<Vector2> vectorsToExclude = new List<Vector2>();
+        while (busy && !clearPath)
+        {
+            closestPoint = FindClosestWayPoint(enemyRB, vectorsToExclude.ToArray(), out _);
+            Vector2 directionToClosest = (closestPoint - enemyRB.position).normalized;
+            float distanceToClosest = Vector2.Distance(enemyRB.position, closestPoint);
+            RaycastHit2D hit = Physics2D.Raycast(enemyRB.position, directionToClosest, distanceToClosest, playerDetector.GetObstacleLayers());
+            clearPath = hit.collider == null;
+
+            if (!clearPath)
+            {
+                vectorsToExclude.Add(closestPoint);
+                Debug.Log("Obstacle detected between enemy and closest waypoint while trying to finding weapon. Recalculating.");
+            }
+        }
+        //Vector2 enemyCloserWaypoint = kdTree.FindNearest(enemyRB.position, out _);
+        Vector2[] path = bfs.PathToPoint(closestPoint, targetWaypoint);
 
         // walk the path
         foreach (Vector2 waypoint in path)
@@ -146,7 +176,8 @@ public class WeaponFinderMovement : MonoBehaviour, IMovement
 
     public void StopCoroutines(bool stop)
     {
-        if (!stop || _finderCoroutine == null){
+        if (!stop || _finderCoroutine == null)
+        {
             return;
         }
         busy = false;

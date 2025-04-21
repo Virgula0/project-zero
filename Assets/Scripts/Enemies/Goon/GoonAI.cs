@@ -179,9 +179,9 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         chaseMovement = gameObject.AddComponent<ChaseMovement>()
             .New(player, playerDetector, treeStructure, bfs, chaseSpeed, stoppingDistance);
         findForAWeapon = gameObject.AddComponent<WeaponFinderMovement>()
-            .New(treeStructure, bfs, typesThatCanBeEquipped, spawner, weaponManager, findAWaponSpeed);
+            .New(treeStructure, bfs, typesThatCanBeEquipped, playerDetector, spawner, weaponManager, findAWaponSpeed);
         cowardMovement = gameObject.AddComponent<CowardMovement>()
-            .New(safeExitWaypointsCopy, glob.GetGlobalWaypointsNotRemappedVector(), treeStructure, bfs, playerDetector, runAwaySpeed);
+            .New(safeExitWaypointsCopy, glob.GetGlobalWaypointsNotRemappedVector(), patrolWaypoints, treeStructure, bfs, playerDetector, runAwaySpeed);
 
         listOfMovements.Add(patrolMovement);
         listOfMovements.Add(chaseMovement);

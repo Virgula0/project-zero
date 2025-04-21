@@ -43,7 +43,6 @@ public class SimpleSword : MonoBehaviour, IGun, IMelee
     public void Shoot()
     {
         if (!currentInitScript.GetCanSwing()) return;
-        //StartCoroutine(SwingCoroutine());
         currentInitScript.Swing();
     }
 
@@ -61,7 +60,6 @@ public class SimpleSword : MonoBehaviour, IGun, IMelee
 
     public IEnumerator SaveStatus(IGun other)
     {
-        Destroy(other as MonoBehaviour);
         yield break;
     }
 
