@@ -134,10 +134,14 @@ public class EnemyWeaponManager : MonoBehaviour
         Debug.Log("Enemy loaded a weapon");
         // must be done whatever a new gun gets loaded
         currentLoadedWeapon = weapon;
+        enemySpriteRenderer.sprite = weapon.GetEquippedSprite();     
 
         // we're allowed to shoot at te beginning 
         timer = float.PositiveInfinity;
         currentLoadedWeapon.Setup(shooter);
+
+        ResizeEnemyCollider();
+
         needsToFindAWeapon = false; // enemy do not needs to find a weapon anymore
         if (needsToPLayOnLoad)
         {
@@ -161,11 +165,14 @@ public class EnemyWeaponManager : MonoBehaviour
         // Instantiate a new prefab on the ground if there are some ammo
         currentLoadedWeapon = null;
         timer = 0;
-        // playerSpriteRenderer.sprite = defaultPlayerSprite;
+        enemySpriteRenderer.sprite = defaultEnemySprite;
+        ResizeEnemyCollider();
     }
 
     public void ChangeEnemyStatus(bool status)
     {
+        this.defaultEnemySprite = enemySpriteRenderer.sprite;
+        ResizeEnemyCollider();
         this.isEnemyAlerted = status;
     }
 
@@ -217,5 +224,11 @@ public class EnemyWeaponManager : MonoBehaviour
         }
 
         isReloading = false;
+    }
+
+    public void ResizeEnemyCollider(){
+        BoxCollider2D enemyCollider = gameObject.transform.parent.GetComponentInChildren<BoxCollider2D>();
+        Vector2 spriteSize = enemySpriteRenderer.sprite.bounds.size;
+        enemyCollider.size = spriteSize;
     }
 }

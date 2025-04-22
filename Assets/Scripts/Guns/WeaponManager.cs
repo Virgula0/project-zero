@@ -26,6 +26,8 @@ public class WeaponManager : MonoBehaviour
         this.cursorChanger = GameObject.FindGameObjectWithTag(Utils.Const.CURSOR_CHANGER_TAG).GetComponent<CursorChanger>();
         this.playerBody = GetComponentInParent<Rigidbody2D>();
         this.defaultPlayerSprite = playerSpriteRenderer.sprite;
+        
+        ResizePlayerCollider();
         this.uiManager = GameObject.FindGameObjectWithTag(Utils.Const.UI_MANAGER_TAG).GetComponent<UIManager>();
         this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER_TAG).GetComponent<WeaponSpawner>();
         this.playerScript = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponent<PlayerScript>();
@@ -59,6 +61,9 @@ public class WeaponManager : MonoBehaviour
         currentLoadedWeapon.Setup(shooter);
         audioSrc.PlayOneShot(currentLoadedWeapon.GetEquipSfx());
         playerSpriteRenderer.sprite = weapon.GetEquippedSprite();
+
+        ResizePlayerCollider();
+
         uiManager.UpdateWeaponIcon(currentLoadedWeapon.GetStaticWeaponSprite());
         uiManager.UpdateBullets(currentLoadedWeapon.GetAmmoCount());
         uiManager.UpdateReloads(currentLoadedWeapon.GetNumberOfReloads());
@@ -85,6 +90,7 @@ public class WeaponManager : MonoBehaviour
         timer = 0;
         playerSpriteRenderer.sprite = defaultPlayerSprite;
         currentLoadedWeapon = null;
+        ResizePlayerCollider();
         uiManager.UpdateBullets(0);
         uiManager.UpdateReloads(0);
         uiManager.UpdateWeaponIcon(null);
@@ -151,6 +157,14 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
+    public void ResizePlayerCollider(){
+        BoxCollider2D playerCollider = gameObject.GetComponentInParent<BoxCollider2D>();
+        Vector2 spriteSize = playerSpriteRenderer.sprite.bounds.size;
+        Vector3 spriteScale = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponentInChildren<SpriteRenderer>().transform.localScale; // Get the player sprite scale
+        Vector2 scaledSize = new Vector2(spriteSize.x * spriteScale.x, spriteSize.y * spriteScale.y); // Multiply the sprite size by the parent’s scale
+        playerCollider.size = scaledSize;
+    }
+    
     IEnumerator WaitForSfxToEnd()
     {
 
