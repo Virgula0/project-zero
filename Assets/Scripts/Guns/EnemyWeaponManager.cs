@@ -171,8 +171,6 @@ public class EnemyWeaponManager : MonoBehaviour
 
     public void ChangeEnemyStatus(bool status)
     {
-        this.defaultEnemySprite = enemySpriteRenderer.sprite;
-        ResizeEnemyCollider();
         this.isEnemyAlerted = status;
     }
 
