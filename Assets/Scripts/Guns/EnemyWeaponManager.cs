@@ -22,10 +22,12 @@ public class EnemyWeaponManager : MonoBehaviour
     private Rigidbody2D enemyBody;
     private bool isPlayerBehindAWall = false;
     private int totalShotsDelivered;
+    private IEnemy enemyRef;
 
     void Start()
     {
         enemyBody = transform.parent.GetComponentInChildren<Rigidbody2D>();
+        enemyRef = transform.parent.GetComponentInChildren<IEnemy>();
         // if prefab is not null enemy will spawn with an already equipped weapon
         if (weaponTemplatePrefab != null)
         {
@@ -57,6 +59,10 @@ public class EnemyWeaponManager : MonoBehaviour
         // this.defaultPlayerSprite = playerSpriteRenderer.sprite;
     }
 
+    public IGun GetCurrentLoadedWeapon(){
+        return currentLoadedWeapon;
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -83,7 +89,8 @@ public class EnemyWeaponManager : MonoBehaviour
             return;
         }
 
-        if (currentLoadedWeapon.GetNumberOfReloads() > 0 && currentLoadedWeapon.GetAmmoCount() < 1)
+        if (currentLoadedWeapon.GetNumberOfReloads() > 0 && currentLoadedWeapon.GetAmmoCount() < 1 
+            && currentLoadedWeapon is IRanged)
         {
             currentLoadedWeapon.Reload();
             audioSrc.PlayOneShot(currentLoadedWeapon.GetReloadSfx());
@@ -141,6 +148,7 @@ public class EnemyWeaponManager : MonoBehaviour
             audioSrc.PlayOneShot(currentLoadedWeapon.GetEquipSfx());
         }
         needsToPLayOnLoad = true;
+        currentLoadedWeapon.SetIsGoingToBePickedUp(false);
         // playerSpriteRenderer.sprite = weapon.GetEquippedSprite();
     }
 
@@ -153,6 +161,7 @@ public class EnemyWeaponManager : MonoBehaviour
 
         Debug.Log("Enemy deloaded a weapon");
         audioSrc.PlayOneShot(currentLoadedWeapon.GetEquipSfx());
+        currentLoadedWeapon.PostSetup();
         // Instantiate a new prefab on the ground if there are some ammo
         currentLoadedWeapon = null;
         timer = 0;
@@ -181,10 +190,16 @@ public class EnemyWeaponManager : MonoBehaviour
         this.isPlayerBehindAWall = condition;
     }
 
-    public bool CanWeaponBeEquipped(object weapon)
+    public bool CanWeaponBeEquipped(IGun weapon)
     {
         if (weaponTypesThatCanBeEquipped == null || weapon == null)
         {
+            return false;
+        }
+
+        if (enemyRef.IsEnemyDead())
+        {
+            weapon.SetIsGoingToBePickedUp(false);
             return false;
         }
 

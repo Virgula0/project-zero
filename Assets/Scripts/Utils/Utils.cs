@@ -21,6 +21,7 @@ namespace Utils
             Wall = 6,
             Enemy = 7,
             BulletByPlayer = 8,
+            SwingByPlayer = 9
         }
     }
 

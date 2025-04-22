@@ -8,17 +8,20 @@ public class CowardMovement : MonoBehaviour, IMovement
 {
     private BFSPathfinder bfs;
     private Vector2[] waypoints;
+    private Vector2[] patrolWaypoints;
     private KdTree kdTree;
     private float speed;
     private bool busy;
-    private bool stopCowardMovement;
     private Coroutine _cowardRoutine;
     private Detector playerDetector;
+    private Vector2[] originalWaypoints;
 
-    public IMovement New(Vector2[] waypoints, Vector2[] globalWaypoints, KdTree treeStructure, BFSPathfinder bfs, Detector playerDetector, float speed)
+    public IMovement New(Vector2[] waypoints, Vector2[] globalWaypoints, Vector2[] patrolWaypoints, KdTree treeStructure, BFSPathfinder bfs, Detector playerDetector, float speed)
     {
+        this.patrolWaypoints = patrolWaypoints;
         this.waypoints = Utils.Functions.RemoveAll(waypoints, globalWaypoints); // remove global waypoints from waypoints
         this.waypoints = Utils.Functions.RemoveAtIndex(this.waypoints, 0); // remove element 0 because we don't want to enter the room anymore
+        this.originalWaypoints = waypoints;
         this.kdTree = treeStructure;
         this.speed = speed;
         this.bfs = bfs;
@@ -28,25 +31,8 @@ public class CowardMovement : MonoBehaviour, IMovement
 
     public void Move(Rigidbody2D enemyRB)
     {
-        if (busy || stopCowardMovement) return;
-        busy = true;
+        if (busy) return;
         _cowardRoutine = StartCoroutine(MoveInCircleRoutine(enemyRB));
-    }
-
-    public void NeedsRepositioning(bool stop)
-    {
-        this.stopCowardMovement = stop;
-    }
-
-    private IEnumerator CheckIfStopCoroutines()
-    {
-        // wait until both conditions are met
-        yield return new WaitUntil(() => (_cowardRoutine != null && playerDetector.IsDetectorStopped()) 
-                                    || (_cowardRoutine != null && stopCowardMovement));
-        // now stop and clear the handle
-        StopCoroutine(_cowardRoutine);
-        _cowardRoutine = null;
-        Debug.Log("Coward coroutine stopped");
     }
 
     public Vector2 FindClosestWayPoint(Rigidbody2D enemyRigidbody, Vector2[] toExclude, out int index)
@@ -59,14 +45,13 @@ public class CowardMovement : MonoBehaviour, IMovement
         return kdTree.FindNearestExcluding(enemyRigidbody.position, toExclude, out index);
     }
 
-    private IEnumerator MoveInCircleRoutine(Rigidbody2D rb)
+    private Vector2 CalculateClosesPoint(Rigidbody2D rb)
     {
-        Debug.Log("Coward Coroutine started");
-        StartCoroutine(CheckIfStopCoroutines());
+        busy = true;
         bool clearPath = false;
         Vector2 closestPoint = new();
         List<Vector2> vectorsToExclude = new List<Vector2>();
-        while (!clearPath)
+        while (busy && !clearPath)
         {
             closestPoint = FindClosestWayPoint(rb, vectorsToExclude.ToArray(), out _);
             Vector2 directionToClosest = (closestPoint - rb.position).normalized;
@@ -80,45 +65,52 @@ public class CowardMovement : MonoBehaviour, IMovement
                 Debug.Log("Obstacle detected between enemy and closest waypoint while trying to coward. Recalculating.");
             }
         }
+        return closestPoint;
+    }
 
+    private IEnumerator MoveInCircleRoutine(Rigidbody2D rb)
+    {
+        Vector2 closestPoint = CalculateClosesPoint(rb);
         Vector2[] path = bfs.PathToTheFirst(closestPoint);
 
         // Step 1: move to the nearest point first
+
         foreach (Vector2 v in path.Take(path.Length - 1))
         {
             yield return MoveToWithChecks(rb, v);
         }
 
+        List<Vector2> circularPath;
         // Step 2: build the circular path (elements after the start index, then wrap)
-        List<Vector2> circularPath = GetCircularTraversal(0);
 
         // Step 3: loop forever (or until stopped), visiting each point in order
-        while (true)
+        while (busy)
         {
+            closestPoint = CalculateClosesPoint(rb);
+            circularPath = closestPoint == originalWaypoints[0] ? GetCircularTraversal(patrolWaypoints, 0)
+                : GetCircularTraversal(waypoints, 0);
             foreach (var point in circularPath)
             {
                 yield return MoveToWithChecks(rb, point);
-                if (stopCowardMovement)
-                    yield break;
             }
         }
     }
 
-    private List<Vector2> GetCircularTraversal(int startIndex)
+    private List<Vector2> GetCircularTraversal(Vector2[] points, int startIndex)
     {
-        int count = waypoints.Length;
+        int count = points.Length;
         List<Vector2> circularPath = new List<Vector2>();
 
         // Add the waypoints starting from startIndex + 1 to the end of the list
         for (int i = startIndex + 1; i < count; i++)
         {
-            circularPath.Add(waypoints[i]);
+            circularPath.Add(points[i]);
         }
 
         // Wrap around and add waypoints from the beginning to startIndex
         for (int i = 0; i <= startIndex; i++)
         {
-            circularPath.Add(waypoints[i]);
+            circularPath.Add(points[i]);
         }
 
         return circularPath;
@@ -126,14 +118,8 @@ public class CowardMovement : MonoBehaviour, IMovement
 
     private IEnumerator MoveToWithChecks(Rigidbody2D rb, Vector2 destination)
     {
-        while (Vector2.Distance(rb.position, destination) > 0.1f)
+        while (busy && Vector2.Distance(rb.position, destination) > 0.1f)
         {
-            if (stopCowardMovement)
-            {
-                busy = false;
-                yield break;
-            }
-
             MoveTowards(rb, destination);
             yield return new WaitForFixedUpdate();
         }
@@ -143,5 +129,21 @@ public class CowardMovement : MonoBehaviour, IMovement
     {
         Vector2 newPos = Vector2.MoveTowards(rb.position, targetPosition, speed * speedMultiplier * Time.fixedDeltaTime);
         rb.MovePosition(newPos);
+    }
+
+    public void StopCoroutines(bool stop)
+    {
+        if (!stop || _cowardRoutine == null)
+        {
+            return;
+        }
+        busy = false;
+        StopCoroutine(_cowardRoutine);
+        _cowardRoutine = null;
+    }
+
+    public void NeedsRepositioning(bool reposition)
+    {
+        return;
     }
 }

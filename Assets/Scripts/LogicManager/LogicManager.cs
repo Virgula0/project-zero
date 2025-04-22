@@ -38,6 +38,11 @@ public class LogicManager : MonoBehaviour
 
     public void GameOver()
     {
+        if (playerReference.IsGodMode())
+        {
+            Debug.LogWarning("Unable to game over, god mode is activated");
+            return;
+        }
         // manages game over
         cursorChanger.ChangeToDefaultCursor();
         playerUI.SetActive(false);

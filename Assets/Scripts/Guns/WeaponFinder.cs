@@ -43,7 +43,7 @@ public class WeaponFinder : MonoBehaviour
                 EnemyWeaponManager manager = obj.transform.parent.GetComponentInChildren<EnemyWeaponManager>();
                 if (!manager.CanWeaponBeEquipped(weapon))
                 {
-                    Debug.Log("This enemy cannot equip this type of weapon");
+                    Debug.Log("This enemy cannot equip this type of weapon or is dead");
                     break;
                 }
                 Debug.Log("Enemy got a weapon! " + gameObject.name);
