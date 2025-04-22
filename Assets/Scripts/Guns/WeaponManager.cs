@@ -26,7 +26,7 @@ public class WeaponManager : MonoBehaviour
         this.cursorChanger = GameObject.FindGameObjectWithTag(Utils.Const.CURSOR_CHANGER_TAG).GetComponent<CursorChanger>();
         this.playerBody = GetComponentInParent<Rigidbody2D>();
         this.defaultPlayerSprite = playerSpriteRenderer.sprite;
-        this.uiManager = ui.GetComponent<UIManager>();
+        
         ResizePlayerCollider();
         this.uiManager = GameObject.FindGameObjectWithTag(Utils.Const.UI_MANAGER_TAG).GetComponent<UIManager>();
         this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER_TAG).GetComponent<WeaponSpawner>();
