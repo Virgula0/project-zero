@@ -92,7 +92,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coneAngle: 160
-  coneRange: 3
+  coneRange: 5
   hitLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 200

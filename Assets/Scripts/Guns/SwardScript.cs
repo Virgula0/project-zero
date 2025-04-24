@@ -4,7 +4,7 @@ using UnityEngine;
 public class SwardScript : MonoBehaviour
 {
     [SerializeField] private float coneAngle = 45f;
-    [SerializeField] private float coneRange = 2f;
+    [SerializeField] private float coneRange = 5f;
     private bool isPlayer = false;
     private bool canSwing = true;
     private GameObject wielder;
@@ -50,7 +50,7 @@ public class SwardScript : MonoBehaviour
         return canSwing;
     }
 
-    public void Swing()
+    /*public void Swing()
     {
         // point the sword toward input (player) or toward player (enemy)
         Vector2 dir;
@@ -95,7 +95,7 @@ public class SwardScript : MonoBehaviour
 
         yield return new WaitForSeconds(1f / fireRate - 0.1f);
         canSwing = true;
-    }
+    }*/
 
     private void HandleHit(Collider2D collider)
     {

@@ -45,9 +45,8 @@ public class SimpleSword : MonoBehaviour, IGun, IMelee
     public void Shoot()
     {   
         if (!currentInitScript.GetCanSwing()) return;
-        //wielder.GetComponentInChildren<SpriteRenderer>().enabled = false;
         anim.enabled = true;
-        //anim.SetTrigger("attack");
+        
         anim.Play("PlayerSwordAttackAnimation", 0, 0f);
         currentInitScript.Swing();
     }
