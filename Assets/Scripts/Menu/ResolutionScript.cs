@@ -1,14 +1,25 @@
 using UnityEngine;
 using TMPro;
-using System.Text;
 
 public class OptionMenu : MonoBehaviour
 {
     private TMP_Dropdown dropdown;
-
+    private string currentRes;
     void Start()
     {
         dropdown = GetComponent<TMP_Dropdown>();
+        currentRes = Screen.currentResolution.ToString().Trim().Split("@")[0].Replace(" ","");
+        var options = dropdown.options;
+        for (int i = 0; i < options.Count; i++)
+        {
+            string resInList = dropdown.options[i].text;
+            if (Equals(resInList, currentRes))
+            {
+                Debug.Log("Default resolution set to " + currentRes);
+                dropdown.value = i; // set index to current res
+                break;
+            }
+        }
     }
 
     public void ChangeResolution()
@@ -17,7 +28,7 @@ public class OptionMenu : MonoBehaviour
         // Split by 'x'
         string[] dimensions = selectedOption.Trim().Split('x'); //×
 
-        Debug.Log(dimensions.ToString());
+        print(Screen.currentResolution);
 
         if (dimensions.Length == 2 &&
             int.TryParse(dimensions[0], out int width) &&
