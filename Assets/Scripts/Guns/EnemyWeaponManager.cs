@@ -56,7 +56,7 @@ public class EnemyWeaponManager : MonoBehaviour
 
             LoadNewGun(newGun, enemyBody.gameObject);
         }
-        // this.defaultPlayerSprite = playerSpriteRenderer.sprite;
+        ResizeEnemyCollider();
     }
 
     public IGun GetCurrentLoadedWeapon(){
