@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -10,6 +9,8 @@ public class MenuButtons : MonoBehaviour
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject optionSubmenu;
     [SerializeField] private GameObject leaderboardSubmenu;
+
+    private const string loadingScene = "LoadingScene";
 
     private IEnumerator ClickSound(){
         positiveClick.Play();
@@ -34,7 +35,7 @@ public class MenuButtons : MonoBehaviour
 
     public void ClickStart(){
         StartCoroutine(ClickSound());
-        SceneManager.LoadScene("LoadingScene");
+        SceneManager.LoadScene(loadingScene);
     }
 
     public void ClickOptions(){
