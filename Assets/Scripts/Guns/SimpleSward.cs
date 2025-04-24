@@ -8,7 +8,8 @@ public class SimpleSword : MonoBehaviour, IGun, IMelee
     private readonly int magCap = int.MaxValue;
     private int numberOfReloads = int.MaxValue;
     private int ammoCount;
-    private Animator anim;
+    private Animator playerAnim;
+    private Animator goonAnim;
 
     [SerializeField] private GameObject swingPrefab;
     [SerializeField] private SpriteRenderer staticWeaponSprite;
@@ -28,7 +29,10 @@ public class SimpleSword : MonoBehaviour, IGun, IMelee
         currentInitPrefab = Instantiate(swingPrefab, wielder.transform.position, Quaternion.identity);
         currentInitScript = currentInitPrefab.GetComponent<SwardScript>();
         currentInitScript.Initialize(wielder, swingSound);
-        anim = player.GetComponentInChildren<Animator>();
+        playerAnim = player.GetComponentInChildren<Animator>();
+        if (wielder.layer != (int)Utils.Enums.ObjectLayers.Player){
+            goonAnim = wielder.GetComponentInChildren<Animator>();
+        }
     }
 
     void Awake()
@@ -45,9 +49,16 @@ public class SimpleSword : MonoBehaviour, IGun, IMelee
     public void Shoot()
     {   
         if (!currentInitScript.GetCanSwing()) return;
-        anim.enabled = true;
-        
-        anim.Play("PlayerSwordAttackAnimation", 0, 0f);
+
+        if (wielder.layer == (int)Utils.Enums.ObjectLayers.Player){
+            playerAnim.enabled = true;
+
+            playerAnim.Play("PlayerSwordAttackAnimation", 0, 0f);
+        }else{
+            goonAnim.enabled = true;
+
+            goonAnim.Play("EnemySwordAttackAnimation", 0, 0f);
+        }
         currentInitScript.Swing();
     }
 

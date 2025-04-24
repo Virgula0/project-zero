@@ -14,6 +14,8 @@ public class SwardScript : MonoBehaviour
     private LogicManager logic;
     private LayerMask finalHitLayers;
     private GameObject player;
+    private float swingTimer = 0f;
+    private bool isSwinging = false;
 
     public void Initialize(GameObject wielder, AudioClip swingSound)
     {
@@ -48,6 +50,69 @@ public class SwardScript : MonoBehaviour
     public bool GetCanSwing()
     {
         return canSwing;
+    }
+
+    void Update()
+    {
+        if (isSwinging)
+        {
+            swingTimer += Time.deltaTime;
+
+            // Hit happens after 0.1s
+            if (swingTimer >= 0.1f && swingTimer < 0.1f + Time.deltaTime)
+            {
+                PerformHit();
+            }
+
+            // Swing cooldown ends
+            if (swingTimer >= 1f / fireRate)
+            {
+                canSwing = true;
+                isSwinging = false;
+            }
+        }
+    }
+
+    public void Swing()
+    {
+        if (!canSwing) return;
+
+        Vector2 dir;
+        if (isPlayer)
+        {
+            Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            dir = mouseWorld - wielder.transform.position;
+        }
+        else
+        {
+            dir = player.transform.position - wielder.transform.position;
+        }
+
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.Euler(0f, 0f, angle);
+        transform.position = wielder.transform.position;
+
+        if (swingSound != null)
+            AudioSource.PlayClipAtPoint(swingSound, wielder.transform.position);
+
+        canSwing = false;
+        isSwinging = true;
+        swingTimer = 0f;
+    }
+
+    private void PerformHit()
+    {
+        Transform hitOrigin = transform;
+        Collider2D[] hits = Physics2D.OverlapCircleAll((Vector2)hitOrigin.position, coneRange, finalHitLayers);
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            Vector2 toTarget = (Vector2)hits[i].transform.position - (Vector2)hitOrigin.position;
+            if (Vector2.Angle(hitOrigin.right, toTarget) <= coneAngle * 0.5f)
+            {
+                HandleHit(hits[i]);
+            }
+        }
     }
 
     /*public void Swing()
