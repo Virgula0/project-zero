@@ -14,6 +14,7 @@ public class SimpleSword : MonoBehaviour, IGun, IMelee
     [SerializeField] private GameObject swingPrefab;
     [SerializeField] private SpriteRenderer staticWeaponSprite;
     [SerializeField] private Sprite equippedSprite;
+    [SerializeField] private Sprite goonEquippedSprite;
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private AudioClip swingSound;
     [SerializeField] private AudioClip equipSound;
@@ -85,5 +86,10 @@ public class SimpleSword : MonoBehaviour, IGun, IMelee
     public void PostSetup()
     {
         Destroy(currentInitPrefab);
+    }
+
+    public Sprite GetGoonEquippedSprite()
+    {
+        return this.goonEquippedSprite;
     }
 }

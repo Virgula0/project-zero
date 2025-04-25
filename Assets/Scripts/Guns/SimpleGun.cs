@@ -12,6 +12,7 @@ public class SimpleGun : MonoBehaviour, IGun, IRanged
 
     [SerializeField] private SpriteRenderer staticWeaponSprite;
     [SerializeField] private Sprite equippedSprite;
+    [SerializeField] private Sprite goonEquippedSprite;
     [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private Sprite bulletSprite;
     [SerializeField] private AudioClip shotSound;
@@ -138,5 +139,10 @@ public class SimpleGun : MonoBehaviour, IGun, IRanged
     public void PostSetup()
     {
         return;
+    }
+
+    public Sprite GetGoonEquippedSprite()
+    {
+        return this.goonEquippedSprite;
     }
 }

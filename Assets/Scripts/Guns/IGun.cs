@@ -42,6 +42,7 @@ public interface IPickupable
 public interface IVisualWeapon
 {
     Sprite GetEquippedSprite();
+    Sprite GetGoonEquippedSprite();
     Sprite GetStaticWeaponSprite();
 }
 
