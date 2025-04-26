@@ -14,17 +14,17 @@ public class PlayerLegsAnimationScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Vector2 moveInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
+        Vector2 moveInput = new Vector2(Input.GetAxisRaw(Utils.Const.HORIZONTAL), Input.GetAxisRaw(Utils.Const.VERTICAL)).normalized;
 
         if (moveInput != Vector2.zero)
         {
             float angle = Mathf.Atan2(moveInput.y, moveInput.x) * Mathf.Rad2Deg;
             legsTransf.rotation = Quaternion.Euler(0f, 0f, angle); // Adjust based on your art
-            legsAnim.SetBool("isWalking", true);
+            legsAnim.SetBool(Utils.Const.WALKING_ANIM_VAR, true);
         }
         else
         {
-            legsAnim.SetBool("isWalking", false);
+            legsAnim.SetBool(Utils.Const.WALKING_ANIM_VAR, false);
         }
     }
 }

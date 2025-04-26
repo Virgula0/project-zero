@@ -115,53 +115,6 @@ public class SwardScript : MonoBehaviour
         }
     }
 
-    /*public void Swing()
-    {
-        // point the sword toward input (player) or toward player (enemy)
-        Vector2 dir;
-        if (isPlayer)
-        {
-            Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            dir = mouseWorld - wielder.transform.position;
-        }
-        else
-        {
-            dir = player.transform.position - wielder.transform.position;
-        }
-        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0f, 0f, angle);
-
-        transform.position = wielder.transform.position;
-        StartCoroutine(SwingCoroutine());
-    }
-
-    private IEnumerator SwingCoroutine()
-    {
-        canSwing = false;
-
-        if (swingSound != null)
-            AudioSource.PlayClipAtPoint(swingSound, wielder.transform.position);
-
-        yield return new WaitForSeconds(0.1f);
-
-        // use this object's transform for origin & forward
-        Transform hitOrigin = transform;
-
-        Collider2D[] hits = Physics2D.OverlapCircleAll((Vector2)hitOrigin.position,coneRange,finalHitLayers);
-
-        for (int i = 0; i < hits.Length; i++)
-        {
-            Vector2 toTarget = (Vector2)hits[i].transform.position - (Vector2)hitOrigin.position;
-            if (Vector2.Angle(hitOrigin.right, toTarget) <= coneAngle * 0.5f)
-            {
-                HandleHit(hits[i]);
-            }
-        }
-
-        yield return new WaitForSeconds(1f / fireRate - 0.1f);
-        canSwing = true;
-    }*/
-
     private void HandleHit(Collider2D collider)
     {
         switch (collider.gameObject.layer)

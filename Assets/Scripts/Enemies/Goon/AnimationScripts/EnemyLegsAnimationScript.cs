@@ -24,11 +24,11 @@ public class EnemyLegsAnimationScript : MonoBehaviour
         {
             float angle = Mathf.Atan2(moveDir.y, moveDir.x) * Mathf.Rad2Deg;
             legsTransform.rotation = Quaternion.Euler(0f, 0f, angle);
-            legAnimator.SetBool("isWalking", true);
+            legAnimator.SetBool(Utils.Const.WALKING_ANIM_VAR, true);
         }
         else
         {
-            legAnimator.SetBool("isWalking", false);
+            legAnimator.SetBool(Utils.Const.WALKING_ANIM_VAR, false);
         }
 
         lastPosition = currentPosition;

@@ -54,11 +54,11 @@ public class SimpleSword : MonoBehaviour, IGun, IMelee
         if (wielder.layer == (int)Utils.Enums.ObjectLayers.Player){
             playerAnim.enabled = true;
 
-            playerAnim.Play("PlayerSwordAttackAnimation", 0, 0f);
+            playerAnim.Play(Utils.Animations.PLAYER_SWORD_ATTACK, 0, 0f);
         }else{
             goonAnim.enabled = true;
 
-            goonAnim.Play("EnemySwordAttackAnimation", 0, 0f);
+            goonAnim.Play(Utils.Animations.ENEMY_SWORD_ATTACK, 0, 0f);
         }
         currentInitScript.Swing();
     }
