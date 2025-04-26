@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 69efdfc9446b69949957ca515493fa68
+guid: 59afa69287daa084e91eba9c755de433
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7834454112102350060
-    second: sprPlayerPistol_placeholder_0
+      213: -5197025557763929831
+    second: sprPlayerEPistol_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,23 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: sprPlayerPistol_placeholder_0
+      name: sprPlayerEPistol_0
       rect:
         serializedVersion: 2
         x: 4
         y: 8
-        width: 38
+        width: 35
         height: 15
-      alignment: 9
-      pivot: {x: 0.24568206, y: 0.5227388}
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: cec75f8918299bc60800000000000000
-      internalID: 7834454112102350060
+      spriteID: 919cadc4ac470e7b0800000000000000
+      internalID: -5197025557763929831
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 4120888979b5e894287e42d494a8414e
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      sprPlayerPistol_placeholder_0: 7834454112102350060
+      sprPlayerEPistol_0: -5197025557763929831
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

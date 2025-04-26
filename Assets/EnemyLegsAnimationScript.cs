@@ -19,7 +19,6 @@ public class EnemyLegsAnimationScript : MonoBehaviour
     {
         Vector2 currentPosition = enemyTransform.position;
         Vector2 moveDir = (currentPosition - lastPosition).normalized;
-        Debug.Log(moveDir);
 
         if (moveDir != Vector2.zero)
         {
