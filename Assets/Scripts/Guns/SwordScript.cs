@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class SwardScript : MonoBehaviour
+public class SwordScript : MonoBehaviour
 {
     [SerializeField] private float coneAngle = 45f;
     [SerializeField] private float coneRange = 5f;

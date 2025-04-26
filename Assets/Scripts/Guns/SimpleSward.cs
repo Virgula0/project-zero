@@ -21,14 +21,14 @@ public class SimpleSword : MonoBehaviour, IGun, IMelee
 
     private GameObject wielder;
     private bool isGoingToBePickedUp = false;
-    private SwardScript currentInitScript;
+    private SwordScript currentInitScript;
     private GameObject currentInitPrefab; 
 
     public void Setup(GameObject player)
     {
         wielder = player;
         currentInitPrefab = Instantiate(swingPrefab, wielder.transform.position, Quaternion.identity);
-        currentInitScript = currentInitPrefab.GetComponent<SwardScript>();
+        currentInitScript = currentInitPrefab.GetComponent<SwordScript>();
         currentInitScript.Initialize(wielder, swingSound);
         playerAnim = player.GetComponentInChildren<Animator>();
         if (wielder.layer != (int)Utils.Enums.ObjectLayers.Player){
