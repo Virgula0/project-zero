@@ -6,7 +6,7 @@ using UnityEngine;
 public class ChaseMovement : MonoBehaviour, IMovement
 {
     private float chaseSpeed;
-    private float stoppingDistance = 5f;
+    private float stoppingDistance;
     private Rigidbody2D playerBody;
     private Detector playerDetector;
     private KdTree kdTree;
@@ -15,8 +15,9 @@ public class ChaseMovement : MonoBehaviour, IMovement
     private bool busy = false;
     private float additionalSpeedWhenFollowingPath = 2f;
     private Coroutine _chaseCoroutine;
+    private Func<float> getStoppingDistance;
 
-    public IMovement New(GameObject player, Detector detector, KdTree tree, BFSPathfinder bfs, float chaseSpeed, float stoppingDistance)
+    public IMovement New(GameObject player, Detector detector, KdTree tree, BFSPathfinder bfs, float chaseSpeed, Func<float> getStoppingDistance)
     {
         if (player == null || chaseSpeed < 1)
             throw new ArgumentException("Invalid argument passed to chase movement");
@@ -24,7 +25,8 @@ public class ChaseMovement : MonoBehaviour, IMovement
         this.playerDetector = detector;
         this.playerBody = player.GetComponent<Rigidbody2D>();
         this.chaseSpeed = chaseSpeed;
-        this.stoppingDistance = stoppingDistance;
+        this.stoppingDistance = getStoppingDistance();
+        this.getStoppingDistance = getStoppingDistance;
         this.kdTree = tree;
         this.bfs = bfs;
         return this;
@@ -124,6 +126,7 @@ public class ChaseMovement : MonoBehaviour, IMovement
             return;
         }
 
+        this.stoppingDistance = getStoppingDistance();
         Vector2 enemyPos = enemyRB.position;
         float distanceToPlayer = Vector2.Distance(enemyPos, playerBody.position);
 

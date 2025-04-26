@@ -10,7 +10,8 @@ public class SimpleSword : MonoBehaviour, IGun, IMelee
     private int ammoCount;
     private Animator playerAnim;
     private Animator goonAnim;
-
+    
+    [SerializeField] private float minDistanceForSwing = 2f;
     [SerializeField] private GameObject swingPrefab;
     [SerializeField] private SpriteRenderer staticWeaponSprite;
     [SerializeField] private Sprite equippedSprite;
@@ -91,5 +92,10 @@ public class SimpleSword : MonoBehaviour, IGun, IMelee
     public Sprite GetGoonEquippedSprite()
     {
         return this.goonEquippedSprite;
+    }
+
+    public float MinDistanceForSwing()
+    {
+        return minDistanceForSwing;
     }
 }

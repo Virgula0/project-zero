@@ -11,7 +11,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     [SerializeField] private float runAwaySpeed;
     [SerializeField] private float findAWaponSpeed;
 
-    [SerializeField] private float stoppingDistance = 2f; // set to a lower distance when it can equip melee too
+    [SerializeField] private float stoppingDistance = 5f; // set to a lower distance when it can equip melee too
     [SerializeField] private Vector2[] patrolWaypoints;
     // exitWaypoints is a vector containing the coordinates of doors or obstacles (manually defined in the editor) 
     // in order to surpass them when chasing the player
@@ -48,6 +48,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     private bool awakeReady = false;
     private bool isEnemyDead = false;
     private int basePoint = 10;
+    private float originalStoppingDistance;
 
     public bool AwakeReady()
     {
@@ -173,11 +174,12 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         weaponManager = transform.parent.GetComponentInChildren<EnemyWeaponManager>();
         weaponManager.SetWeaponThatCanBeEquipped(typesThatCanBeEquipped);
 
+        Func<float> getStoppingDistance = () => stoppingDistance;
         // Add movement components and initialize them
         patrolMovement = gameObject.AddComponent<PatrolMovement>()
             .New(patrolWaypoints, playerDetector, treeStructure, bfs, patrolSpeed);
         chaseMovement = gameObject.AddComponent<ChaseMovement>()
-            .New(player, playerDetector, treeStructure, bfs, chaseSpeed, stoppingDistance);
+            .New(player, playerDetector, treeStructure, bfs, chaseSpeed, getStoppingDistance);
         findForAWeapon = gameObject.AddComponent<WeaponFinderMovement>()
             .New(treeStructure, bfs, typesThatCanBeEquipped, playerDetector, spawner, weaponManager, findAWaponSpeed);
         cowardMovement = gameObject.AddComponent<CowardMovement>()
@@ -190,6 +192,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
 
         // Set the default movement and get the enemy weapon manager
         currentMovement = patrolMovement;
+        originalStoppingDistance = this.stoppingDistance;
     }
 
     void FixedUpdate()
@@ -213,6 +216,14 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         // set if player is in shootable area and if aware indipendently from the rest 
         weaponManager.SetIsPlayerBehindAWall(playerDetector.GetIsPlayerHiddenByObstacle());
         weaponManager.ChangeEnemyStatus(playerDetector.GetIsEnemyAwareOfPlayer());
+
+        // update min distance if IMelee equipped
+        if (weaponManager.GetCurrentLoadedWeapon() is IMelee melee)
+        {
+            this.stoppingDistance = melee.MinDistanceForSwing(); 
+        } else {
+            this.stoppingDistance = originalStoppingDistance;
+        }
 
         // 1) Weapon‑find has top priority
         if (weaponManager.NeedsToFindAWeapon())

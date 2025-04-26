@@ -1,1 +1,3 @@
-public interface IMelee{}
+public interface IMelee{
+    float MinDistanceForSwing();
+}

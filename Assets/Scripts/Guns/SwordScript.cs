@@ -1,9 +1,8 @@
-using System.Collections;
 using UnityEngine;
 
 public class SwordScript : MonoBehaviour
 {
-    [SerializeField] private float coneAngle = 45f;
+    [SerializeField] private float coneAngle = 160f;
     [SerializeField] private float coneRange = 5f;
     private bool isPlayer = false;
     private bool canSwing = true;
@@ -141,19 +140,21 @@ public class SwordScript : MonoBehaviour
 #if UNITY_EDITOR
     void OnDrawGizmosSelected()
     {
-        Transform hitOrigin = transform;
-        if (hitOrigin == null) return;
+        if (transform == null) return;
+
         Gizmos.color = Color.yellow;
-        Vector2 origin = hitOrigin.position;
+
+        Vector3 origin = transform.position;
         float halfAngle = coneAngle * 0.5f;
 
         Gizmos.DrawWireSphere(origin, coneRange);
 
-        Vector2 forward = hitOrigin.right;
+        Vector3 forward = transform.right;
         Quaternion leftRot = Quaternion.Euler(0f, 0f, halfAngle);
         Quaternion rightRot = Quaternion.Euler(0f, 0f, -halfAngle);
-        Vector2 leftDir = leftRot * forward;
-        Vector2 rightDir = rightRot * forward;
+
+        Vector3 leftDir = leftRot * forward;
+        Vector3 rightDir = rightRot * forward;
 
         Gizmos.DrawLine(origin, origin + leftDir * coneRange);
         Gizmos.DrawLine(origin, origin + rightDir * coneRange);
