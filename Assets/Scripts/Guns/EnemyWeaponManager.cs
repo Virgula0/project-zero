@@ -56,7 +56,7 @@ public class EnemyWeaponManager : MonoBehaviour
 
             LoadNewGun(newGun, enemyBody.gameObject);
         }
-        // this.defaultPlayerSprite = playerSpriteRenderer.sprite;
+        ResizeEnemyCollider();
     }
 
     public IGun GetCurrentLoadedWeapon(){
@@ -140,6 +140,8 @@ public class EnemyWeaponManager : MonoBehaviour
         timer = float.PositiveInfinity;
         currentLoadedWeapon.Setup(shooter);
 
+        enemySpriteRenderer.sprite = weapon.GetGoonEquippedSprite();
+
         ResizeEnemyCollider();
 
         needsToFindAWeapon = false; // enemy do not needs to find a weapon anymore
@@ -149,7 +151,7 @@ public class EnemyWeaponManager : MonoBehaviour
         }
         needsToPLayOnLoad = true;
         currentLoadedWeapon.SetIsGoingToBePickedUp(false);
-        // playerSpriteRenderer.sprite = weapon.GetEquippedSprite();
+        
     }
 
     private void UnloadCurrentGun()
@@ -171,8 +173,6 @@ public class EnemyWeaponManager : MonoBehaviour
 
     public void ChangeEnemyStatus(bool status)
     {
-        this.defaultEnemySprite = enemySpriteRenderer.sprite;
-        ResizeEnemyCollider();
         this.isEnemyAlerted = status;
     }
 

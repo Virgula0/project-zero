@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 namespace Utils
 {
@@ -25,8 +26,17 @@ namespace Utils
         }
     }
 
+    public class Animations
+    {
+        public const string PLAYER_SWORD_ATTACK = "PlayerSwordAttackAnimation";
+        public const string ENEMY_SWORD_ATTACK = "EnemySwordAttackAnimation";
+    }
+
     public class Const
     {
+        public const string HORIZONTAL = "Horizontal";
+        public const string VERTICAL = "Vertical";
+        public const string WALKING_ANIM_VAR = "isWalking";
         public const string PLAYER_TAG = "PlayerTag";
         public const string GOON_TAG = "GoonEnemyTag";
         public const string WEAPON_MANAGER_TAG = "WeaponManager";

@@ -28,6 +28,7 @@ public class WeaponManager : MonoBehaviour
         this.defaultPlayerSprite = playerSpriteRenderer.sprite;
         
         ResizePlayerCollider();
+        
         this.uiManager = GameObject.FindGameObjectWithTag(Utils.Const.UI_MANAGER_TAG).GetComponent<UIManager>();
         this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER_TAG).GetComponent<WeaponSpawner>();
         this.playerScript = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponent<PlayerScript>();

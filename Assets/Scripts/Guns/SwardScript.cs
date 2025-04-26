@@ -4,7 +4,7 @@ using UnityEngine;
 public class SwardScript : MonoBehaviour
 {
     [SerializeField] private float coneAngle = 45f;
-    [SerializeField] private float coneRange = 2f;
+    [SerializeField] private float coneRange = 5f;
     private bool isPlayer = false;
     private bool canSwing = true;
     private GameObject wielder;
@@ -14,6 +14,8 @@ public class SwardScript : MonoBehaviour
     private LogicManager logic;
     private LayerMask finalHitLayers;
     private GameObject player;
+    private float swingTimer = 0f;
+    private bool isSwinging = false;
 
     public void Initialize(GameObject wielder, AudioClip swingSound)
     {
@@ -50,9 +52,31 @@ public class SwardScript : MonoBehaviour
         return canSwing;
     }
 
+    void Update()
+    {
+        if (isSwinging)
+        {
+            swingTimer += Time.deltaTime;
+
+            // Hit happens after 0.1s
+            if (swingTimer >= 0.1f && swingTimer < 0.1f + Time.deltaTime)
+            {
+                PerformHit();
+            }
+
+            // Swing cooldown ends
+            if (swingTimer >= 1f / fireRate)
+            {
+                canSwing = true;
+                isSwinging = false;
+            }
+        }
+    }
+
     public void Swing()
     {
-        // point the sword toward input (player) or toward player (enemy)
+        if (!canSwing) return;
+
         Vector2 dir;
         if (isPlayer)
         {
@@ -63,26 +87,23 @@ public class SwardScript : MonoBehaviour
         {
             dir = player.transform.position - wielder.transform.position;
         }
+
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
-
         transform.position = wielder.transform.position;
-        StartCoroutine(SwingCoroutine());
-    }
-
-    private IEnumerator SwingCoroutine()
-    {
-        canSwing = false;
 
         if (swingSound != null)
             AudioSource.PlayClipAtPoint(swingSound, wielder.transform.position);
 
-        yield return new WaitForSeconds(0.1f);
+        canSwing = false;
+        isSwinging = true;
+        swingTimer = 0f;
+    }
 
-        // use this object's transform for origin & forward
+    private void PerformHit()
+    {
         Transform hitOrigin = transform;
-
-        Collider2D[] hits = Physics2D.OverlapCircleAll((Vector2)hitOrigin.position,coneRange,finalHitLayers);
+        Collider2D[] hits = Physics2D.OverlapCircleAll((Vector2)hitOrigin.position, coneRange, finalHitLayers);
 
         for (int i = 0; i < hits.Length; i++)
         {
@@ -92,9 +113,6 @@ public class SwardScript : MonoBehaviour
                 HandleHit(hits[i]);
             }
         }
-
-        yield return new WaitForSeconds(1f / fireRate - 0.1f);
-        canSwing = true;
     }
 
     private void HandleHit(Collider2D collider)
