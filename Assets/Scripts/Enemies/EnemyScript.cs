@@ -5,9 +5,11 @@ public class EnemyScript : MonoBehaviour
 {
     private Rigidbody2D body;
     private Vector2 lastPosition;
+    private SpriteRenderer sprite;
 
     void Start()
-    {
+    {   
+        sprite = GetComponentInChildren<SpriteRenderer>();
         body = GetComponentInChildren<Rigidbody2D>();
         lastPosition = body.position;
     }
@@ -20,7 +22,6 @@ public class EnemyScript : MonoBehaviour
         if (movement.sqrMagnitude > 0.001f)
         {
             float angle = Mathf.Atan2(movement.y, movement.x) * Mathf.Rad2Deg;
-            SpriteRenderer sprite = GetComponentInChildren<SpriteRenderer>();
             sprite.transform.rotation = Quaternion.Euler(0f, 0f, angle);
         }
         lastPosition = currentPosition;
