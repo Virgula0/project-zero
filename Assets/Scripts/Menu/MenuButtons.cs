@@ -1,56 +1,68 @@
-using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class MenuButtons : MonoBehaviour
 {
-    [SerializeField] private AudioSource positiveClick;
-    [SerializeField] private AudioSource onHoverEffect;
+    [SerializeField] private AudioClip positiveClick;
+    [SerializeField] private AudioClip onHoverEffect;
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject optionSubmenu;
     [SerializeField] private GameObject leaderboardSubmenu;
+    [SerializeField] private GameObject mainTitle;
+    [SerializeField] AudioSource normalAudioSrc;
+    [SerializeField] AudioSource hoverAudioSrc;
 
-    private IEnumerator ClickSound(){
-        positiveClick.Play();
-        yield return new WaitForSeconds(positiveClick.clip.length); // Wait for the clip to finish
-    }
-    
-    private IEnumerator ClickSoundAndSwitch(GameObject toSwitch)
+    private const string loadingScene = "LoadingScene";
+
+    public void ClickSound()
     {
-        yield return ClickSound(); // Wait for the clip to finish playing
+        normalAudioSrc.PlayOneShot(positiveClick);
+    }
+
+    private void ClickSoundAndSwitch(GameObject toSwitch)
+    {
+        ClickSound(); // Wait for the clip to finish playing
         gameObject.SetActive(false); // Now disable the current menu
         toSwitch.SetActive(true);    // Activate the target menu
     }
 
     private void SwitchSubMenu(GameObject toSwitch)
     {
-        StartCoroutine(ClickSoundAndSwitch(toSwitch));
+        ClickSoundAndSwitch(toSwitch);
     }
 
-    public void OnHoverEffect(){
-        onHoverEffect.Play();
+    public void OnHoverEffect()
+    {
+        hoverAudioSrc.PlayOneShot(onHoverEffect);
     }
 
-    public void ClickStart(){
-        StartCoroutine(ClickSound());
-        SceneManager.LoadScene("LoadingScene");
+    public void ClickStart()
+    {
+        ClickSound();
+        SceneManager.LoadScene(loadingScene);
     }
 
-    public void ClickOptions(){
+    public void ClickOptions()
+    {
         SwitchSubMenu(optionSubmenu);
     }
 
-    public void ClickLeaderBoard(){
+    public void ClickLeaderBoard()
+    {
         SwitchSubMenu(leaderboardSubmenu);
+        mainTitle.SetActive(false);
     }
 
-    public void ClickBack(){
+    public void ClickBack()
+    {
         SwitchSubMenu(mainMenu);
+        mainTitle.SetActive(true);
     }
 
-    public void ClickExit(){
-        StartCoroutine(ClickSound());
+    public void ClickExit()
+    {
+        ClickSound();
         Application.Quit();
     }
 }
