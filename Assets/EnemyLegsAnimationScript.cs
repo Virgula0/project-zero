@@ -4,21 +4,22 @@ public class EnemyLegsAnimationScript : MonoBehaviour
 {
     private Transform legsTransform;
     private Animator legAnimator;
-
     private Vector2 lastPosition;
+
+    [SerializeField] private Transform enemyTransform;
 
     void Start()
     {
         legAnimator = gameObject.GetComponent<Animator>();
         legsTransform = gameObject.transform;
-        lastPosition = transform.position;
-        legAnimator.Play("EnemyLegsWalkingAnimation");
+        lastPosition = enemyTransform.position;
     }
 
     void Update()
     {
-        Vector2 currentPosition = transform.position;
+        Vector2 currentPosition = enemyTransform.position;
         Vector2 moveDir = (currentPosition - lastPosition).normalized;
+        Debug.Log(moveDir);
 
         if (moveDir != Vector2.zero)
         {
