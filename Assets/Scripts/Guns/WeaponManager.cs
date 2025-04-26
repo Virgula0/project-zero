@@ -20,15 +20,16 @@ public class WeaponManager : MonoBehaviour
     private float forwardSpawnGunPrefabOffset = 5f;
     private float upOffsetSpawnGunPrefab = 2f;
     private PlayerScript playerScript;
+    private float loadTime = 0;
 
     void Start()
     {
         this.cursorChanger = GameObject.FindGameObjectWithTag(Utils.Const.CURSOR_CHANGER_TAG).GetComponent<CursorChanger>();
         this.playerBody = GetComponentInParent<Rigidbody2D>();
         this.defaultPlayerSprite = playerSpriteRenderer.sprite;
-        
+
         ResizePlayerCollider();
-        
+
         this.uiManager = GameObject.FindGameObjectWithTag(Utils.Const.UI_MANAGER_TAG).GetComponent<UIManager>();
         this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER_TAG).GetComponent<WeaponSpawner>();
         this.playerScript = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponent<PlayerScript>();
@@ -69,6 +70,7 @@ public class WeaponManager : MonoBehaviour
         uiManager.UpdateBullets(currentLoadedWeapon.GetAmmoCount());
         uiManager.UpdateReloads(currentLoadedWeapon.GetNumberOfReloads());
         currentLoadedWeapon.SetIsGoingToBePickedUp(false);
+        loadTime = Time.time;
     }
 
     private void UnloadCurrentGun()
@@ -77,6 +79,12 @@ public class WeaponManager : MonoBehaviour
         {
             throw new NullReferenceException("GUN CANNOT BE DELOADED IF NO ONE HAS BEEN LOADED");
         }
+
+        if (Time.time - loadTime <= 0.3f || currentLoadedWeapon.IsGoingToBePickedUp())
+        {
+            return; // not enough time has passed since equipping
+        }
+
         Debug.Log("Weapon deloaded");
         audioSrc.PlayOneShot(currentLoadedWeapon.GetEquipSfx());
 
@@ -158,14 +166,15 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
-    public void ResizePlayerCollider(){
+    public void ResizePlayerCollider()
+    {
         BoxCollider2D playerCollider = gameObject.GetComponentInParent<BoxCollider2D>();
         Vector2 spriteSize = playerSpriteRenderer.sprite.bounds.size;
         Vector3 spriteScale = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponentInChildren<SpriteRenderer>().transform.localScale; // Get the player sprite scale
         Vector2 scaledSize = new Vector2(spriteSize.x * spriteScale.x, spriteSize.y * spriteScale.y); // Multiply the sprite size by the parent’s scale
         playerCollider.size = scaledSize;
     }
-    
+
     IEnumerator WaitForSfxToEnd()
     {
 
