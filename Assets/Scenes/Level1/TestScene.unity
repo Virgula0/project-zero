@@ -2607,6 +2607,14 @@ PrefabInstance:
       propertyPath: globalWaypoints.Array.data[0].y
       value: 31.89
       objectReference: {fileID: 0}
+    - target: {fileID: 2619267559082826673, guid: ab0dfd6748cb82cdf9e81af29c3e614a, type: 3}
+      propertyPath: globalWaypoints.Array.data[1].x
+      value: 3.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 2619267559082826673, guid: ab0dfd6748cb82cdf9e81af29c3e614a, type: 3}
+      propertyPath: globalWaypoints.Array.data[1].y
+      value: -9.09
+      objectReference: {fileID: 0}
     - target: {fileID: 4243806422210132934, guid: ab0dfd6748cb82cdf9e81af29c3e614a, type: 3}
       propertyPath: m_Name
       value: GlobalWaypoints

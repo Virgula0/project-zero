@@ -74,9 +74,11 @@ public class PatrolMovement : MonoBehaviour, IMovement
         bool clearPath = false;
         Vector2 closestPoint = new();
         List<Vector2> vectorsToExclude = new List<Vector2>();
+        int maxIterations = 200; // stop after 200 iterations
+        int currentIteration = 0;
 
         // in patrol movement we can ignore the points behind the obstacles to find the way to get back to home
-        while (!clearPath)
+        while (!clearPath && ++currentIteration < maxIterations)
         {
             closestPoint = FindClosestWayPoint(enemyTransform, vectorsToExclude.ToArray(), out _);
             // Cast the ray toward the closest point to check if it is hidden by an obstacle
@@ -90,6 +92,12 @@ public class PatrolMovement : MonoBehaviour, IMovement
                 vectorsToExclude.Add(closestPoint);
                 Debug.Log("Obstacle detected between enemy and closest waypoint while trying to come back to patrolling. Recalculating.");
             }
+        }
+        
+        if (currentIteration >= maxIterations)
+        {
+            StopCoroutines(true);
+            Debug.LogWarning("WARNING! Cannot find clearest closer waypoint while coward");
         }
 
         Vector2[] path = bfs.PathToTheFirst(closestPoint);
@@ -118,13 +126,15 @@ public class PatrolMovement : MonoBehaviour, IMovement
     }
 
 
-    public void NeedsRepositioning(bool reposition){
+    public void NeedsRepositioning(bool reposition)
+    {
         this.needsRepositioning = reposition;
     }
 
     public void StopCoroutines(bool stop)
     {
-        if (!stop || _patrolCoroutine == null){
+        if (!stop || _patrolCoroutine == null)
+        {
             return;
         }
         busy = false;
