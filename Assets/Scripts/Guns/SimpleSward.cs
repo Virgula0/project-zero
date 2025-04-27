@@ -92,4 +92,9 @@ public class SimpleSword : MonoBehaviour, IGun, IMelee
     {
         return this.goonEquippedSprite;
     }
+
+    public int GetWaponType()
+    {
+        return 1;
+    }
 }

@@ -173,8 +173,25 @@ MonoBehaviour:
   chaseSpeed: 0
   runAwaySpeed: 0
   findAWaponSpeed: 0
-  goonDeathSprites:
-  - {fileID: -3716995116549615698, guid: 346dbc97d3f6b004c9042367f9573d47, type: 3}
+  goonGunDeathSprites:
+  - {fileID: -6702718496017316594, guid: 14e0897ded43f9c4586ea470b0db2497, type: 3}
+  - {fileID: -930213660946376777, guid: f0ed3ed4706483449b10855e8e76d6bc, type: 3}
+  - {fileID: 4549888138216291954, guid: fce167fecd073f44b8712602f17afccf, type: 3}
+  - {fileID: -464121615769579163, guid: aaeff86608992b243a93d5fc9970ad20, type: 3}
+  goonBladeDeathSprites:
+  - {fileID: -5090966224503571210, guid: 39c9ded9193859b48bbe28fe59695e63, type: 3}
+  - {fileID: 393614506822633657, guid: 77cdc5d0ec0f75b41a1485da023dadd2, type: 3}
+  - {fileID: -974146073950565979, guid: 1817f9c460daed6459bb3b0b5d9ae826, type: 3}
+  - {fileID: 1825245452075159809, guid: c32b23db73ce3ae41bf1198d12f6aea5, type: 3}
+  - {fileID: -1485471799385426239, guid: f97b076daac83724793524e5d85de4b1, type: 3}
+  - {fileID: 8860601065551843114, guid: 81cbefc277382fd428990a0d04219c88, type: 3}
+  - {fileID: -2055875213193572439, guid: a0e66c0af88e46b448cdbc80f9b80833, type: 3}
+  - {fileID: -5529753576980553680, guid: 3a24a87046d32ea4ab74f95191325bef, type: 3}
+  - {fileID: -4188566133399327056, guid: 03e4ac5d16d56ea4299ec73711e9d039, type: 3}
+  - {fileID: -1792396030194920718, guid: f32f9cc458b5a014eb77d21d37886005, type: 3}
+  - {fileID: 8877434639144464712, guid: 301e9ee683b4e1749acb302d78dd40a2, type: 3}
+  - {fileID: -4294718512707466487, guid: 1c24013b924e8a648b74de7f0ed99a40, type: 3}
+  - {fileID: 4516111076874819667, guid: 517f102e57a075a479f6cf861b610bc4, type: 3}
   stoppingDistance: 2
   patrolWaypoints:
   - {x: 8.42, y: 7.1}

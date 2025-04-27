@@ -176,4 +176,8 @@ public class WeaponManager : MonoBehaviour
 
         isReloading = false;
     }
+
+    public int GetCurrentWeaponType(){
+        return currentLoadedWeapon.GetWaponType();
+    }
 }
