@@ -173,6 +173,8 @@ MonoBehaviour:
   chaseSpeed: 0
   runAwaySpeed: 0
   findAWaponSpeed: 0
+  goonDeathSprites:
+  - {fileID: -3716995116549615698, guid: 346dbc97d3f6b004c9042367f9573d47, type: 3}
   stoppingDistance: 2
   patrolWaypoints:
   - {x: 8.42, y: 7.1}
@@ -293,7 +295,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 9135307671377584585, guid: d6cc26991b7886d418486dff6d92eb42, type: 3}
+  m_Sprite: {fileID: 2892328249752792356, guid: 95e5dbfa70f7e3544b551bae43979c8e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -341,7 +343,7 @@ BoxCollider2D:
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
+    pivot: {x: 0.5606374, y: 0.48727867}
     oldSize: {x: 0.15, y: 0.26}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5

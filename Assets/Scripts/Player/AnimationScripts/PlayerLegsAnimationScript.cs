@@ -14,6 +14,10 @@ public class PlayerLegsAnimationScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!transform.parent.GetComponentInChildren<PlayerScript>().IsPlayerAlive()) //does nothing if player is dead
+        {
+            return;
+        }
         Vector2 moveInput = new Vector2(Input.GetAxisRaw(Utils.Const.HORIZONTAL), Input.GetAxisRaw(Utils.Const.VERTICAL)).normalized;
 
         if (moveInput != Vector2.zero)

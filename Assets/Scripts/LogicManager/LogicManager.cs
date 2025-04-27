@@ -12,6 +12,7 @@ public class LogicManager : MonoBehaviour
     [SerializeField] private CanvasGroup fadeCanvasGroup; // add a canvas UI with black screen image
     [SerializeField] private GameObject playerUI;
     [SerializeField] private GameObject gameOverPrefab;
+    [SerializeField] private Sprite[] playerDeathSprites;
     private const string ScreenOverlay = "ScreenOverlay";
     private CursorChanger cursorChanger;
     private UIManager ui;
@@ -48,6 +49,9 @@ public class LogicManager : MonoBehaviour
         playerUI.SetActive(false);
         gameOverPrefab.SetActive(true);
         playerReference.SetIsPlayerAlive(false);
+        
+        int randomInt = Random.Range(0, playerDeathSprites.Length);
+        playerReference.GetComponentInChildren<SpriteRenderer>().sprite = playerDeathSprites[randomInt];
     }
 
     public void ReloadSceneWithFade()

@@ -10,6 +10,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     [SerializeField] private float chaseSpeed;
     [SerializeField] private float runAwaySpeed;
     [SerializeField] private float findAWaponSpeed;
+    [SerializeField] private Sprite[] goonDeathSprites;
 
     [SerializeField] private float stoppingDistance = 2f; // set to a lower distance when it can equip melee too
     [SerializeField] private Vector2[] patrolWaypoints;
@@ -207,6 +208,12 @@ public class AI : MonoBehaviour, IEnemy, IPoints
                 mov.StopCoroutines(true);
             }
             currentMovement = null;
+
+            if (isEnemyDead)
+            {
+                int randomInt = UnityEngine.Random.Range(0, goonDeathSprites.Length);
+                transform.parent.GetComponentInChildren<SpriteRenderer>().sprite = goonDeathSprites[randomInt]; 
+            }
             return;
         }
 
