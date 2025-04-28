@@ -4,10 +4,16 @@ public class GoonAnimationScript : MonoBehaviour
 {
     [SerializeField] private Sprite[] goonGunDeathSprites;
     [SerializeField] private Sprite[] goonBladeDeathSprites;
+    [SerializeField] private AI goonAIRef;
     public void OnAttackAnimationEnd()
     {
         // Disable animator
         gameObject.GetComponentInChildren<Animator>().enabled = false;
+        
+        if(goonAIRef.IsEnemyDead())
+        {
+            GetComponentInParent<SpriteRenderer>().sprite = goonGunDeathSprites[1];
+        }
     }
 
     public void SetGoonDeadSprite(int weaponType){
