@@ -108,7 +108,7 @@ public class SingleBulletScript : MonoBehaviour
         {
             case (int)Utils.Enums.ObjectLayers.Player:
                 Debug.Log("Hit Player");
-                this.logic.GameOver();
+                this.logic.GameOver(0); // TODO change the approach so we can add more weapon varaiety
                 break;
             case (int)Utils.Enums.ObjectLayers.Wall:
                 Debug.Log("Hit Wall");

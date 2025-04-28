@@ -127,6 +127,7 @@ MonoBehaviour:
   moveSpeed: 20
   playerRb: {fileID: 8302184713731113973}
   godMode: 0
+  deathSfx: {fileID: 8300000, guid: 6d59adada5521604daac9f941b5fd3ac, type: 3}
 --- !u!82 &6756813065876353688
 AudioSource:
   m_ObjectHideFlags: 0
@@ -364,6 +365,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46faee767cf5e134d831f87fc7844e93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerGunDeadSprites:
+  - {fileID: -3764990334467098087, guid: 3d0d5331cb27cda459cc7deca05eb1d3, type: 3}
+  playerBladeDeadSprites:
+  - {fileID: -9040219139992853139, guid: 9a04b86fac4fdfb43b1db40132014560, type: 3}
 --- !u!1 &3359294958757878468
 GameObject:
   m_ObjectHideFlags: 0

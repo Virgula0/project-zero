@@ -12,16 +12,17 @@ public class LogicManager : MonoBehaviour
     [SerializeField] private CanvasGroup fadeCanvasGroup; // add a canvas UI with black screen image
     [SerializeField] private GameObject playerUI;
     [SerializeField] private GameObject gameOverPrefab;
-    [SerializeField] private Sprite[] playerDeathSprites;
     private const string ScreenOverlay = "ScreenOverlay";
     private CursorChanger cursorChanger;
     private UIManager ui;
+    private PlayerAnimationScript playerspriteRef;
 
     void Start()
     {
         this.playerReference = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponent<PlayerScript>();
         this.ui = GameObject.FindGameObjectWithTag(Utils.Const.UI_MANAGER_TAG).GetComponent<UIManager>();
         this.cursorChanger = GameObject.FindGameObjectWithTag(Utils.Const.CURSOR_CHANGER_TAG).GetComponent<CursorChanger>();
+        this.playerspriteRef = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponentInChildren<PlayerAnimationScript>();
     }
 
     void Update()
@@ -37,7 +38,7 @@ public class LogicManager : MonoBehaviour
         return isTheRoomClear;
     }
 
-    public void GameOver()
+    public void GameOver(int killingWeaponType)
     {
         if (playerReference.IsGodMode())
         {
@@ -50,8 +51,8 @@ public class LogicManager : MonoBehaviour
         gameOverPrefab.SetActive(true);
         playerReference.SetIsPlayerAlive(false);
         
-        int randomInt = Random.Range(0, playerDeathSprites.Length);
-        playerReference.GetComponentInChildren<SpriteRenderer>().sprite = playerDeathSprites[randomInt];
+        playerReference.PlayDeathSound();
+        playerspriteRef.SetPlayerDeadSprite(killingWeaponType);
     }
 
     public void ReloadSceneWithFade()

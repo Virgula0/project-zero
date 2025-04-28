@@ -10,9 +10,6 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     [SerializeField] private float chaseSpeed;
     [SerializeField] private float runAwaySpeed;
     [SerializeField] private float findAWaponSpeed;
-    [SerializeField] private Sprite[] goonGunDeathSprites;
-    [SerializeField] private Sprite[] goonBladeDeathSprites;
-
     [SerializeField] private float stoppingDistance = 2f; // set to a lower distance when it can equip melee too
     [SerializeField] private Vector2[] patrolWaypoints;
     // exitWaypoints is a vector containing the coordinates of doors or obstacles (manually defined in the editor) 
@@ -22,6 +19,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     // We have the playerObject reference so we know its position easly.
     // They're used as well for getting back in the patrolling room.
     [SerializeField] private Vector2[] exitWaypoints;
+    [SerializeField] private AudioClip deathSfx;
     private GameObject player; // we need the position and other ottributes of the player
     private IMovement currentMovement;
     private IMovement patrolMovement;
@@ -40,6 +38,8 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     private Dictionary<int, List<int>> originalEnemyConnectionGraph;
     private WeaponSpawner spawner;
     private PlayerScript playerScript;
+    private WeaponManager playerWeaponManager;
+    private AudioSource audioSrc;
 
     // IMPORTANT! define the list of army that this type of enemy (in this case Goon) can equip
     private List<Type> typesThatCanBeEquipped = new List<Type>{
@@ -103,6 +103,10 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         player = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
         playerDetector = gameObject.GetComponent<Detector>();
         playerScript = player.GetComponent<PlayerScript>();
+
+        playerWeaponManager = player.GetComponentInChildren<WeaponManager>();
+        audioSrc = transform.parent.GetComponent<AudioSource>();
+
         treeStructure = new KdTree(exitWaypoints);
 
         // Get the global waypoints object locally (no new instance variable)
@@ -211,17 +215,10 @@ public class AI : MonoBehaviour, IEnemy, IPoints
             currentMovement = null;
 
             if (isEnemyDead)
-            {
-                int killerWeaponType = player.GetComponentInChildren<WeaponManager>().GetCurrentWeaponType();
-                if (killerWeaponType == 0){
-                    int randomInt = UnityEngine.Random.Range(0, goonGunDeathSprites.Length);
-                    transform.parent.GetComponentInChildren<SpriteRenderer>().sprite = goonGunDeathSprites[randomInt]; 
-                }
-                if (killerWeaponType == 1){
-                    int randomInt = UnityEngine.Random.Range(0, goonBladeDeathSprites.Length);
-                    transform.parent.GetComponentInChildren<SpriteRenderer>().sprite = goonBladeDeathSprites[randomInt];
-                }
-                
+            {   
+                int killerWeaponType = playerWeaponManager.GetCurrentLoadedWeapon() is IMelee? (1) : (0);
+                audioSrc.PlayOneShot(deathSfx);
+                transform.parent.GetComponentInChildren<GoonAnimationScript>().SetGoonDeadSprite(killerWeaponType);
             }
             return;
         }

@@ -158,6 +158,10 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
+    public IGun GetCurrentLoadedWeapon(){
+        return currentLoadedWeapon;
+    }
+
     public void ResizePlayerCollider(){
         BoxCollider2D playerCollider = gameObject.GetComponentInParent<BoxCollider2D>();
         Vector2 spriteSize = playerSpriteRenderer.sprite.bounds.size;
@@ -175,9 +179,5 @@ public class WeaponManager : MonoBehaviour
         }
 
         isReloading = false;
-    }
-
-    public int GetCurrentWeaponType(){
-        return currentLoadedWeapon.GetWaponType();
     }
 }

@@ -145,9 +145,4 @@ public class SimpleGun : MonoBehaviour, IGun, IRanged
     {
         return this.goonEquippedSprite;
     }
-
-    public int GetWaponType()
-    {
-        return 0;
-    }
 }

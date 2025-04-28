@@ -63,6 +63,4 @@ public interface IGun :
     IPickupable,
     IVisualWeapon,
     IAudioWeapon
-{
-    int GetWaponType();
- }
+{}
