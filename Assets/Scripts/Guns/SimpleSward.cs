@@ -19,6 +19,7 @@ public class SimpleSword : MonoBehaviour, IGun, IMelee
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private AudioClip swingSound;
     [SerializeField] private AudioClip equipSound;
+    [SerializeField] private AudioClip parrySound;
 
     private GameObject wielder;
     private bool isGoingToBePickedUp = false;
@@ -30,7 +31,7 @@ public class SimpleSword : MonoBehaviour, IGun, IMelee
         wielder = player;
         currentInitPrefab = Instantiate(swingPrefab, wielder.transform.position, Quaternion.identity);
         currentInitScript = currentInitPrefab.GetComponent<SwordScript>();
-        currentInitScript.Initialize(wielder, swingSound);
+        currentInitScript.Initialize(wielder, swingSound, parrySound);
         playerAnim = player.GetComponentInChildren<Animator>();
         if (wielder.layer != (int)Utils.Enums.ObjectLayers.Player){
             goonAnim = wielder.GetComponentInChildren<Animator>();

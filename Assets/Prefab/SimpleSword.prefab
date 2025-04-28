@@ -291,6 +291,7 @@ MonoBehaviour:
     m_Bits: 128
   swingSound: {fileID: 8300000, guid: 79ff321f2d6e11976a42455874c7802f, type: 3}
   equipSound: {fileID: 8300000, guid: fe7ebb81a58a3b54c81cb1093485c0c6, type: 3}
+  parrySound: {fileID: 8300000, guid: f7d2e434a27547d97ab89c79765d98fb, type: 3}
 --- !u!82 &6756528752257146720
 AudioSource:
   m_ObjectHideFlags: 0
