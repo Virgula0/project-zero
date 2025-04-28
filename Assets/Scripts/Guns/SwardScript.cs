@@ -121,7 +121,7 @@ public class SwardScript : MonoBehaviour
         {
             case (int)Utils.Enums.ObjectLayers.Player:
                 Debug.Log("Hit player");
-                logic.GameOver();
+                logic.GameOver(1); // TODO change the approach so we can add more weapon varaiety
                 break;
             case (int)Utils.Enums.ObjectLayers.Wall:
                 Debug.Log("Hit wall");

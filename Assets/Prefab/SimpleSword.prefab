@@ -283,8 +283,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   swingPrefab: {fileID: 4521634595782343921, guid: 1e5e65c6eec38a7268e640850bf6b4df, type: 3}
   staticWeaponSprite: {fileID: 1992803813465039072}
-  equippedSprite: {fileID: -7620953302168551534, guid: fbcd0c2ff75f4a04c930ac2937f56c12, type: 3}
-  goonEquippedSprite: {fileID: 7969418466393483891, guid: 5e2a04cc80bbfbf44909982177e222ee, type: 3}
+  equippedSprite: {fileID: 6151555016958124782, guid: 93f90aecccdbb304f81098a3158207b4, type: 3}
+  goonEquippedSprite: {fileID: 4027782326423614977, guid: a1290b1d21bda2443a1155c25f38629c, type: 3}
   enemyLayer:
     serializedVersion: 2
     m_Bits: 128
