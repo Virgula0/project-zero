@@ -2,14 +2,15 @@ name: Unity Build And Deploy
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-          types:
-            - opened
-            - reopened
-            - ready_for_review
-            - synchronize
-            
+    types:
+      - opened
+      - reopened
+      - ready_for_review
+      - synchronize
+      
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
