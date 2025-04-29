@@ -2,23 +2,19 @@ name: Unity Build And Deploy
 
 on:
   push:
-    branches:
-      - main
-
+    branches: [ main ]
+  pull_request:
+          types:
+            - opened
+            - reopened
+            - ready_for_review
+            - synchronize
+            
 jobs:
-  buildForWindowsAndLinuxAndOSX:
-    name: Build for ${{ matrix.targetPlatform }}
+  build-and-release:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        targetPlatform:
-          - StandaloneOSX # intel osx
-          - StandaloneWindows64 # Build a Windows 64-bit standalone.
-          - StandaloneLinux64 # Build a Linux 64-bit standalone.
-    outputs:
-      buildVersion: ${{ steps.buildStep.outputs.buildVersion }}
     steps:
+      # 1. check out & cache your Library
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -27,85 +23,58 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: Library
-          key: Library-${{ matrix.targetPlatform }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
-          restore-keys: |
-            Library-${{ matrix.targetPlatform }}-
-            Library-
+          key: Library-${{ matrix.targetPlatform }}-${{ hashFiles('Assets/**','Packages/**','ProjectSettings/**') }}
 
-      - uses: game-ci/unity-builder@v4
-        id: buildStep
+      # 2. build each platform in sequence
+      - name: Build OSX
+        uses: game-ci/unity-builder@v4
+        with:
+          targetPlatform: StandaloneOSX
         env:
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_EMAIL:  ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+
+      - name: Build Windows
+        uses: game-ci/unity-builder@v4
         with:
-          targetPlatform: ${{ matrix.targetPlatform }}
-          versioning: Semantic
+          targetPlatform: StandaloneWindows64
+        env:
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          UNITY_EMAIL:  ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
 
-      - uses: actions/upload-artifact@v4
+      - name: Build Linux
+        uses: game-ci/unity-builder@v4
         with:
-          name: Build-${{ matrix.targetPlatform }}
-          path: build/${{ matrix.targetPlatform }}
+          targetPlatform: StandaloneLinux64
+        env:
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          UNITY_EMAIL:  ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
 
-  uploadAllArtifacts:
-    name: Upload All Builds as Single Pre-Release
-    runs-on: ubuntu-latest
-    needs: buildForWindowsAndLinuxAndOSX
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      # 3. grab your version number
+      - name: Read version
+        id: version
+        run: echo "VERSION=$(cat version)" >> $GITHUB_ENV
 
-      - name: Download OSX Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: Build-StandaloneOSX
-          path: StandaloneOSX
-
-      - name: Download Windows Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: Build-StandaloneWindows64
-          path: StandaloneWindows64
-
-      - name: Download Linux Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: Build-StandaloneLinux64
-          path: StandaloneLinux64
-
-      - name: Read version from build output
-        id: version-step
+      # 4. zip all three outputs
+      - name: Zip builds
         run: |
-          echo "VERSION=$(cat version)" >> $GITHUB_ENV
+          zip -r StandaloneOSX.zip    build/StandaloneOSX
+          zip -r StandaloneWin64.zip  build/StandaloneWindows64
+          zip -r StandaloneLinux64.zip build/StandaloneLinux64
 
-      - name: Zip
-        run: |  
-              zip -r StandaloneOSX.zip StandaloneOSX  
-              zip -r StandaloneWindows64.zip StandaloneWindows64  
-              zip -r StandaloneLinux64.zip StandaloneLinux64  
-
-      - name: Create a Pre-Release with All Artifacts
+      # 5. create the GitHub “pre-release”
+      - name: Create Pre-Release
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: "${{ env.VERSION }}-pre-${{ github.run_number }}"
-          name: "${{ env.VERSION }}-pre-${{ github.run_number }}"
-          draft: false
+          tag:       "${{ env.VERSION }}-pre-${{ github.run_number }}"
+          name:      "${{ env.VERSION }}-pre-${{ github.run_number }}"
+          draft:     false
           prerelease: true
           artifacts: |
             StandaloneOSX.zip
-            StandaloneWindows64.zip
+            StandaloneWin64.zip
             StandaloneLinux64.zip
-
-  deleteTempArtifacts:
-    name: Delete temp artifacts
-    runs-on: ubuntu-latest
-    needs: uploadAllArtifacts
-    steps:
-      - name: Remove temp artifact for data storage
-        uses: geekyeggo/delete-artifact@v5
-        with:
-          name: |
-            Build-StandaloneLinux64
-            Build-StandaloneOSX
-            Build-StandaloneWindows64
