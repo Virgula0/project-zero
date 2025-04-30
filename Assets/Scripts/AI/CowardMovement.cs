@@ -50,8 +50,10 @@ public class CowardMovement : MonoBehaviour, IMovement
         busy = true;
         bool clearPath = false;
         Vector2 closestPoint = new();
+        int maxIterations = 200; // stop after 200 iterations
+        int currentIteration = 0;
         List<Vector2> vectorsToExclude = new List<Vector2>();
-        while (busy && !clearPath)
+        while (busy && !clearPath && ++currentIteration < maxIterations)
         {
             closestPoint = FindClosestWayPoint(rb, vectorsToExclude.ToArray(), out _);
             Vector2 directionToClosest = (closestPoint - rb.position).normalized;
@@ -65,6 +67,13 @@ public class CowardMovement : MonoBehaviour, IMovement
                 Debug.Log("Obstacle detected between enemy and closest waypoint while trying to coward. Recalculating.");
             }
         }
+
+        if (currentIteration >= maxIterations)
+        {
+            StopCoroutines(true);
+            Debug.LogWarning("WARNING! Cannot find clearest closer waypoint while coward");
+        }
+
         return closestPoint;
     }
 

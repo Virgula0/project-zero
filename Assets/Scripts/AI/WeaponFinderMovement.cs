@@ -115,7 +115,9 @@ public class WeaponFinderMovement : MonoBehaviour, IMovement
         bool clearPath = false;
         Vector2 closestPoint = new();
         List<Vector2> vectorsToExclude = new List<Vector2>();
-        while (busy && !clearPath)
+        int maxIterations = 200; // stop after 200 iterations
+        int currentIteration = 0;
+        while (busy && !clearPath && ++currentIteration < maxIterations)
         {
             closestPoint = FindClosestWayPoint(enemyRB, vectorsToExclude.ToArray(), out _);
             Vector2 directionToClosest = (closestPoint - enemyRB.position).normalized;
@@ -129,6 +131,13 @@ public class WeaponFinderMovement : MonoBehaviour, IMovement
                 Debug.Log("Obstacle detected between enemy and closest waypoint while trying to finding weapon. Recalculating.");
             }
         }
+
+        if (currentIteration >= maxIterations)
+        {
+            StopCoroutines(true);
+            Debug.LogWarning("WARNING! Cannot find clearest closer waypoint while coward");
+        }
+
         //Vector2 enemyCloserWaypoint = kdTree.FindNearest(enemyRB.position, out _);
         Vector2[] path = bfs.PathToPoint(closestPoint, targetWaypoint);
 

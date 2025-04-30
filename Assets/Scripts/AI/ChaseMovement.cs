@@ -6,7 +6,7 @@ using UnityEngine;
 public class ChaseMovement : MonoBehaviour, IMovement
 {
     private float chaseSpeed;
-    private float stoppingDistance = 5f;
+    private float stoppingDistance;
     private Rigidbody2D playerBody;
     private Detector playerDetector;
     private KdTree kdTree;
@@ -15,8 +15,9 @@ public class ChaseMovement : MonoBehaviour, IMovement
     private bool busy = false;
     private float additionalSpeedWhenFollowingPath = 2f;
     private Coroutine _chaseCoroutine;
+    private Func<float> getStoppingDistance;
 
-    public IMovement New(GameObject player, Detector detector, KdTree tree, BFSPathfinder bfs, float chaseSpeed, float stoppingDistance)
+    public IMovement New(GameObject player, Detector detector, KdTree tree, BFSPathfinder bfs, float chaseSpeed, Func<float> getStoppingDistance)
     {
         if (player == null || chaseSpeed < 1)
             throw new ArgumentException("Invalid argument passed to chase movement");
@@ -24,7 +25,8 @@ public class ChaseMovement : MonoBehaviour, IMovement
         this.playerDetector = detector;
         this.playerBody = player.GetComponent<Rigidbody2D>();
         this.chaseSpeed = chaseSpeed;
-        this.stoppingDistance = stoppingDistance;
+        this.stoppingDistance = getStoppingDistance();
+        this.getStoppingDistance = getStoppingDistance;
         this.kdTree = tree;
         this.bfs = bfs;
         return this;
@@ -48,19 +50,14 @@ public class ChaseMovement : MonoBehaviour, IMovement
         return kdTree.FindNearestExcluding(enemyRigidbody.position, toExclude, out index);
     }
 
-
-    private IEnumerator MoveDoorWaypointsCoroutine(Rigidbody2D enemyRB, Vector2 startPoint)
+    private Vector2 FindCloserClearWaypoint()
     {
-        // Determine the best waypoint on the player’s side.
-        // The problem here is that it is allowed to be hidden because the player could be 
-        // behind an obstacle but enemy wants to chase it anyway
-        // this of course may be improved
-        // the line between ----- attempts to solve this problem in a similar way as done in patrol a coward coroutines
-        // ---------------------------------------------------------------------------------------------
         bool clearPath = false;
-        Vector2 playerBestWaypoint = new();
+        Vector2 playerBestWaypoint = new(float.PositiveInfinity, float.PositiveInfinity);
         List<Vector2> vectorsToExclude = new List<Vector2>();
-        while (!clearPath)
+        int maxIterations = 200; // stop after 200 iterations
+        int currentIteration = 0;
+        while (!clearPath && ++currentIteration < maxIterations)
         {
             playerBestWaypoint = FindClosestWayPoint(playerBody, vectorsToExclude.ToArray(), out _);
             Vector2 directionToClosest = (playerBestWaypoint - playerBody.position).normalized;
@@ -74,10 +71,35 @@ public class ChaseMovement : MonoBehaviour, IMovement
                 Debug.Log("Obstacle detected between player and closest waypoint while trying to chasing. Recalculating.");
             }
         }
+
+        if (currentIteration >= maxIterations)
+        {
+            StopCoroutines(true);
+            Debug.LogWarning("WARNING! Cannot find clearest closer waypoint while chasing");
+        }
+
+        return playerBestWaypoint;
+    }
+
+
+    private IEnumerator MoveDoorWaypointsCoroutine(Rigidbody2D enemyRB, Vector2 startPoint)
+    {
+        // Determine the best waypoint on the player’s side.
+        // The problem here is that it is allowed to be hidden because the player could be 
+        // behind an obstacle but enemy wants to chase it anyway
+        // this of course may be improved
+        // the line between ----- attempts to solve this problem in a similar way as done in patrol a coward coroutines
+        // ---------------------------------------------------------------------------------------------
+        Vector2 playerBestWaypoint = FindCloserClearWaypoint();
         // ---------------------------------------------------------------------------------------------
 
         //Vector2 playerBestWaypoint = kdTree.FindNearest(playerBody.position, out _);
         Vector2[] path = bfs.PathToPoint(startPoint, playerBestWaypoint);
+
+        if (path == null || path.Length < 1)
+        {
+            yield break;
+        }
 
         foreach (Vector2 waypoint in path)
         {
@@ -124,6 +146,7 @@ public class ChaseMovement : MonoBehaviour, IMovement
             return;
         }
 
+        this.stoppingDistance = getStoppingDistance();
         Vector2 enemyPos = enemyRB.position;
         float distanceToPlayer = Vector2.Distance(enemyPos, playerBody.position);
 
@@ -140,6 +163,10 @@ public class ChaseMovement : MonoBehaviour, IMovement
             Vector2.Distance(enemyPos, enemyLatestPosition) < 0.1f) // if the latest position is too small we may want to find an exit through a waypoint
         {
             Vector2? bestWaypoint = FindClosestWayPoint(enemyPos);
+            if (bestWaypoint == null)
+            {
+                return;
+            }
             Debug.Log("Using DoorWayPoint to find an exit");
             busy = true;
             _chaseCoroutine = StartCoroutine(MoveDoorWaypointsCoroutine(enemyRB, bestWaypoint.Value));

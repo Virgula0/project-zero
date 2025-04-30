@@ -23,8 +23,8 @@ TagManager:
   - Wall
   - Enemy
   - Bullet
-  - 
-  - 
+  - SwingByPlayer
+  - ParriableLayer
   - 
   - 
   - 

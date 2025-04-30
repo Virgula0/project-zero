@@ -17,7 +17,9 @@ public class WeaponFinder : MonoBehaviour
         this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER_TAG).GetComponent<WeaponSpawner>();
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    // In Player rigidbody -> continuous detections must be set for detecing mouse interactively
+    // use stay instead of enter for this goal
+    private void OnTriggerStay2D(Collider2D collision)
     {
         if (weapon == null)
         {
@@ -28,13 +30,16 @@ public class WeaponFinder : MonoBehaviour
             return;
         }
 
-        weapon.SetIsGoingToBePickedUp(true);
-        Debug.Log("Collision detected with: " + collision.gameObject.name);
         var obj = collision.gameObject;
 
         switch (obj.layer)
         {
             case (int)Utils.Enums.ObjectLayers.Player:
+                if (!Input.GetMouseButton((int)Utils.Enums.MouseButtons.RightButton))
+                {
+                    return;
+                }
+                weapon.SetIsGoingToBePickedUp(true);
                 Debug.Log("You got a weapon! " + gameObject.name);
                 playerManager.LoadNewGun(weapon, obj, this.gameObjectRef);
                 HandleWeaponPickup();
@@ -46,6 +51,7 @@ public class WeaponFinder : MonoBehaviour
                     Debug.Log("This enemy cannot equip this type of weapon or is dead");
                     break;
                 }
+                weapon.SetIsGoingToBePickedUp(true);
                 Debug.Log("Enemy got a weapon! " + gameObject.name);
                 manager.LoadNewGun(weapon, obj);
                 HandleWeaponPickup();

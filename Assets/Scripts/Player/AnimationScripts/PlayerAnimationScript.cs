@@ -1,4 +1,3 @@
-using NUnit.Framework;
 using UnityEngine;
 
 public class PlayerAnimationScript : MonoBehaviour
@@ -28,36 +27,44 @@ public class PlayerAnimationScript : MonoBehaviour
         SetEquippedWeponSprite(idleSwordSprite);
     }
 
-    public void SetPlayerDeadSprite(IGun weapon){
-        if(animatorRef.GetCurrentAnimatorStateInfo(0).IsName(Utils.Animations.PLAYER_SWORD_ATTACK)){
-                animatorRef.enabled = false;
+    public void SetPlayerDeadSprite(IGun weapon)
+    {
+        if (animatorRef.GetCurrentAnimatorStateInfo(0).IsName(Utils.Animations.PLAYER_SWORD_ATTACK))
+        {
+            animatorRef.enabled = false;
         }
-        if(weapon is IRanged){
-            Debug.Log("Gun Weapon Death");
-            int randomInt = Random.Range(0, playerGunDeadSprites.Length);
-            spriteRendererRef.sprite = playerGunDeadSprites[randomInt]; 
+
+        Sprite[] chosenSprites = weapon is IRanged ? playerGunDeadSprites :
+                        weapon is IMelee ? playerBladeDeadSprites : null;
+
+        if (chosenSprites == null)
+        {
+            Debug.LogError("Chosen sprites is null. The weapon seems to not have an expected identity");
+            return;
         }
-        if(weapon is IMelee){
-            Debug.Log("Melee Weapon Death");
-            int randomInt = Random.Range(0, playerBladeDeadSprites.Length);
-            spriteRendererRef.sprite = playerBladeDeadSprites[randomInt];
-        }
+
+        int randomInt = Random.Range(0, chosenSprites.Length);
+        spriteRendererRef.sprite = chosenSprites[randomInt];
     }
 
-    public void SetDefaultSprite(){
+    public void SetDefaultSprite()
+    {
         spriteRendererRef.sprite = playerDefaultSprite;
     }
 
-    public void SetEquippedWeponSprite(Sprite newSprite){
+    public void SetEquippedWeponSprite(Sprite newSprite)
+    {
         spriteRendererRef.sprite = newSprite;
         idleSwordSprite = newSprite;
     }
 
-    public Vector2 GetSpriteSize(){
+    public Vector2 GetSpriteSize()
+    {
         return spriteRendererRef.sprite.bounds.size;
     }
 
-    public Vector3 GetSpriteScale(){
+    public Vector3 GetSpriteScale()
+    {
         return spriteRendererRef.transform.localScale;
     }
 }
