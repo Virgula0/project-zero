@@ -63,4 +63,4 @@ public interface IGun :
     IPickupable,
     IVisualWeapon,
     IAudioWeapon
-{ }
+{}

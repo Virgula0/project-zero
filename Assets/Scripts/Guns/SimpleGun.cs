@@ -55,7 +55,7 @@ public class SimpleGun : MonoBehaviour, IGun, IRanged
         ammoCount -= 1;
         GameObject bullet = Instantiate(bulletPrefab, shooterObject.transform.position, Quaternion.identity);
         SingleBulletScript bulletScript = bullet.GetComponent<SingleBulletScript>();
-        bulletScript.Initialize(shooterObject);
+        bulletScript.Initialize(shooterObject, this);
         Debug.Log("BAM!");
         Debug.Log(ammoCount + "/" + magCap);
     }

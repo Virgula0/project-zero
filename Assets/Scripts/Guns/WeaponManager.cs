@@ -14,20 +14,28 @@ public class WeaponManager : MonoBehaviour
     private GameObject gunPrefab;
     private CursorChanger cursorChanger;
 
-    [SerializeField] SpriteRenderer playerSpriteRenderer;
+    PlayerAnimationScript playerAnimCtrl;
     [SerializeField] AudioSource audioSrc;
 
     private float forwardSpawnGunPrefabOffset = 5f;
     private float upOffsetSpawnGunPrefab = 2f;
     private PlayerScript playerScript;
     private float loadTime = 0;
+    private BoxCollider2D playerCollider;
 
-    void Start()
+    IEnumerator Start()
     {
         this.cursorChanger = GameObject.FindGameObjectWithTag(Utils.Const.CURSOR_CHANGER_TAG).GetComponent<CursorChanger>();
         this.playerBody = GetComponentInParent<Rigidbody2D>();
-        this.defaultPlayerSprite = playerSpriteRenderer.sprite;
+        this.playerAnimCtrl = transform.parent.GetComponentInChildren<PlayerAnimationScript>();
 
+        while (!playerAnimCtrl.IsAnimationScriptReady()) // let's wait for the script animation to be ready first
+        {
+            yield return null;
+        }
+
+        playerCollider = gameObject.GetComponentInParent<BoxCollider2D>();
+        playerAnimCtrl.SetDefaultSprite();
         ResizePlayerCollider();
 
         this.uiManager = GameObject.FindGameObjectWithTag(Utils.Const.UI_MANAGER_TAG).GetComponent<UIManager>();
@@ -43,9 +51,9 @@ public class WeaponManager : MonoBehaviour
             throw new NullReferenceException("GUN LOAD CANNOT BE NULL, THE PASSED REFERENCE TO WEAPON MANAGER IS NULL");
         }
 
-        if (playerSpriteRenderer == null)
+        if (playerAnimCtrl == null)
         {
-            throw new NullReferenceException("PLAYER SPRITE RENDERER CANNOT BE NULL, THE PASSED REFERENCE TO THE PLAYER SPRITE RENDERER IS NULL");
+            throw new NullReferenceException("PLAYER ANIMATION SCRIPT CANNOT BE NULL, THE REFERENCE TO THE PLAYER ANIMATION SCRIPT IS NULL");
         }
 
         if (currentLoadedWeapon != null)
@@ -62,8 +70,8 @@ public class WeaponManager : MonoBehaviour
         cursorChanger.ChangeToTargetCursor();
         currentLoadedWeapon.Setup(shooter);
         audioSrc.PlayOneShot(currentLoadedWeapon.GetEquipSfx());
-        playerSpriteRenderer.sprite = weapon.GetEquippedSprite();
 
+        playerAnimCtrl.SetEquippedWeponSprite(weapon.GetEquippedSprite());
         ResizePlayerCollider();
 
         uiManager.UpdateWeaponIcon(currentLoadedWeapon.GetStaticWeaponSprite());
@@ -97,9 +105,11 @@ public class WeaponManager : MonoBehaviour
         cursorChanger.ChangeToDefaultCursor();
         Destroy(this.gunPrefab);
         timer = 0;
-        playerSpriteRenderer.sprite = defaultPlayerSprite;
         currentLoadedWeapon = null;
+
+        playerAnimCtrl.SetDefaultSprite();
         ResizePlayerCollider();
+
         uiManager.UpdateBullets(0);
         uiManager.UpdateReloads(0);
         uiManager.UpdateWeaponIcon(null);
@@ -166,11 +176,13 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
-    public void ResizePlayerCollider()
-    {
-        BoxCollider2D playerCollider = gameObject.GetComponentInParent<BoxCollider2D>();
-        Vector2 spriteSize = playerSpriteRenderer.sprite.bounds.size;
-        Vector3 spriteScale = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponentInChildren<SpriteRenderer>().transform.localScale; // Get the player sprite scale
+    public IGun GetCurrentLoadedWeapon(){
+        return currentLoadedWeapon;
+    }
+
+    public void ResizePlayerCollider(){
+        Vector2 spriteSize = playerAnimCtrl.GetSpriteSize();
+        Vector3 spriteScale = playerAnimCtrl.GetSpriteScale();
         Vector2 scaledSize = new Vector2(spriteSize.x * spriteScale.x, spriteSize.y * spriteScale.y); // Multiply the sprite size by the parent’s scale
         playerCollider.size = scaledSize;
     }

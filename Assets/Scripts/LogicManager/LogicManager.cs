@@ -15,12 +15,14 @@ public class LogicManager : MonoBehaviour
     private const string ScreenOverlay = "ScreenOverlay";
     private CursorChanger cursorChanger;
     private UIManager ui;
+    private PlayerAnimationScript playerspriteRef;
 
     void Start()
     {
         this.playerReference = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponent<PlayerScript>();
         this.ui = GameObject.FindGameObjectWithTag(Utils.Const.UI_MANAGER_TAG).GetComponent<UIManager>();
         this.cursorChanger = GameObject.FindGameObjectWithTag(Utils.Const.CURSOR_CHANGER_TAG).GetComponent<CursorChanger>();
+        this.playerspriteRef = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponentInChildren<PlayerAnimationScript>();
     }
 
     void Update()
@@ -36,7 +38,7 @@ public class LogicManager : MonoBehaviour
         return isTheRoomClear;
     }
 
-    public void GameOver()
+    public void GameOver(IGun weapon)
     {
         if (playerReference.IsGodMode())
         {
@@ -48,6 +50,9 @@ public class LogicManager : MonoBehaviour
         playerUI.SetActive(false);
         gameOverPrefab.SetActive(true);
         playerReference.SetIsPlayerAlive(false);
+        
+        playerReference.PlayDeathSound();
+        playerspriteRef.SetPlayerDeadSprite(weapon);
     }
 
     public void ReloadSceneWithFade()
