@@ -23,11 +23,13 @@ public class EnemyWeaponManager : MonoBehaviour
     private bool isPlayerBehindAWall = false;
     private int totalShotsDelivered;
     private IEnemy enemyRef;
+    private Rigidbody2D playerBody;
 
     void Start()
     {
         enemyBody = transform.parent.GetComponentInChildren<Rigidbody2D>();
         enemyRef = transform.parent.GetComponentInChildren<IEnemy>();
+        playerBody = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponent<Rigidbody2D>();
         // if prefab is not null enemy will spawn with an already equipped weapon
         if (weaponTemplatePrefab != null)
         {
@@ -59,7 +61,8 @@ public class EnemyWeaponManager : MonoBehaviour
         ResizeEnemyCollider();
     }
 
-    public IGun GetCurrentLoadedWeapon(){
+    public IGun GetCurrentLoadedWeapon()
+    {
         return currentLoadedWeapon;
     }
 
@@ -78,6 +81,8 @@ public class EnemyWeaponManager : MonoBehaviour
             return;
         }
 
+        timer += Time.deltaTime;
+
         if (!isEnemyAlerted || isPlayerBehindAWall)
         {
             return;
@@ -89,8 +94,8 @@ public class EnemyWeaponManager : MonoBehaviour
             return;
         }
 
-        if (currentLoadedWeapon.GetNumberOfReloads() > 0 && currentLoadedWeapon.GetAmmoCount() < 1 
-            && currentLoadedWeapon is IRanged)
+        if (currentLoadedWeapon is IRanged &&
+            currentLoadedWeapon.GetNumberOfReloads() > 0 && currentLoadedWeapon.GetAmmoCount() < 1)
         {
             currentLoadedWeapon.Reload();
             audioSrc.PlayOneShot(currentLoadedWeapon.GetReloadSfx());
@@ -99,21 +104,27 @@ public class EnemyWeaponManager : MonoBehaviour
             return;
         }
 
+        if (currentLoadedWeapon is IMelee melee &&
+            Vector2.Distance(enemyBody.position, playerBody.position) > melee.MinDistanceForSwing())
+        {
+            // we need to check if we're close enough for swinging
+            return;
+        }
+
         int beforeShootAmmo = currentLoadedWeapon.GetAmmoCount();
         if (timer >= currentLoadedWeapon.GetFireRate() && beforeShootAmmo > 0)
         {
             timer = 0;
             currentLoadedWeapon.Shoot();
-            totalShotsDelivered +=  Mathf.Max(0, beforeShootAmmo - currentLoadedWeapon.GetAmmoCount()); // Mathf.Max avoid negative values
+            totalShotsDelivered += Mathf.Max(0, beforeShootAmmo - currentLoadedWeapon.GetAmmoCount()); // Mathf.Max avoid negative values
             audioSrc.PlayOneShot(currentLoadedWeapon.GetShotSfx());
             return;
         }
-
-        timer += Time.deltaTime;
     }
 
 
-    public int GetTotalShotsDelivered() {
+    public int GetTotalShotsDelivered()
+    {
         return totalShotsDelivered;
     }
 
@@ -124,17 +135,15 @@ public class EnemyWeaponManager : MonoBehaviour
         {
             throw new NullReferenceException("ENEMY LOAD CANNOT BE NULL, THE PASSED REFERENCE TO WEAPON MANAGER IS NULL");
         }
-
-        /*
-        if(playerSpriteRenderer == null){
-           throw new NullReferenceException("ENEMY SPRITE RENDERER CANNOT BE NULL, THE PASSED REFERENCE OF THE PLAYER SPRITE RENDERER IS NULL"); 
+        
+        if (this.currentLoadedWeapon != null){
+            Debug.LogWarning("Enemy has already a weapon cannot load another one");
         }
-        */
 
         Debug.Log("Enemy loaded a weapon");
         // must be done whatever a new gun gets loaded
         currentLoadedWeapon = weapon;
-        enemySpriteRenderer.sprite = weapon.GetEquippedSprite();     
+        enemySpriteRenderer.sprite = weapon.GetEquippedSprite();
 
         // we're allowed to shoot at te beginning 
         timer = float.PositiveInfinity;
@@ -151,7 +160,7 @@ public class EnemyWeaponManager : MonoBehaviour
         }
         needsToPLayOnLoad = true;
         currentLoadedWeapon.SetIsGoingToBePickedUp(false);
-        
+
     }
 
     private void UnloadCurrentGun()
@@ -186,7 +195,8 @@ public class EnemyWeaponManager : MonoBehaviour
         this.weaponTypesThatCanBeEquipped = list;
     }
 
-    public void SetIsPlayerBehindAWall(bool condition){
+    public void SetIsPlayerBehindAWall(bool condition)
+    {
         this.isPlayerBehindAWall = condition;
     }
 
@@ -217,7 +227,6 @@ public class EnemyWeaponManager : MonoBehaviour
 
     IEnumerator WaitForSfxToEnd()
     {
-
         while (audioSrc.isPlaying)
         {
             yield return null;
@@ -226,7 +235,8 @@ public class EnemyWeaponManager : MonoBehaviour
         isReloading = false;
     }
 
-    public void ResizeEnemyCollider(){
+    public void ResizeEnemyCollider()
+    {
         BoxCollider2D enemyCollider = gameObject.transform.parent.GetComponentInChildren<BoxCollider2D>();
         Vector2 spriteSize = enemySpriteRenderer.sprite.bounds.size;
         enemyCollider.size = spriteSize;

@@ -8,4 +8,6 @@ public interface IEnemy
     bool AwakeReady();
     bool IsEnemyDead();
     void SetIsEnemyDead(bool cond);
+    void SetIsEnemyStunned(float duration = 3f); // by default stun will be 3 seconds for any enemy
+    bool IsStunned();
 }

@@ -10,7 +10,8 @@ public class SimpleSword : MonoBehaviour, IGun, IMelee
     private int ammoCount;
     private Animator playerAnim;
     private Animator goonAnim;
-
+    
+    [SerializeField] private float minDistanceForSwing = 2f;
     [SerializeField] private GameObject swingPrefab;
     [SerializeField] private SpriteRenderer staticWeaponSprite;
     [SerializeField] private Sprite equippedSprite;
@@ -18,18 +19,19 @@ public class SimpleSword : MonoBehaviour, IGun, IMelee
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private AudioClip swingSound;
     [SerializeField] private AudioClip equipSound;
+    [SerializeField] private AudioClip parrySound;
 
     private GameObject wielder;
     private bool isGoingToBePickedUp = false;
-    private SwardScript currentInitScript;
+    private SwordScript currentInitScript;
     private GameObject currentInitPrefab; 
 
     public void Setup(GameObject player)
     {
         wielder = player;
         currentInitPrefab = Instantiate(swingPrefab, wielder.transform.position, Quaternion.identity);
-        currentInitScript = currentInitPrefab.GetComponent<SwardScript>();
-        currentInitScript.Initialize(wielder, swingSound, this);
+        currentInitScript = currentInitPrefab.GetComponent<SwordScript>();
+        currentInitScript.Initialize(wielder, swingSound, parrySound, this);
         playerAnim = player.GetComponentInChildren<Animator>();
         if (wielder.layer != (int)Utils.Enums.ObjectLayers.Player){
             goonAnim = wielder.GetComponentInChildren<Animator>();
@@ -63,7 +65,6 @@ public class SimpleSword : MonoBehaviour, IGun, IMelee
         currentInitScript.Swing();
     }
 
-
     public void Reload(){}
     public int GetNumberOfReloads() => numberOfReloads;
     public float GetFireRate() => fireRate;
@@ -91,5 +92,10 @@ public class SimpleSword : MonoBehaviour, IGun, IMelee
     public Sprite GetGoonEquippedSprite()
     {
         return this.goonEquippedSprite;
+    }
+
+    public float MinDistanceForSwing()
+    {
+        return minDistanceForSwing;
     }
 }

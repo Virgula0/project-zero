@@ -20,6 +20,7 @@ public class WeaponManager : MonoBehaviour
     private float forwardSpawnGunPrefabOffset = 5f;
     private float upOffsetSpawnGunPrefab = 2f;
     private PlayerScript playerScript;
+    private float loadTime = 0;
     private BoxCollider2D playerCollider;
 
     IEnumerator Start()
@@ -77,6 +78,7 @@ public class WeaponManager : MonoBehaviour
         uiManager.UpdateBullets(currentLoadedWeapon.GetAmmoCount());
         uiManager.UpdateReloads(currentLoadedWeapon.GetNumberOfReloads());
         currentLoadedWeapon.SetIsGoingToBePickedUp(false);
+        loadTime = Time.time;
     }
 
     private void UnloadCurrentGun()
@@ -85,6 +87,12 @@ public class WeaponManager : MonoBehaviour
         {
             throw new NullReferenceException("GUN CANNOT BE DELOADED IF NO ONE HAS BEEN LOADED");
         }
+
+        if (Time.time - loadTime <= 0.3f || currentLoadedWeapon.IsGoingToBePickedUp())
+        {
+            return; // not enough time has passed since equipping
+        }
+
         Debug.Log("Weapon deloaded");
         audioSrc.PlayOneShot(currentLoadedWeapon.GetEquipSfx());
 

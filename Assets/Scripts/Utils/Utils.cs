@@ -22,7 +22,8 @@ namespace Utils
             Wall = 6,
             Enemy = 7,
             BulletByPlayer = 8,
-            SwingByPlayer = 9
+            SwingByPlayer = 9,
+            ParriableLayer = 10
         }
     }
 
@@ -50,6 +51,14 @@ namespace Utils
 
     public class Functions
     {
+        public static void SetLayerRecursively(GameObject obj, int newLayer)
+        {
+            obj.layer = newLayer;
+            foreach (Transform child in obj.transform)
+            {
+                SetLayerRecursively(child.gameObject, newLayer);
+            }
+        }
 
         public static void PrintDictionary(Dictionary<int, List<int>> dict)
         {

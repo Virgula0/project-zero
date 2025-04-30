@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System.Collections;
-using Unity.VisualScripting;
 
 public class AI : MonoBehaviour, IEnemy, IPoints
 {
@@ -11,7 +10,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     [SerializeField] private float chaseSpeed;
     [SerializeField] private float runAwaySpeed;
     [SerializeField] private float findAWaponSpeed;
-    [SerializeField] private float stoppingDistance = 2f; // set to a lower distance when it can equip melee too
+    [SerializeField] private float stoppingDistance = 5f; // set to a lower distance when it can equip melee too
     [SerializeField] private Vector2[] patrolWaypoints;
     // exitWaypoints is a vector containing the coordinates of doors or obstacles (manually defined in the editor) 
     // in order to surpass them when chasing the player
@@ -52,6 +51,8 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     private bool awakeReady = false;
     private bool isEnemyDead = false;
     private int basePoint = 10;
+    private float originalStoppingDistance;
+    private float stunnedEndTime;
 
     public bool AwakeReady()
     {
@@ -181,11 +182,12 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         weaponManager = transform.parent.GetComponentInChildren<EnemyWeaponManager>();
         weaponManager.SetWeaponThatCanBeEquipped(typesThatCanBeEquipped);
 
+        Func<float> getStoppingDistance = () => stoppingDistance;
         // Add movement components and initialize them
         patrolMovement = gameObject.AddComponent<PatrolMovement>()
             .New(patrolWaypoints, playerDetector, treeStructure, bfs, patrolSpeed);
         chaseMovement = gameObject.AddComponent<ChaseMovement>()
-            .New(player, playerDetector, treeStructure, bfs, chaseSpeed, stoppingDistance);
+            .New(player, playerDetector, treeStructure, bfs, chaseSpeed, getStoppingDistance);
         findForAWeapon = gameObject.AddComponent<WeaponFinderMovement>()
             .New(treeStructure, bfs, typesThatCanBeEquipped, playerDetector, spawner, weaponManager, findAWaponSpeed);
         cowardMovement = gameObject.AddComponent<CowardMovement>()
@@ -198,72 +200,140 @@ public class AI : MonoBehaviour, IEnemy, IPoints
 
         // Set the default movement and get the enemy weapon manager
         currentMovement = patrolMovement;
+        originalStoppingDistance = this.stoppingDistance;
     }
 
+    // Refactored for clarity and maintainability while preserving original logic
     void FixedUpdate()
     {
-        if (weaponManager == null || currentMovement == null) // nothing to do if we don't have a movement
-            return;
-
-        if (isEnemyDead || !playerScript.IsPlayerAlive()) // if enemy or player dead
+        if (weaponManager == null || currentMovement == null)
         {
-            body.linearVelocity = Vector2.zero;
-            playerDetector.SetStopDetector(true); // stop detector since raycast circle call can be expensive
-            weaponManager.ChangeEnemyStatus(false); // stop shooting
-            foreach (IMovement mov in listOfMovements)
-            {
-                mov.StopCoroutines(true);
-            }
-            currentMovement = null;
-
-            if (isEnemyDead)
-            {   
-                audioSrc.PlayOneShot(deathSfx);
-                goonAnimationScript.SetGoonDeadSprite(playerWeaponManager.GetCurrentLoadedWeapon());
-            }
             return;
         }
 
-        // set if player is in shootable area and if aware indipendently from the rest 
-        weaponManager.SetIsPlayerBehindAWall(playerDetector.GetIsPlayerHiddenByObstacle());
-        weaponManager.ChangeEnemyStatus(playerDetector.GetIsEnemyAwareOfPlayer());
-
-        // 1) Weapon‑find has top priority
-        if (weaponManager.NeedsToFindAWeapon())
+        if (HandleStun() | HandleDeathOrPlayerDown())
         {
-            currentMovement = findForAWeapon;
-
-            if (currentMovement is WeaponFinderMovement wp)
-            {
-                bool hasWeapon = wp.CloserWeaponToEnemy(body.position, null).HasValue;
-                if (!hasWeapon)
-                    currentMovement = cowardMovement;
-                else
-                {
-                    cowardMovement.StopCoroutines(true); //  we stop coward coroutine based on weapon presence on the ground
-                }
-            }
-
-            currentMovement.Move(body);
+            // Enemy or player dead => actions stopped
+            // Already stunned and handled
             return;
         }
 
-        // 2) If enemy is not aware of the player, patrol
+        UpdateAwarenessAndWeaponStatus();
+        UpdateStoppingDistance();
+
+        if (ProcessWeaponFind())
+        {
+            return;
+        }
+
         if (!playerDetector.GetIsEnemyAwareOfPlayer())
         {
-            // if we just came from chase or weapon‑find, stop that coroutine
-            if (currentMovement != patrolMovement)
-                patrolMovement.NeedsRepositioning(true);
-
-            currentMovement = patrolMovement;
-            // weaponManager.ChangeEnemyStatus(false);
-            currentMovement.Move(body);
+            ProcessPatrol();
             return;
         }
 
-        // 3) Otherwise chase the player
+        ProcessChase();
+    }
+
+    // Returns true if stun was active and handled
+    private bool HandleStun()
+    {
+        if (!IsStunned())
+            return false;
+
+        // Stop movement and shooting
+        body.linearVelocity = Vector2.zero;
+        weaponManager.ChangeEnemyStatus(false);
+        return true;
+    }
+
+    // Returns true if enemy or player death was handled
+    private bool HandleDeathOrPlayerDown()
+    {
+        if (!isEnemyDead && playerScript.IsPlayerAlive())
+            return false;
+
+        // Stop everything
+        body.linearVelocity = Vector2.zero;
+        playerDetector.SetStopDetector(true); // stop detector since raycast circle call can be expensive
+        weaponManager.ChangeEnemyStatus(false); // stop shooting
+        foreach (IMovement mov in listOfMovements)
+        {
+            mov.StopCoroutines(true);
+        }
+
+        if (isEnemyDead)
+        {
+            audioSrc.PlayOneShot(deathSfx);
+            goonAnimationScript.SetGoonDeadSprite(playerWeaponManager.GetCurrentLoadedWeapon());
+        }
+
+        currentMovement = null;
+
+        return true;
+    }
+
+    private void UpdateAwarenessAndWeaponStatus()
+    {
+        bool isHidden = playerDetector.GetIsPlayerHiddenByObstacle();
+        bool isAware = playerDetector.GetIsEnemyAwareOfPlayer();
+
+        weaponManager.SetIsPlayerBehindAWall(isHidden);
+        weaponManager.ChangeEnemyStatus(isAware);
+    }
+
+    private void UpdateStoppingDistance()
+    {
+        // set min distance for melee weapons
+        if (weaponManager.GetCurrentLoadedWeapon() is IMelee melee)
+        {
+            stoppingDistance = melee.MinDistanceForSwing();
+            return;
+        }
+
+        stoppingDistance = originalStoppingDistance;
+    }
+
+    // Returns true if a weapon-find action was performed
+    private bool ProcessWeaponFind()
+    {
+        if (!weaponManager.NeedsToFindAWeapon())
+            return false;
+
+        currentMovement = findForAWeapon;
+
+        if (currentMovement is WeaponFinderMovement finder)
+        {
+            bool hasNearbyWeapon = finder.CloserWeaponToEnemy(body.position, null).HasValue;
+            if (!hasNearbyWeapon)
+            {
+                currentMovement = cowardMovement;
+            }
+            else
+            {
+                // Stop coward behavior when weapon available
+                cowardMovement.StopCoroutines(true);
+            }
+        }
+
+        currentMovement.Move(body);
+        return true;
+    }
+
+    private void ProcessPatrol()
+    {
+        if (currentMovement != patrolMovement)
+        {
+            patrolMovement.NeedsRepositioning(true);
+        }
+
+        currentMovement = patrolMovement;
+        currentMovement.Move(body);
+    }
+
+    private void ProcessChase()
+    {
         currentMovement = chaseMovement;
-        // weaponManager.ChangeEnemyStatus(true);
         currentMovement.Move(body);
     }
 
@@ -349,5 +419,15 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     public float GetTotalChasedTime()
     {
         return playerDetector.GetTotalChasedTime();
+    }
+
+    public void SetIsEnemyStunned(float duration = 3f) // 3 seconds by default
+    {
+        stunnedEndTime = Time.time + duration;
+    }
+
+    public bool IsStunned()
+    {
+        return Time.time < stunnedEndTime;
     }
 }

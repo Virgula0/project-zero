@@ -1,14 +1,15 @@
 using System.Collections;
 using UnityEngine;
 
-public class SwardScript : MonoBehaviour
+public class SwordScript : MonoBehaviour
 {
-    [SerializeField] private float coneAngle = 45f;
+    [SerializeField] private float coneAngle = 160f;
     [SerializeField] private float coneRange = 5f;
     private bool isPlayer = false;
     private bool canSwing = true;
-    private GameObject wielder;
+    private GameObject wielder; // wielder is the game object which contains the sprite
     private AudioClip swingSound;
+    private AudioClip parrySound;
     [SerializeField] private LayerMask hitLayers;
     private float fireRate = 1f;
     private LogicManager logic;
@@ -16,9 +17,10 @@ public class SwardScript : MonoBehaviour
     private GameObject player;
     private float swingTimer = 0f;
     private bool isSwinging = false;
+    private float waitBeforeCallCameOver = 0.2f;
     private IGun swordRef;
 
-    public void Initialize(GameObject wielder, AudioClip swingSound, IGun sword)
+    public void Initialize(GameObject wielder, AudioClip swingSound,AudioClip parrySound, IGun sword)
     {
         player = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
         if (wielder.layer == (int)Utils.Enums.ObjectLayers.Player)
@@ -29,6 +31,7 @@ public class SwardScript : MonoBehaviour
 
         this.wielder = wielder;
         this.swingSound = swingSound;
+        this.parrySound = parrySound;
         this.swordRef = sword;
 
         int shooterLayerValue;
@@ -69,6 +72,11 @@ public class SwardScript : MonoBehaviour
             // Swing cooldown ends
             if (swingTimer >= 1f / fireRate)
             {
+                if (!isPlayer)
+                {
+                    // restore original layer for enemy
+                    Utils.Functions.SetLayerRecursively(wielder.transform.parent.gameObject, (int)Utils.Enums.ObjectLayers.Enemy);
+                }
                 canSwing = true;
                 isSwinging = false;
             }
@@ -87,6 +95,8 @@ public class SwardScript : MonoBehaviour
         }
         else
         {
+            // enemy
+            Utils.Functions.SetLayerRecursively(wielder.transform.parent.gameObject, (int)Utils.Enums.ObjectLayers.ParriableLayer);
             dir = player.transform.position - wielder.transform.position;
         }
 
@@ -117,45 +127,106 @@ public class SwardScript : MonoBehaviour
         }
     }
 
+    // Refactored for clarity by using enum casting, early exits and helper methods
     private void HandleHit(Collider2D collider)
     {
-        switch (collider.gameObject.layer)
+        // Cast layer to enum for readability
+        var hitLayer = (Utils.Enums.ObjectLayers)collider.gameObject.layer;
+
+        switch (hitLayer)
         {
-            case (int)Utils.Enums.ObjectLayers.Player:
-                Debug.Log("Hit player");
-                logic.GameOver(swordRef); // TODO change the approach so we can add more weapon varaiety
+            case Utils.Enums.ObjectLayers.ParriableLayer when isPlayer:
+                ProcessParry(collider);
                 break;
-            case (int)Utils.Enums.ObjectLayers.Wall:
+
+            case Utils.Enums.ObjectLayers.Player:
+                ProcessPlayerHit();
+                break;
+
+            case Utils.Enums.ObjectLayers.Wall:
                 Debug.Log("Hit wall");
                 break;
-            case (int)Utils.Enums.ObjectLayers.Enemy:
-                Debug.Log("Hit enemy");
-                if (collider.transform.parent.GetComponentInChildren<IEnemy>() is IEnemy enemy &&
-                    !enemy.IsEnemyDead())
-                {
-                    enemy.SetIsEnemyDead(true);
-                    logic.AddEnemyKilledPoints(enemy as IPoints);
-                }
+
+            case Utils.Enums.ObjectLayers.Enemy:
+                ProcessEnemyHit(collider);
+                break;
+
+            default:
+                // Layer not relevant
                 break;
         }
     }
 
+    private void ProcessParry(Collider2D collider)
+    {
+        Debug.Log("PARRY DETECTED");
+        var enemy = collider.transform.parent
+                             .GetComponentInChildren<IEnemy>();
+
+        if (enemy == null || enemy.IsEnemyDead() || enemy.IsStunned())
+            return;
+
+        AudioSource.PlayClipAtPoint(parrySound, wielder.transform.position);
+        enemy.SetIsEnemyStunned();
+    }
+
+    // Initiates player hit logic with a delay before stunned check
+    private void ProcessPlayerHit()
+    {
+        // Delay the stunned check by 0.2 seconds
+        StartCoroutine(DelayedProcessPlayerHit());
+    }
+
+    private IEnumerator DelayedProcessPlayerHit()
+    {
+        if (waitBeforeCallCameOver >= fireRate)
+        {
+            Debug.LogError("WARNING! the waitBeforeCallCameOver seems to be >= of fireRate, which is not correct!");
+        }
+
+        yield return new WaitForSeconds(waitBeforeCallCameOver); // give 0.2 seconds of gap otherwise player will die even if parry was successfull
+
+        var wielderEnemy = wielder.transform.parent
+                                     .GetComponentInChildren<IEnemy>();
+        if (wielderEnemy == null || wielderEnemy.IsStunned())
+            yield break;
+
+        Debug.Log("Hit player");
+        logic.GameOver(swordRef);
+    }
+
+    private void ProcessEnemyHit(Collider2D collider)
+    {
+        Debug.Log("Hit enemy");
+        var enemy = collider.transform.parent
+                             .GetComponentInChildren<IEnemy>();
+
+        if (enemy == null || enemy.IsEnemyDead())
+            return;
+
+        enemy.SetIsEnemyDead(true);
+        logic.AddEnemyKilledPoints(enemy as IPoints);
+    }
+
+
 #if UNITY_EDITOR
     void OnDrawGizmosSelected()
     {
-        Transform hitOrigin = transform;
-        if (hitOrigin == null) return;
+        if (transform == null) return;
+
         Gizmos.color = Color.yellow;
-        Vector2 origin = hitOrigin.position;
+
+        Vector3 origin = transform.position;
         float halfAngle = coneAngle * 0.5f;
 
         Gizmos.DrawWireSphere(origin, coneRange);
 
-        Vector2 forward = hitOrigin.right;
+        Vector3 forward = transform.right;
         Quaternion leftRot = Quaternion.Euler(0f, 0f, halfAngle);
         Quaternion rightRot = Quaternion.Euler(0f, 0f, -halfAngle);
-        Vector2 leftDir = leftRot * forward;
-        Vector2 rightDir = rightRot * forward;
+
+        Vector3 leftDir = leftRot * forward;
+        Vector3 rightDir = rightRot * forward;
 
         Gizmos.DrawLine(origin, origin + leftDir * coneRange);
         Gizmos.DrawLine(origin, origin + rightDir * coneRange);
