@@ -29,7 +29,7 @@ public class SimpleSword : MonoBehaviour, IGun, IMelee
         wielder = player;
         currentInitPrefab = Instantiate(swingPrefab, wielder.transform.position, Quaternion.identity);
         currentInitScript = currentInitPrefab.GetComponent<SwardScript>();
-        currentInitScript.Initialize(wielder, swingSound);
+        currentInitScript.Initialize(wielder, swingSound, this);
         playerAnim = player.GetComponentInChildren<Animator>();
         if (wielder.layer != (int)Utils.Enums.ObjectLayers.Player){
             goonAnim = wielder.GetComponentInChildren<Animator>();

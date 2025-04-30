@@ -216,9 +216,8 @@ public class AI : MonoBehaviour, IEnemy, IPoints
 
             if (isEnemyDead)
             {   
-                int killerWeaponType = playerWeaponManager.GetCurrentLoadedWeapon() is IMelee? (1) : (0);
                 audioSrc.PlayOneShot(deathSfx);
-                transform.parent.GetComponentInChildren<GoonAnimationScript>().SetGoonDeadSprite(killerWeaponType);
+                transform.parent.GetComponentInChildren<GoonAnimationScript>().SetGoonDeadSprite(playerWeaponManager.GetCurrentLoadedWeapon());
             }
             return;
         }

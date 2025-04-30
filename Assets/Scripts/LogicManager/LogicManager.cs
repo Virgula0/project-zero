@@ -38,7 +38,7 @@ public class LogicManager : MonoBehaviour
         return isTheRoomClear;
     }
 
-    public void GameOver(int killingWeaponType)
+    public void GameOver(IGun weapon)
     {
         if (playerReference.IsGodMode())
         {
@@ -52,7 +52,7 @@ public class LogicManager : MonoBehaviour
         playerReference.SetIsPlayerAlive(false);
         
         playerReference.PlayDeathSound();
-        playerspriteRef.SetPlayerDeadSprite(killingWeaponType);
+        playerspriteRef.SetPlayerDeadSprite(weapon);
     }
 
     public void ReloadSceneWithFade()

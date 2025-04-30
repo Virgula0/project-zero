@@ -28,15 +28,17 @@ public class PlayerAnimationScript : MonoBehaviour
         SetEquippedWeponSprite(idleSwordSprite);
     }
 
-    public void SetPlayerDeadSprite(int weaponType){
+    public void SetPlayerDeadSprite(IGun weapon){
         if(animatorRef.GetCurrentAnimatorStateInfo(0).IsName(Utils.Animations.PLAYER_SWORD_ATTACK)){
                 animatorRef.enabled = false;
         }
-        if(weaponType == 0){
+        if(weapon is IRanged){
+            Debug.Log("Gun Weapon Death");
             int randomInt = Random.Range(0, playerGunDeadSprites.Length);
             spriteRendererRef.sprite = playerGunDeadSprites[randomInt]; 
         }
-        if(weaponType == 1){
+        if(weapon is IMelee){
+            Debug.Log("Melee Weapon Death");
             int randomInt = Random.Range(0, playerBladeDeadSprites.Length);
             spriteRendererRef.sprite = playerBladeDeadSprites[randomInt];
         }
