@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using UnityEngine;
 
 public class PlayerAnimationScript : MonoBehaviour
@@ -9,12 +10,17 @@ public class PlayerAnimationScript : MonoBehaviour
     private Animator animatorRef;
     private SpriteRenderer spriteRendererRef;
     private Sprite idleSwordSprite;
+    private bool isAnimationScriptReady = false;
 
     void Start()
     {
         animatorRef = GetComponent<Animator>();
         spriteRendererRef = GetComponent<SpriteRenderer>();
+        isAnimationScriptReady = true;
     }
+
+    public bool IsAnimationScriptReady() => isAnimationScriptReady;
+
     public void OnAttackAnimationEnd()
     {
         // Disable animator

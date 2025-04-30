@@ -20,13 +20,20 @@ public class WeaponManager : MonoBehaviour
     private float forwardSpawnGunPrefabOffset = 5f;
     private float upOffsetSpawnGunPrefab = 2f;
     private PlayerScript playerScript;
+    private BoxCollider2D playerCollider;
 
-    void Start()
+    IEnumerator Start()
     {
         this.cursorChanger = GameObject.FindGameObjectWithTag(Utils.Const.CURSOR_CHANGER_TAG).GetComponent<CursorChanger>();
         this.playerBody = GetComponentInParent<Rigidbody2D>();
         this.playerAnimCtrl = transform.parent.GetComponentInChildren<PlayerAnimationScript>();
-        
+
+        while (!playerAnimCtrl.IsAnimationScriptReady()) // let's wait for the script animation to be ready first
+        {
+            yield return null;
+        }
+
+        playerCollider = gameObject.GetComponentInParent<BoxCollider2D>();
         playerAnimCtrl.SetDefaultSprite();
         ResizePlayerCollider();
         
@@ -166,10 +173,7 @@ public class WeaponManager : MonoBehaviour
     }
 
     public void ResizePlayerCollider(){
-        BoxCollider2D playerCollider = gameObject.GetComponentInParent<BoxCollider2D>();
-        //Vector2 spriteSize = transform.parent.GetComponentInChildren<SpriteRenderer>().sprite.bounds.size;
         Vector2 spriteSize = playerAnimCtrl.GetSpriteSize();
-        //Vector3 spriteScale = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponentInChildren<SpriteRenderer>().transform.localScale; // Get the player sprite scale
         Vector3 spriteScale = playerAnimCtrl.GetSpriteScale();
         Vector2 scaledSize = new Vector2(spriteSize.x * spriteScale.x, spriteSize.y * spriteScale.y); // Multiply the sprite size by the parent’s scale
         playerCollider.size = scaledSize;
