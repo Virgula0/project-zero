@@ -261,7 +261,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         {
             mov.StopCoroutines(true);
         }
-        
+
         if (isEnemyDead)
         {
             audioSrc.PlayOneShot(deathSfx);
@@ -284,14 +284,14 @@ public class AI : MonoBehaviour, IEnemy, IPoints
 
     private void UpdateStoppingDistance()
     {
+        // set min distance for melee weapons
         if (weaponManager.GetCurrentLoadedWeapon() is IMelee melee)
         {
             stoppingDistance = melee.MinDistanceForSwing();
+            return;
         }
-        else
-        {
-            stoppingDistance = originalStoppingDistance;
-        }
+
+        stoppingDistance = originalStoppingDistance;
     }
 
     // Returns true if a weapon-find action was performed
