@@ -36,7 +36,7 @@ public class WeaponManager : MonoBehaviour
         playerCollider = gameObject.GetComponentInParent<BoxCollider2D>();
         playerAnimCtrl.SetDefaultSprite();
         ResizePlayerCollider();
-        
+
         this.uiManager = GameObject.FindGameObjectWithTag(Utils.Const.UI_MANAGER_TAG).GetComponent<UIManager>();
         this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER_TAG).GetComponent<WeaponSpawner>();
         this.playerScript = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponent<PlayerScript>();
@@ -107,10 +107,14 @@ public class WeaponManager : MonoBehaviour
         uiManager.UpdateWeaponIcon(null);
     }
 
+    private Vector2 MouseWorld2D()
+    {
+        return (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
+    }
+
     private void RecreatePrefab()
     {
-        Vector3 mouseWorld3D = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector2 mouseWorld2D = new Vector2(mouseWorld3D.x, mouseWorld3D.y);
+        Vector2 mouseWorld2D = MouseWorld2D();
         Vector2 origin = playerBody.position;
         Vector2 forward = (mouseWorld2D - origin).normalized;
         Vector2 up = new Vector2(-forward.y, forward.x); // rotate forward by 90° CCW
@@ -158,6 +162,15 @@ public class WeaponManager : MonoBehaviour
         }
 
         if (Input.GetMouseButton((int)Utils.Enums.MouseButtons.LeftButton) &&
+            currentLoadedWeapon is IThrowable throwable &&
+            currentLoadedWeapon.GetAmmoCount() < 1 && currentLoadedWeapon.GetNumberOfReloads() < 1)
+        {
+            throwable.ThrowAt(MouseWorld2D());
+            audioSrc.PlayOneShot(throwable.GetThrowSfx());
+            return;
+        }
+
+        if (Input.GetMouseButton((int)Utils.Enums.MouseButtons.LeftButton) &&
             timer >= currentLoadedWeapon.GetFireRate() &&
             currentLoadedWeapon.GetAmmoCount() > 0)
         {
@@ -168,17 +181,19 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
-    public IGun GetCurrentLoadedWeapon(){
+    public IGun GetCurrentLoadedWeapon()
+    {
         return currentLoadedWeapon;
     }
 
-    public void ResizePlayerCollider(){
+    public void ResizePlayerCollider()
+    {
         Vector2 spriteSize = playerAnimCtrl.GetSpriteSize();
         Vector3 spriteScale = playerAnimCtrl.GetSpriteScale();
         Vector2 scaledSize = new Vector2(spriteSize.x * spriteScale.x, spriteSize.y * spriteScale.y); // Multiply the sprite size by the parent’s scale
         playerCollider.size = scaledSize;
     }
-    
+
     IEnumerator WaitForSfxToEnd()
     {
 
