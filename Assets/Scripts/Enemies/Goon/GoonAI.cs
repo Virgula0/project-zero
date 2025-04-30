@@ -10,6 +10,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     [SerializeField] private float chaseSpeed;
     [SerializeField] private float runAwaySpeed;
     [SerializeField] private float findAWaponSpeed;
+
     [SerializeField] private float stoppingDistance = 5f; // set to a lower distance when it can equip melee too
     [SerializeField] private Vector2[] patrolWaypoints;
     // exitWaypoints is a vector containing the coordinates of doors or obstacles (manually defined in the editor) 
@@ -19,7 +20,6 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     // We have the playerObject reference so we know its position easly.
     // They're used as well for getting back in the patrolling room.
     [SerializeField] private Vector2[] exitWaypoints;
-    [SerializeField] private AudioClip deathSfx;
     private GameObject player; // we need the position and other ottributes of the player
     private IMovement currentMovement;
     private IMovement patrolMovement;
@@ -38,9 +38,6 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     private Dictionary<int, List<int>> originalEnemyConnectionGraph;
     private WeaponSpawner spawner;
     private PlayerScript playerScript;
-    private WeaponManager playerWeaponManager;
-    private AudioSource audioSrc;
-    private GoonAnimationScript goonAnimationScript;
 
     // IMPORTANT! define the list of army that this type of enemy (in this case Goon) can equip
     private List<Type> typesThatCanBeEquipped = new List<Type>{
@@ -106,10 +103,6 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         player = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
         playerDetector = gameObject.GetComponent<Detector>();
         playerScript = player.GetComponent<PlayerScript>();
-        this.goonAnimationScript = transform.parent.GetComponentInChildren<GoonAnimationScript>();
-        playerWeaponManager = player.GetComponentInChildren<WeaponManager>();
-        audioSrc = transform.parent.GetComponent<AudioSource>();
-
         treeStructure = new KdTree(exitWaypoints);
 
         // Get the global waypoints object locally (no new instance variable)
@@ -206,8 +199,9 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     // Refactored for clarity and maintainability while preserving original logic
     void FixedUpdate()
     {
-        if (weaponManager == null || currentMovement == null)
+        if (weaponManager == null)
         {
+            // No weapon manager => nothing to do
             return;
         }
 
@@ -220,6 +214,12 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         if (HandleDeathOrPlayerDown())
         {
             // Enemy or player dead => actions stopped
+            return;
+        }
+
+        if (currentMovement == null)
+        {
+            // No movement assigned => stay idle
             return;
         }
 
@@ -260,19 +260,15 @@ public class AI : MonoBehaviour, IEnemy, IPoints
 
         // Stop everything
         body.linearVelocity = Vector2.zero;
-        playerDetector.SetStopDetector(true); // stop detector since raycast circle call can be expensive
-        weaponManager.ChangeEnemyStatus(false); // stop shooting
-        foreach (IMovement mov in listOfMovements)
-        {
-            mov.StopCoroutines(true);
-        }
-        currentMovement = null;
+        playerDetector.SetStopDetector(true);
+        weaponManager.ChangeEnemyStatus(false);
 
-        if (isEnemyDead)
+        foreach (IMovement movement in listOfMovements)
         {
-            audioSrc.PlayOneShot(deathSfx);
-            goonAnimationScript.SetGoonDeadSprite(playerWeaponManager.GetCurrentLoadedWeapon());
+            movement.StopCoroutines(true);
         }
+
+        currentMovement = null;
         return true;
     }
 

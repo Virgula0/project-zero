@@ -18,9 +18,8 @@ public class SwordScript : MonoBehaviour
     private float swingTimer = 0f;
     private bool isSwinging = false;
     private float waitBeforeCallCameOver = 0.2f;
-    private IGun swordRef;
 
-    public void Initialize(GameObject wielder, AudioClip swingSound, AudioClip parrySound, IGun sword)
+    public void Initialize(GameObject wielder, AudioClip swingSound, AudioClip parrySound)
     {
         player = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
         if (wielder.layer == (int)Utils.Enums.ObjectLayers.Player)
@@ -32,7 +31,6 @@ public class SwordScript : MonoBehaviour
         this.wielder = wielder;
         this.swingSound = swingSound;
         this.parrySound = parrySound;
-        this.swordRef = sword;
 
         int shooterLayerValue;
         if (isPlayer)
@@ -192,7 +190,7 @@ public class SwordScript : MonoBehaviour
             yield break;
 
         Debug.Log("Hit player");
-        logic.GameOver(swordRef);
+        logic.GameOver();
     }
 
     private void ProcessEnemyHit(Collider2D collider)

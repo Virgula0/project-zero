@@ -314,8 +314,6 @@ MonoBehaviour:
   fadeCanvasGroup: {fileID: 6673489204249053434}
   playerUI: {fileID: 3650523175469476163, guid: 252f61995e5fa07febdde239a4573022, type: 3}
   gameOverPrefab: {fileID: 2961777196240804833}
-  playerDeathSprites:
-  - {fileID: -3764990334467098087, guid: 3d0d5331cb27cda459cc7deca05eb1d3, type: 3}
 --- !u!1 &2563053218745928381
 GameObject:
   m_ObjectHideFlags: 0

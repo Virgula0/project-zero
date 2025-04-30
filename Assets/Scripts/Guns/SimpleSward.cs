@@ -31,7 +31,7 @@ public class SimpleSword : MonoBehaviour, IGun, IMelee
         wielder = player;
         currentInitPrefab = Instantiate(swingPrefab, wielder.transform.position, Quaternion.identity);
         currentInitScript = currentInitPrefab.GetComponent<SwordScript>();
-        currentInitScript.Initialize(wielder, swingSound, parrySound, this);
+        currentInitScript.Initialize(wielder, swingSound, parrySound);
         playerAnim = player.GetComponentInChildren<Animator>();
         if (wielder.layer != (int)Utils.Enums.ObjectLayers.Player){
             goonAnim = wielder.GetComponentInChildren<Animator>();
@@ -64,6 +64,7 @@ public class SimpleSword : MonoBehaviour, IGun, IMelee
         }
         currentInitScript.Swing();
     }
+
 
     public void Reload(){}
     public int GetNumberOfReloads() => numberOfReloads;

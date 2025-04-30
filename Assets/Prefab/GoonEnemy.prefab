@@ -192,7 +192,6 @@ MonoBehaviour:
   - {x: 35.8, y: 5}
   - {x: 20.3, y: -9.42}
   - {x: -7.1, y: -9.42}
-  deathSfx: {fileID: 8300000, guid: 6d59adada5521604daac9f941b5fd3ac, type: 3}
 --- !u!114 &8164756090621583616
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -294,7 +293,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: 2892328249752792356, guid: 95e5dbfa70f7e3544b551bae43979c8e, type: 3}
+  m_Sprite: {fileID: 9135307671377584585, guid: d6cc26991b7886d418486dff6d92eb42, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -342,7 +341,7 @@ BoxCollider2D:
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5606374, y: 0.48727867}
+    pivot: {x: 0.5, y: 0.5}
     oldSize: {x: 0.15, y: 0.26}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
@@ -390,27 +389,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0594c9ce03f437944b40eddcfc624678, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  goonGunDeathSprites:
-  - {fileID: -6702718496017316594, guid: 14e0897ded43f9c4586ea470b0db2497, type: 3}
-  - {fileID: -930213660946376777, guid: f0ed3ed4706483449b10855e8e76d6bc, type: 3}
-  - {fileID: 4549888138216291954, guid: fce167fecd073f44b8712602f17afccf, type: 3}
-  - {fileID: -464121615769579163, guid: aaeff86608992b243a93d5fc9970ad20, type: 3}
-  goonBladeDeathSprites:
-  - {fileID: -5090966224503571210, guid: 39c9ded9193859b48bbe28fe59695e63, type: 3}
-  - {fileID: -8815635894674086281, guid: 51ae61c54fbaba5418dacc9d35c5f6fa, type: 3}
-  - {fileID: 393614506822633657, guid: 77cdc5d0ec0f75b41a1485da023dadd2, type: 3}
-  - {fileID: -974146073950565979, guid: 1817f9c460daed6459bb3b0b5d9ae826, type: 3}
-  - {fileID: 1825245452075159809, guid: c32b23db73ce3ae41bf1198d12f6aea5, type: 3}
-  - {fileID: -1485471799385426239, guid: f97b076daac83724793524e5d85de4b1, type: 3}
-  - {fileID: 8860601065551843114, guid: 81cbefc277382fd428990a0d04219c88, type: 3}
-  - {fileID: -2055875213193572439, guid: a0e66c0af88e46b448cdbc80f9b80833, type: 3}
-  - {fileID: -5529753576980553680, guid: 3a24a87046d32ea4ab74f95191325bef, type: 3}
-  - {fileID: -4188566133399327056, guid: 03e4ac5d16d56ea4299ec73711e9d039, type: 3}
-  - {fileID: -1792396030194920718, guid: f32f9cc458b5a014eb77d21d37886005, type: 3}
-  - {fileID: 8877434639144464712, guid: 301e9ee683b4e1749acb302d78dd40a2, type: 3}
-  - {fileID: -4294718512707466487, guid: 1c24013b924e8a648b74de7f0ed99a40, type: 3}
-  - {fileID: 4516111076874819667, guid: 517f102e57a075a479f6cf861b610bc4, type: 3}
-  goonAIRef: {fileID: 615861216296667522}
 --- !u!95 &1572585757056663996
 Animator:
   serializedVersion: 7
@@ -443,7 +421,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5895775542303761209}
   - component: {fileID: 1347937784907285758}
-  - component: {fileID: 5697721024214000276}
   m_Layer: 7
   m_Name: GoonEnemy
   m_TagString: GoonEnemyTag
@@ -481,103 +458,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c37d087f910b9777abc2bac4ff9e104, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!82 &5697721024214000276
-AudioSource:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6192630023241039525}
-  m_Enabled: 1
-  serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
-  m_Volume: 1
-  m_Pitch: 1
-  Loop: 0
-  Mute: 0
-  Spatialize: 0
-  SpatializePostEffects: 0
-  Priority: 128
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
-  Pan2D: 0
-  rolloffMode: 0
-  BypassEffects: 0
-  BypassListenerEffects: 0
-  BypassReverbZones: 0
-  rolloffCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  panLevelCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  spreadCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  reverbZoneMixCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
 --- !u!1 &6622378973513615572
 GameObject:
   m_ObjectHideFlags: 0

@@ -4,26 +4,16 @@ public class PlayerLegsAnimationScript : MonoBehaviour
 {
     private Animator legsAnim;
     private Transform legsTransf;
-    private PlayerScript playerScriptRef;
 
     void Start()
     {
         this.legsAnim = gameObject.GetComponent<Animator>();
-        this.legsTransf = gameObject.transform;
-        this.playerScriptRef = transform.parent.GetComponentInChildren<PlayerScript>();
+        this.legsTransf = gameObject.transform;   
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!playerScriptRef.IsPlayerAlive()) //deactivate the animator and legs sprite if the player is dead
-        {
-            if(gameObject.GetComponent<Animator>().enabled == true && gameObject.GetComponent<SpriteRenderer>().enabled == true){
-                gameObject.GetComponent<Animator>().enabled = false;
-                gameObject.GetComponent<SpriteRenderer>().enabled = false;
-            }
-            return;
-        }
         Vector2 moveInput = new Vector2(Input.GetAxisRaw(Utils.Const.HORIZONTAL), Input.GetAxisRaw(Utils.Const.VERTICAL)).normalized;
 
         if (moveInput != Vector2.zero)
