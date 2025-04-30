@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System.Collections;
-using Unity.VisualScripting;
 
 public class AI : MonoBehaviour, IEnemy, IPoints
 {
