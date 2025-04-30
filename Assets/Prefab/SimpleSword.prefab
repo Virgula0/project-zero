@@ -97,7 +97,7 @@ GameObject:
   m_Component:
   - component: {fileID: 31744095460175103}
   - component: {fileID: 1992803813465039072}
-  - component: {fileID: 1616384990823523059}
+  - component: {fileID: 1827186788547836834}
   - component: {fileID: 7757930247703215681}
   m_Layer: 0
   m_Name: SwordSprite
@@ -176,7 +176,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!61 &1616384990823523059
+--- !u!61 &1827186788547836834
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

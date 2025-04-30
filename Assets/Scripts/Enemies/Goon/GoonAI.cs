@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System.Collections;
+using Unity.VisualScripting;
 
 public class AI : MonoBehaviour, IEnemy, IPoints
 {
@@ -40,6 +41,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     private PlayerScript playerScript;
     private WeaponManager playerWeaponManager;
     private AudioSource audioSrc;
+    private GoonAnimationScript goonAnimationScript;
 
     // IMPORTANT! define the list of army that this type of enemy (in this case Goon) can equip
     private List<Type> typesThatCanBeEquipped = new List<Type>{
@@ -103,7 +105,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         player = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
         playerDetector = gameObject.GetComponent<Detector>();
         playerScript = player.GetComponent<PlayerScript>();
-
+        this.goonAnimationScript = transform.parent.GetComponentInChildren<GoonAnimationScript>();
         playerWeaponManager = player.GetComponentInChildren<WeaponManager>();
         audioSrc = transform.parent.GetComponent<AudioSource>();
 
@@ -216,9 +218,8 @@ public class AI : MonoBehaviour, IEnemy, IPoints
 
             if (isEnemyDead)
             {   
-                int killerWeaponType = playerWeaponManager.GetCurrentLoadedWeapon() is IMelee? (1) : (0);
                 audioSrc.PlayOneShot(deathSfx);
-                transform.parent.GetComponentInChildren<GoonAnimationScript>().SetGoonDeadSprite(killerWeaponType);
+                goonAnimationScript.SetGoonDeadSprite(playerWeaponManager.GetCurrentLoadedWeapon());
             }
             return;
         }

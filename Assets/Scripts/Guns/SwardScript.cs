@@ -16,8 +16,9 @@ public class SwardScript : MonoBehaviour
     private GameObject player;
     private float swingTimer = 0f;
     private bool isSwinging = false;
+    private IGun swordRef;
 
-    public void Initialize(GameObject wielder, AudioClip swingSound)
+    public void Initialize(GameObject wielder, AudioClip swingSound, IGun sword)
     {
         player = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
         if (wielder.layer == (int)Utils.Enums.ObjectLayers.Player)
@@ -28,6 +29,7 @@ public class SwardScript : MonoBehaviour
 
         this.wielder = wielder;
         this.swingSound = swingSound;
+        this.swordRef = sword;
 
         int shooterLayerValue;
         if (isPlayer)
@@ -121,7 +123,7 @@ public class SwardScript : MonoBehaviour
         {
             case (int)Utils.Enums.ObjectLayers.Player:
                 Debug.Log("Hit player");
-                logic.GameOver(1); // TODO change the approach so we can add more weapon varaiety
+                logic.GameOver(swordRef); // TODO change the approach so we can add more weapon varaiety
                 break;
             case (int)Utils.Enums.ObjectLayers.Wall:
                 Debug.Log("Hit wall");

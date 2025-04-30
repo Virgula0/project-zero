@@ -410,6 +410,7 @@ MonoBehaviour:
   - {fileID: 8877434639144464712, guid: 301e9ee683b4e1749acb302d78dd40a2, type: 3}
   - {fileID: -4294718512707466487, guid: 1c24013b924e8a648b74de7f0ed99a40, type: 3}
   - {fileID: 4516111076874819667, guid: 517f102e57a075a479f6cf861b610bc4, type: 3}
+  goonAIRef: {fileID: 615861216296667522}
 --- !u!95 &1572585757056663996
 Animator:
   serializedVersion: 7
@@ -441,7 +442,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5895775542303761209}
-  - component: {fileID: 817305052929901404}
+  - component: {fileID: 1347937784907285758}
+  - component: {fileID: 5697721024214000276}
   m_Layer: 7
   m_Name: GoonEnemy
   m_TagString: GoonEnemyTag
@@ -467,8 +469,26 @@ Transform:
   - {fileID: 3482611222870160618}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!82 &817305052929901404
+--- !u!114 &1347937784907285758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6192630023241039525}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c37d087f910b9777abc2bac4ff9e104, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!82 &5697721024214000276
 AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6192630023241039525}
+  m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
@@ -558,18 +578,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &1347937784907285758
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6192630023241039525}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2c37d087f910b9777abc2bac4ff9e104, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &6622378973513615572
 GameObject:
   m_ObjectHideFlags: 0
