@@ -9,7 +9,9 @@ public class PlayerScript : MonoBehaviour
     private Vector2 lastMoveDirection = Vector2.right; // Default direction
     private DashScript dash;
     private bool isPlayerAlive = true;
+    private AudioSource audioSrc;
     [SerializeField] private bool godMode = false;
+    [SerializeField] private AudioClip deathSfx;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -18,6 +20,7 @@ public class PlayerScript : MonoBehaviour
         playerSprite = GetComponentInChildren<SpriteRenderer>();
         playerRb = gameObject.GetComponent<Rigidbody2D>();
         this.dash = gameObject.GetComponent<DashScript>();
+        this.audioSrc = GetComponent<AudioSource>();
     }
 
     void Update()
@@ -131,5 +134,9 @@ public class PlayerScript : MonoBehaviour
     public void SetLinearVelocity(Vector2 newLinearVelocity)
     {
         playerRb.linearVelocity = newLinearVelocity;
+    }
+
+    public void PlayDeathSound(){
+        audioSrc.PlayOneShot(deathSfx);
     }
 }

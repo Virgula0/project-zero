@@ -7,17 +7,19 @@ public class SingleBulletScript : MonoBehaviour
     private Vector2 moveDirection;       // Normalized direction vector for bullet movement
     private bool isPlayer = false;
     private LogicManager logic;
+    private IGun gunRef;
 
     [SerializeField] private LayerMask hitLayers; // Layers that can be hit by the bullet
     [SerializeField] private float collisionBuffer = 0.1f; // Small distance buffer to prevent edge-case misses
 
-    public void Initialize(GameObject player)
+    public void Initialize(GameObject player, IGun gun)
     {
         if (player.layer == (int)Utils.Enums.ObjectLayers.Player)
         {
             gameObject.layer = (int)Utils.Enums.ObjectLayers.BulletByPlayer; // set a layer to be detected by enemies but we need to do this because it will detect only if it's by the player
             isPlayer = true;
         }
+        gunRef = gun;
     }
 
     void Start()
@@ -108,7 +110,7 @@ public class SingleBulletScript : MonoBehaviour
         {
             case (int)Utils.Enums.ObjectLayers.Player:
                 Debug.Log("Hit Player");
-                this.logic.GameOver();
+                this.logic.GameOver(gunRef); // TODO change the approach so we can add more weapon varaiety
                 break;
             case (int)Utils.Enums.ObjectLayers.Wall:
                 Debug.Log("Hit Wall");
