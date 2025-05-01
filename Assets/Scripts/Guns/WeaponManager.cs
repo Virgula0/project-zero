@@ -7,7 +7,6 @@ public class WeaponManager : MonoBehaviour
     private IGun currentLoadedWeapon;
     private float timer; // timer counts the timer elapsed from the last shot, in seconds
     private UIManager uiManager;
-    private Sprite defaultPlayerSprite;
     private bool isReloading = false;
     private Rigidbody2D playerBody;
     private WeaponSpawner spawner;
@@ -22,6 +21,7 @@ public class WeaponManager : MonoBehaviour
     private PlayerScript playerScript;
     private float loadTime = 0;
     private BoxCollider2D playerCollider;
+    private bool isThrown = false;
 
     IEnumerator Start()
     {
@@ -115,10 +115,14 @@ public class WeaponManager : MonoBehaviour
         uiManager.UpdateWeaponIcon(null);
     }
 
+    private Vector2 MouseWorld2D()
+    {
+        return (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
+    }
+
     private void RecreatePrefab()
     {
-        Vector3 mouseWorld3D = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector2 mouseWorld2D = new Vector2(mouseWorld3D.x, mouseWorld3D.y);
+        Vector2 mouseWorld2D = MouseWorld2D();
         Vector2 origin = playerBody.position;
         Vector2 forward = (mouseWorld2D - origin).normalized;
         Vector2 up = new Vector2(-forward.y, forward.x); // rotate forward by 90° CCW
@@ -146,9 +150,10 @@ public class WeaponManager : MonoBehaviour
         }
 
         // if left button is pressed, let an user to leave the weapon
-        if (Input.GetMouseButton((int)Utils.Enums.MouseButtons.RightButton))
+        if (Input.GetMouseButton((int)Utils.Enums.MouseButtons.RightButton) | isThrown)
         {
             UnloadCurrentGun();
+            isThrown = false;
             return;
         }
 
@@ -173,14 +178,29 @@ public class WeaponManager : MonoBehaviour
             currentLoadedWeapon.Shoot();
             audioSrc.PlayOneShot(currentLoadedWeapon.GetShotSfx());
             uiManager.UpdateBullets(currentLoadedWeapon.GetAmmoCount());
+            return;
+        }
+
+        if (Input.GetMouseButton((int)Utils.Enums.MouseButtons.LeftButton) &&
+            currentLoadedWeapon is IThrowable throwable &&
+            currentLoadedWeapon.GetAmmoCount() < 1 && currentLoadedWeapon.GetNumberOfReloads() < 1 && 
+            timer >= currentLoadedWeapon.GetFireRate())
+        {
+            timer = 0;
+            throwable.ThrowWhereMousePoints();
+            StartCoroutine(throwable.PlayThrowSfx(audioSrc));
+            isThrown = true;
+            return;
         }
     }
 
-    public IGun GetCurrentLoadedWeapon(){
+    public IGun GetCurrentLoadedWeapon()
+    {
         return currentLoadedWeapon;
     }
 
-    public void ResizePlayerCollider(){
+    public void ResizePlayerCollider()
+    {
         Vector2 spriteSize = playerAnimCtrl.GetSpriteSize();
         Vector3 spriteScale = playerAnimCtrl.GetSpriteScale();
         Vector2 scaledSize = new Vector2(spriteSize.x * spriteScale.x, spriteSize.y * spriteScale.y); // Multiply the sprite size by the parent’s scale

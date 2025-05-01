@@ -54,6 +54,11 @@ public interface IAudioWeapon
     AudioClip GetEquipSfx();
 }
 
+public interface IThrowable {
+    void ThrowWhereMousePoints();
+    IEnumerator PlayThrowSfx(AudioSource src);
+}
+
 // Full‐feature gun interface combining all individual aspects
 public interface IGun :
     IInitializableWeapon,

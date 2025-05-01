@@ -7,6 +7,12 @@ public class LeaderBoardScript : MonoBehaviour
 
     void Start()
     {
+
+        if (row == null || contentParent == null)
+        {
+            return;
+        }
+
         foreach (Transform child in contentParent)
         {
             Destroy(child.gameObject);

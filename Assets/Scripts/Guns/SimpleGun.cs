@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 
 // This class is associated directly to prefabs and defines the entire "GunType" behaviour
-public class SimpleGun : MonoBehaviour, IGun, IRanged
+public class SimpleGun : MonoBehaviour, IGun, IThrowable, IRanged
 {
     private readonly float fireRate = 0.5f; // in seconds, 0.5 seconds between each shot
     private readonly int magCap = 10;
@@ -18,9 +18,13 @@ public class SimpleGun : MonoBehaviour, IGun, IRanged
     [SerializeField] private AudioClip shotSound;
     [SerializeField] private AudioClip reloadSound;
     [SerializeField] private AudioClip equipSound;
+    [SerializeField] private AudioClip throwSound;
+    [SerializeField] private GameObject throwablePrefab;
+
     private bool isGoingToBePickedUp = false;
     private GameObject shooterObject;
     private bool awakeExecuted = false;
+    private GameObject throwable;
 
     public void Setup(GameObject player)
     {
@@ -121,18 +125,21 @@ public class SimpleGun : MonoBehaviour, IGun, IRanged
 
     public IEnumerator SaveStatus(IGun other)
     {
-        while (!awakeExecuted){
+        while (!awakeExecuted)
+        {
             yield return null;
         }
         this.numberOfReloads = other.GetNumberOfReloads();
         this.ammoCount = other.GetAmmoCount();
     }
 
-    public bool IsGoingToBePickedUp() {
+    public bool IsGoingToBePickedUp()
+    {
         return isGoingToBePickedUp;
     }
 
-    public void SetIsGoingToBePickedUp(bool status){
+    public void SetIsGoingToBePickedUp(bool status)
+    {
         this.isGoingToBePickedUp = status;
     }
 
@@ -144,5 +151,24 @@ public class SimpleGun : MonoBehaviour, IGun, IRanged
     public Sprite GetGoonEquippedSprite()
     {
         return this.goonEquippedSprite;
+    }
+
+    public void ThrowWhereMousePoints()
+    {
+        this.throwable = Instantiate(throwablePrefab, shooterObject.transform.position, Quaternion.identity);
+        ThrowableScript throwableScript = this.throwable.GetComponent<ThrowableScript>();
+        throwableScript.Initialize(staticWeaponSprite);
+    }
+
+    public IEnumerator PlayThrowSfx(AudioSource audioSrc)
+    {
+        // cache the clip length so you don’t re-query it every loop
+        float clipLength = throwSound.length;
+        // as long as the throwable still exists, keep playing
+        while (throwable != null)
+        {
+            audioSrc.PlayOneShot(throwSound);
+            yield return new WaitForSeconds(clipLength);
+        }
     }
 }

@@ -202,6 +202,8 @@ MonoBehaviour:
   shotSound: {fileID: 8300000, guid: 2e977563880cfe4418c7ecc8f7dcbc1e, type: 3}
   reloadSound: {fileID: 8300000, guid: 7ea9f88efd9809d49878b32fa62682c1, type: 3}
   equipSound: {fileID: 8300000, guid: fe7ebb81a58a3b54c81cb1093485c0c6, type: 3}
+  throwSound: {fileID: 8300000, guid: fc9c0f1b1876c7ca6b0e35882d586b69, type: 3}
+  throwablePrefab: {fileID: 4521634595782343921, guid: 0aa04aadfe3081f09aa42e893aeaa8db, type: 3}
 --- !u!82 &114100989245069762
 AudioSource:
   m_ObjectHideFlags: 0

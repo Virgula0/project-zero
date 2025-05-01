@@ -26,14 +26,11 @@ public class GoonAnimationScript : MonoBehaviour
             animatorRef.enabled = false;
         }
 
+        // if weapon is null probably is because the object that hitted the enemy was not a bullet neither a swing
+        // in this case, just choose a random from normal death sprites 
+        
         Sprite[] chosenSprites = weapon is IRanged ? goonGunDeathSprites :
-                                weapon is IMelee ? goonBladeDeathSprites : null;
-
-        if (chosenSprites == null)
-        {
-            Debug.LogError("Chosen sprites is null. The weapon seems to not have an expected identity");
-            return;
-        }
+                               weapon is IMelee ? goonBladeDeathSprites : goonGunDeathSprites;
 
         int randomInt = Random.Range(0, chosenSprites.Length);
         spriteRenderer.sprite = chosenSprites[randomInt];
