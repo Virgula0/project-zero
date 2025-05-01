@@ -22,6 +22,8 @@ public class WeaponManager : MonoBehaviour
     private float loadTime = 0;
     private BoxCollider2D playerCollider;
     private bool isThrown = false;
+    private ISecondary currentLoadedSecondary;
+    private GameObject secondaryPrefab;
 
     IEnumerator Start()
     {
@@ -81,6 +83,65 @@ public class WeaponManager : MonoBehaviour
         loadTime = Time.time;
     }
 
+    public void LoadNewSecondary(ISecondary secondary, GameObject prefab, GameObject shooter)
+    {
+        if (secondary == null)
+        {
+            throw new NullReferenceException("SECONDARY LOAD CANNOT BE NULL, THE PASSED REFERENCE TO WEAPON MANAGER IS NULL");
+        }
+
+        if (playerAnimCtrl == null)
+        {
+            throw new NullReferenceException("PLAYER ANIMATION SCRIPT CANNOT BE NULL, THE REFERENCE TO THE PLAYER ANIMATION SCRIPT IS NULL");
+        }
+
+        if (currentLoadedSecondary != null)
+        {
+            //TODO add playsound
+            return;
+        }
+
+        // must be done whatever a new gun gets loaded
+        this.secondaryPrefab = prefab;
+        currentLoadedSecondary = secondary;
+
+        // we're allowed to shoot at te beginning 
+        timer = float.PositiveInfinity;
+        cursorChanger.ChangeToTargetCursor();
+        currentLoadedSecondary.Setup(shooter);
+        audioSrc.PlayOneShot(currentLoadedSecondary.GetEquipSfx());
+
+        uiManager.UpdateWeaponIcon(currentLoadedSecondary.GetStaticWeaponSprite());
+        uiManager.UpdateCharges(currentLoadedSecondary.GetAmmoCount());
+        currentLoadedWeapon.SetIsGoingToBePickedUp(false);
+        loadTime = Time.time;
+    }
+
+    private void UnloadCurrentSecondary()
+    {
+        if (currentLoadedSecondary == null)
+        {
+            throw new NullReferenceException("GUN CANNOT BE DELOADED IF NO ONE HAS BEEN LOADED");
+        }
+
+        if (Time.time - loadTime <= 0.3f)
+        {
+            return; // not enough time has passed since equipping
+        }
+
+        Debug.Log("Secondary deloaded");
+        audioSrc.PlayOneShot(currentLoadedSecondary.GetEquipSfx());
+
+        currentLoadedSecondary.PostSetup();
+        cursorChanger.ChangeToDefaultCursor();
+        Destroy(this.secondaryPrefab);
+        timer = 0;
+        currentLoadedSecondary = null;
+
+        uiManager.UpdateCharges(0);
+        uiManager.UpdateWeaponIcon(null);
+    }
+
     private void UnloadCurrentGun()
     {
         if (currentLoadedWeapon == null)
@@ -136,8 +197,24 @@ public class WeaponManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(!playerScript.IsPlayerAlive()){
+            return;
+        }
+        
+        ManagePrimary();
+        ManageSecondary();
+    }
+
+    private void ManageSecondary(){
+        if(currentLoadedSecondary == null){
+            return;
+        }
+
+    }
+
+    private void ManagePrimary(){
         // we do nothing if we do not have a loaded weapon already
-        if (currentLoadedWeapon == null || !playerScript.IsPlayerAlive())
+        if (currentLoadedWeapon == null)
         {
             return;
         }
@@ -183,7 +260,7 @@ public class WeaponManager : MonoBehaviour
 
         if (Input.GetMouseButton((int)Utils.Enums.MouseButtons.LeftButton) &&
             currentLoadedWeapon is IThrowable throwable &&
-            currentLoadedWeapon.GetAmmoCount() < 1 && currentLoadedWeapon.GetNumberOfReloads() < 1 && 
+            currentLoadedWeapon.GetAmmoCount() < 1 && currentLoadedWeapon.GetNumberOfReloads() < 1 &&
             timer >= currentLoadedWeapon.GetFireRate())
         {
             timer = 0;

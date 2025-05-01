@@ -69,3 +69,11 @@ public interface IGun :
     IVisualWeapon,
     IAudioWeapon
 {}
+
+public interface ISecondary : 
+    IInitializableWeapon,
+    IFireable,
+    IVisualWeapon,
+    IAudioWeapon,
+    IReloadable
+{}
