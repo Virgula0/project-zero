@@ -30,6 +30,7 @@ public class EnemyWeaponManager : MonoBehaviour
         enemyBody = transform.parent.GetComponentInChildren<Rigidbody2D>();
         enemyRef = transform.parent.GetComponentInChildren<IEnemy>();
         playerBody = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponent<Rigidbody2D>();
+        defaultEnemySprite = enemySpriteRenderer.sprite; // current must be the normal one
         // if prefab is not null enemy will spawn with an already equipped weapon
         if (weaponTemplatePrefab != null)
         {
