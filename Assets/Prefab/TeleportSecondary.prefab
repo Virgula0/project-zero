@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 9009400646751711009}
   - component: {fileID: 7849233773868971311}
   - component: {fileID: 81084227993059534}
-  - component: {fileID: 7115610067659547869}
+  - component: {fileID: 4198259700808035922}
   m_Layer: 0
   m_Name: TeleportSprite
   m_TagString: Untagged
@@ -78,7 +78,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: -6426407083895912561, guid: 3431b4a05e0d44047b8ef234fcc8eb8d, type: 3}
+  m_Sprite: {fileID: -8663563776126687129, guid: e2a2127bafc3ccb42b1de6a75382ebef, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -127,7 +127,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 3.48, y: 2.51}
+    oldSize: {x: 0.38, y: 0.5}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -135,7 +135,7 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 7.24, y: 4.9}
   m_EdgeRadius: 0
---- !u!114 &7115610067659547869
+--- !u!114 &4198259700808035922
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -144,7 +144,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2745447678056475132}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3fbfbc69fc6234b438416bfb1ddd8c62, type: 3}
+  m_Script: {fileID: 11500000, guid: 68a5fe21a84ac1047909ef0037863917, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &5829556277332518347
@@ -291,9 +291,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 784231a6f09cd8b448abc1fa63540b2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shotSound: {fileID: 0}
-  readySound: {fileID: 0}
-  equipSound: {fileID: 0}
+  staticSecSprite: {fileID: -8663563776126687129, guid: e2a2127bafc3ccb42b1de6a75382ebef, type: 3}
+  shotSound: {fileID: 8300000, guid: 956ff54cacca15149b3657a12e404363, type: 3}
+  readySound: {fileID: 8300000, guid: a8cbcabb8f0968242aa9ffe6e4cb8416, type: 3}
+  equipSound: {fileID: 8300000, guid: fe7ebb81a58a3b54c81cb1093485c0c6, type: 3}
 --- !u!1 &7247755495829575684
 GameObject:
   m_ObjectHideFlags: 0

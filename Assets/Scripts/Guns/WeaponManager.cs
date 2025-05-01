@@ -31,6 +31,10 @@ public class WeaponManager : MonoBehaviour
         this.playerBody = GetComponentInParent<Rigidbody2D>();
         this.playerAnimCtrl = transform.parent.GetComponentInChildren<PlayerAnimationScript>();
 
+        this.uiManager = GameObject.FindGameObjectWithTag(Utils.Const.UI_MANAGER_TAG).GetComponent<UIManager>();
+        this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER_TAG).GetComponent<WeaponSpawner>();
+        this.playerScript = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponent<PlayerScript>();
+
         while (!playerAnimCtrl.IsAnimationScriptReady()) // let's wait for the script animation to be ready first
         {
             yield return null;
@@ -39,10 +43,6 @@ public class WeaponManager : MonoBehaviour
         playerCollider = gameObject.GetComponentInParent<BoxCollider2D>();
         playerAnimCtrl.SetDefaultSprite();
         ResizePlayerCollider();
-
-        this.uiManager = GameObject.FindGameObjectWithTag(Utils.Const.UI_MANAGER_TAG).GetComponent<UIManager>();
-        this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER_TAG).GetComponent<WeaponSpawner>();
-        this.playerScript = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponent<PlayerScript>();
     }
 
     // this will be invoked externally
@@ -113,7 +113,7 @@ public class WeaponManager : MonoBehaviour
 
         uiManager.UpdateWeaponIcon(currentLoadedSecondary.GetStaticWeaponSprite());
         uiManager.UpdateCharges(currentLoadedSecondary.GetAmmoCount());
-        currentLoadedWeapon.SetIsGoingToBePickedUp(false);
+        //currentLoadedWeapon.SetIsGoingToBePickedUp(false);
         loadTime = Time.time;
     }
 
@@ -196,7 +196,11 @@ public class WeaponManager : MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    {
+    {   
+        if(playerScript == null){
+            return;
+        }
+        
         if(!playerScript.IsPlayerAlive()){
             return;
         }
@@ -210,6 +214,17 @@ public class WeaponManager : MonoBehaviour
             return;
         }
 
+        if(currentLoadedSecondary.GetAmmoCount() < 1){
+            UnloadCurrentSecondary();
+            return;
+        }
+
+        if(Input.GetKeyDown(KeyCode.Q)){
+            currentLoadedSecondary.Shoot();
+
+            uiManager.UpdateCharges(currentLoadedSecondary.GetAmmoCount());
+            return;
+        }
     }
 
     private void ManagePrimary(){

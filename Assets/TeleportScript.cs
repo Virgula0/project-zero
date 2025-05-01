@@ -69,7 +69,9 @@ public class TeleportScript : MonoBehaviour, ISecondary
     public void Shoot()
     {
         Vector2 mousePosition = playerCameraRef.ScreenToWorldPoint(Input.mousePosition);
+        Debug.Log("CAM POS: " + mousePosition);
         palyerRef.GetComponent<Rigidbody2D>().position = mousePosition;
+        currentCharges -= 1;
     }
 
     public void Reload()
