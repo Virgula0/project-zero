@@ -6,8 +6,8 @@ using UnityEngine;
 public class SimpleGun : MonoBehaviour, IGun, IThrowable, IRanged
 {
     private readonly float fireRate = 0.5f; // in seconds, 0.5 seconds between each shot
-    private readonly int magCap = 10;
-    private int numberOfReloads = 5; // total bullets available can be seen as numberOfReloads*magCap
+    private readonly int magCap = 1;
+    private int numberOfReloads = 0; // total bullets available can be seen as numberOfReloads*magCap
     private int ammoCount;
 
     [SerializeField] private SpriteRenderer staticWeaponSprite;
@@ -19,9 +19,12 @@ public class SimpleGun : MonoBehaviour, IGun, IThrowable, IRanged
     [SerializeField] private AudioClip reloadSound;
     [SerializeField] private AudioClip equipSound;
     [SerializeField] private AudioClip throwSound;
+    [SerializeField] private GameObject throwablePrefab;
+
     private bool isGoingToBePickedUp = false;
     private GameObject shooterObject;
     private bool awakeExecuted = false;
+    private GameObject throwable;
 
     public void Setup(GameObject player)
     {
@@ -150,13 +153,22 @@ public class SimpleGun : MonoBehaviour, IGun, IThrowable, IRanged
         return this.goonEquippedSprite;
     }
 
-    public void ThrowAt(Vector2 mousePosition)
+    public void ThrowWhereMousePoints()
     {
-        throw new NotImplementedException();
+        this.throwable = Instantiate(throwablePrefab, shooterObject.transform.position, Quaternion.identity);
+        ThrowableScript throwableScript = this.throwable.GetComponent<ThrowableScript>();
+        throwableScript.Initialize(staticWeaponSprite);
     }
 
-    public AudioClip GetThrowSfx()
+    public IEnumerator PlayThrowSfx(AudioSource audioSrc)
     {
-        return throwSound;
+        // cache the clip length so you don’t re-query it every loop
+        float clipLength = throwSound.length;
+        // as long as the throwable still exists, keep playing
+        while (throwable != null)
+        {
+            audioSrc.PlayOneShot(throwSound);
+            yield return new WaitForSeconds(clipLength);
+        }
     }
 }

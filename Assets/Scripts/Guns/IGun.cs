@@ -55,8 +55,8 @@ public interface IAudioWeapon
 }
 
 public interface IThrowable {
-    void ThrowAt(Vector2 mousePosition);
-    AudioClip GetThrowSfx();
+    void ThrowWhereMousePoints();
+    IEnumerator PlayThrowSfx(AudioSource src);
 }
 
 // Full‐feature gun interface combining all individual aspects

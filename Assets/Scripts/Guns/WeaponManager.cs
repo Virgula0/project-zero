@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using TMPro;
 using UnityEngine;
 
 public class WeaponManager : MonoBehaviour
@@ -133,6 +134,8 @@ public class WeaponManager : MonoBehaviour
         spawner.AddAvailableGunOnTheGroundPosition(spawnPos, currentLoadedWeapon);
     }
 
+    private bool isThrown = false;
+
     // Update is called once per frame
     void Update()
     {
@@ -150,9 +153,10 @@ public class WeaponManager : MonoBehaviour
         }
 
         // if left button is pressed, let an user to leave the weapon
-        if (Input.GetMouseButton((int)Utils.Enums.MouseButtons.RightButton))
+        if (Input.GetMouseButton((int)Utils.Enums.MouseButtons.RightButton) | isThrown)
         {
             UnloadCurrentGun();
+            isThrown = false;
             return;
         }
 
@@ -170,15 +174,6 @@ public class WeaponManager : MonoBehaviour
         }
 
         if (Input.GetMouseButton((int)Utils.Enums.MouseButtons.LeftButton) &&
-            currentLoadedWeapon is IThrowable throwable &&
-            currentLoadedWeapon.GetAmmoCount() < 1 && currentLoadedWeapon.GetNumberOfReloads() < 1)
-        {
-            throwable.ThrowAt(MouseWorld2D());
-            audioSrc.PlayOneShot(throwable.GetThrowSfx());
-            return;
-        }
-
-        if (Input.GetMouseButton((int)Utils.Enums.MouseButtons.LeftButton) &&
             timer >= currentLoadedWeapon.GetFireRate() &&
             currentLoadedWeapon.GetAmmoCount() > 0)
         {
@@ -186,6 +181,19 @@ public class WeaponManager : MonoBehaviour
             currentLoadedWeapon.Shoot();
             audioSrc.PlayOneShot(currentLoadedWeapon.GetShotSfx());
             uiManager.UpdateBullets(currentLoadedWeapon.GetAmmoCount());
+            return;
+        }
+
+        if (Input.GetMouseButton((int)Utils.Enums.MouseButtons.LeftButton) &&
+            currentLoadedWeapon is IThrowable throwable &&
+            currentLoadedWeapon.GetAmmoCount() < 1 && currentLoadedWeapon.GetNumberOfReloads() < 1 && 
+            timer >= currentLoadedWeapon.GetFireRate())
+        {
+            timer = 0;
+            throwable.ThrowWhereMousePoints();
+            StartCoroutine(throwable.PlayThrowSfx(audioSrc));
+            isThrown = true;
+            return;
         }
     }
 
