@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using TMPro;
 using UnityEngine;
 
 public class WeaponManager : MonoBehaviour
@@ -8,7 +7,6 @@ public class WeaponManager : MonoBehaviour
     private IGun currentLoadedWeapon;
     private float timer; // timer counts the timer elapsed from the last shot, in seconds
     private UIManager uiManager;
-    private Sprite defaultPlayerSprite;
     private bool isReloading = false;
     private Rigidbody2D playerBody;
     private WeaponSpawner spawner;
@@ -23,6 +21,7 @@ public class WeaponManager : MonoBehaviour
     private PlayerScript playerScript;
     private float loadTime = 0;
     private BoxCollider2D playerCollider;
+    private bool isThrown = false;
 
     IEnumerator Start()
     {
@@ -133,8 +132,6 @@ public class WeaponManager : MonoBehaviour
         newPrefab.SetActive(true);
         spawner.AddAvailableGunOnTheGroundPosition(spawnPos, currentLoadedWeapon);
     }
-
-    private bool isThrown = false;
 
     // Update is called once per frame
     void Update()
