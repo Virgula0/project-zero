@@ -4,28 +4,45 @@ public class CameraController : MonoBehaviour
 {
     [SerializeField] private Transform playerTransform;
     [SerializeField] private float displacementMultiplier = 0.15f;
+    private float originalDisplacementMultiplier;
 
     [SerializeField] private float zPos = -6f;
+    [SerializeField] private KeyCode panKey = KeyCode.LeftShift;  // Hold to pan
 
     private PlayerScript playerScript;
+    private Camera cam;
 
     void Start()
     {
-        this.playerScript = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponent<PlayerScript>();
+        originalDisplacementMultiplier = displacementMultiplier;
+        playerScript = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponent<PlayerScript>();
+        cam = Camera.main;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (!playerScript.IsPlayerAlive()){
-            return;
-        }
+        if (!playerScript.IsPlayerAlive()) return;
 
-        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector3 cameraDisplacement = (mousePos - playerTransform.position) * displacementMultiplier;
+        if (Input.GetKey(panKey))
+            displacementMultiplier = 0.40f;
+        else
+            displacementMultiplier = originalDisplacementMultiplier;
 
-        Vector3 finalCameraPos = playerTransform.position + cameraDisplacement;
-        finalCameraPos.z = zPos;
-        transform.position = finalCameraPos;
+        Vector3 mouseWorld = cam.ScreenToWorldPoint(Input.mousePosition);
+        Vector3 camDelta = (mouseWorld - playerTransform.position) * displacementMultiplier;
+        Vector3 finalCamPos = playerTransform.position + camDelta;
+        finalCamPos.z = zPos;
+
+        // --- CLAMPING STEP ---
+        // half‐sizes of ortho view
+        float halfH = cam.orthographicSize;
+        float halfW = halfH * cam.aspect;
+
+        // ensure player stays within view rectangle
+        // camera center must stay between player ± halfExtents
+        finalCamPos.x = Mathf.Clamp(finalCamPos.x, playerTransform.position.x - halfW, playerTransform.position.x + halfW);
+        finalCamPos.y = Mathf.Clamp(finalCamPos.y, playerTransform.position.y - halfH, playerTransform.position.y + halfH);
+
+        transform.position = finalCamPos;
     }
 }
