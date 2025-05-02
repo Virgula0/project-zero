@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System.Collections;
+using Unity.VisualScripting;
 
 public class AI : MonoBehaviour, IEnemy, IPoints
 {
@@ -86,12 +87,36 @@ public class AI : MonoBehaviour, IEnemy, IPoints
             yield return null;
         }
 
+        // Add patrol waypoints
+        ConnectPatrolWaypoints();
         // Connect the global waypoints into our local graph
         ConnectGlobalWaypoints(glob);
         // Connect waypoints from other enemies using the global waypoints reference
         ConnectOtherEnemyWaypoints(glob);
         // Finalize the initialization: log info and set up pathfinder and movements
         FinalizeInitialization(glob);
+    }
+
+    private void ConnectPatrolWaypoints()
+    {
+        // THIS PART IS EXPERIMENTAL
+        if (patrolWaypoints == null || patrolWaypoints.Length < 1)
+            return;
+
+        // Merge connection graphs using the linker helper
+        this.connectionGraph = linker.LinkGraphs(
+            this.connectionGraph,
+            linker.GenerateConnections(patrolWaypoints),
+            this.exitWaypoints,
+            patrolWaypoints
+        );
+
+        // Add patrol waypoints to the current set and update the kd-tree accordingly
+        foreach (Vector2 node in patrolWaypoints)
+        {
+            this.exitWaypoints = Utils.Functions.AddToVector2Array(this.exitWaypoints, node, out _);
+            treeStructure.UpdateVectorSetOnInsert(node);
+        }
     }
 
     private GlobalWaypoints InitializeParameters()
