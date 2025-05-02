@@ -403,6 +403,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
 
     public void SetIsEnemyDead(bool cond)
     {
+        Utils.Functions.SetLayerRecursively(transform.parent.gameObject, (int)Utils.Enums.ObjectLayers.BodyOnTheGround);
         this.isEnemyDead = cond;
     }
 
