@@ -41,8 +41,10 @@ public class TeleportPrefab : MonoBehaviour, ISecondary
         legsObj.SetActive(false);
         playerAnimatorRef.enabled = true;
         playerAnimatorRef.SetTrigger(Utils.Animations.Triggers.TELEPORTING);
-        currentInitScript.Run(playerAnimatorRef);
-        this.currentCharges -= 1;
+        if (currentInitScript.Run(playerAnimatorRef))
+        {
+            this.currentCharges -= 1;
+        }
     }
 
     public Sprite GetEquippedSprite()
