@@ -7,15 +7,22 @@ public class PlayerAnimationScript : MonoBehaviour
     [SerializeField] private Sprite playerDefaultSprite;
 
     private Animator animatorRef;
+    private PlayerLegsAnimationScript legsScriptRef;
     private SpriteRenderer spriteRendererRef;
     private Sprite idleSwordSprite;
     private bool isAnimationScriptReady = false;
+    private Camera playerCameraRef;
+    private GameObject playerRef;
+    private Sprite playerLastSprite;
 
     void Start()
     {
         animatorRef = GetComponent<Animator>();
         spriteRendererRef = GetComponent<SpriteRenderer>();
         isAnimationScriptReady = true;
+        playerCameraRef = Camera.main;
+        playerRef = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
+        legsScriptRef = transform.parent.GetComponentInChildren<PlayerLegsAnimationScript>();
     }
 
     public bool IsAnimationScriptReady() => isAnimationScriptReady;
@@ -25,6 +32,22 @@ public class PlayerAnimationScript : MonoBehaviour
         // Disable animator
         gameObject.GetComponentInChildren<Animator>().enabled = false;
         SetEquippedWeponSprite(idleSwordSprite);
+    }
+
+    public void OnTeleportInAnimationEnd(){
+        legsScriptRef.SetIsTeleporting(true);
+        Vector2 mousePosition = playerCameraRef.ScreenToWorldPoint(Input.mousePosition);
+        playerRef.GetComponent<Rigidbody2D>().position = mousePosition;
+        animatorRef.SetTrigger("teleport_end");
+    }
+
+    public void OnTeleportOutEnd(){
+        if(playerLastSprite != null){
+            spriteRendererRef.sprite = playerLastSprite;
+            playerLastSprite = null;
+        }
+        animatorRef.enabled = false;
+        legsScriptRef.SetIsTeleporting(false);
     }
 
     public void SetPlayerDeadSprite(IGun weapon)
@@ -45,6 +68,10 @@ public class PlayerAnimationScript : MonoBehaviour
 
         int randomInt = Random.Range(0, chosenSprites.Length);
         spriteRendererRef.sprite = chosenSprites[randomInt];
+    }
+
+    public void SetPlayerLastSprite(Sprite lastSprite){
+        playerLastSprite = lastSprite;
     }
 
     public void SetDefaultSprite()

@@ -6,6 +6,7 @@ public class WeaponManager : MonoBehaviour
 {
     private IGun currentLoadedWeapon;
     private float timer; // timer counts the timer elapsed from the last shot, in seconds
+    private float secondaryTimer;
     private UIManager uiManager;
     private bool isReloading = false;
     private Rigidbody2D playerBody;
@@ -22,12 +23,18 @@ public class WeaponManager : MonoBehaviour
     private float loadTime = 0;
     private BoxCollider2D playerCollider;
     private bool isThrown = false;
+    private ISecondary currentLoadedSecondary;
+    private GameObject secondaryPrefab;
 
     IEnumerator Start()
     {
         this.cursorChanger = GameObject.FindGameObjectWithTag(Utils.Const.CURSOR_CHANGER_TAG).GetComponent<CursorChanger>();
         this.playerBody = GetComponentInParent<Rigidbody2D>();
         this.playerAnimCtrl = transform.parent.GetComponentInChildren<PlayerAnimationScript>();
+
+        this.uiManager = GameObject.FindGameObjectWithTag(Utils.Const.UI_MANAGER_TAG).GetComponent<UIManager>();
+        this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER_TAG).GetComponent<WeaponSpawner>();
+        this.playerScript = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponent<PlayerScript>();
 
         while (!playerAnimCtrl.IsAnimationScriptReady()) // let's wait for the script animation to be ready first
         {
@@ -37,10 +44,6 @@ public class WeaponManager : MonoBehaviour
         playerCollider = gameObject.GetComponentInParent<BoxCollider2D>();
         playerAnimCtrl.SetDefaultSprite();
         ResizePlayerCollider();
-
-        this.uiManager = GameObject.FindGameObjectWithTag(Utils.Const.UI_MANAGER_TAG).GetComponent<UIManager>();
-        this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER_TAG).GetComponent<WeaponSpawner>();
-        this.playerScript = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponent<PlayerScript>();
     }
 
     // this will be invoked externally
@@ -79,6 +82,59 @@ public class WeaponManager : MonoBehaviour
         uiManager.UpdateReloads(currentLoadedWeapon.GetNumberOfReloads());
         currentLoadedWeapon.SetIsGoingToBePickedUp(false);
         loadTime = Time.time;
+    }
+
+    public void LoadNewSecondary(ISecondary secondary, GameObject prefab, GameObject shooter)
+    {
+        if (secondary == null)
+        {
+            throw new NullReferenceException("SECONDARY LOAD CANNOT BE NULL, THE PASSED REFERENCE TO WEAPON MANAGER IS NULL");
+        }
+
+        if (playerAnimCtrl == null)
+        {
+            throw new NullReferenceException("PLAYER ANIMATION SCRIPT CANNOT BE NULL, THE REFERENCE TO THE PLAYER ANIMATION SCRIPT IS NULL");
+        }
+
+        // must be done whatever a new gun gets loaded
+        this.secondaryPrefab = prefab;
+        currentLoadedSecondary = secondary;
+
+        // we're allowed to shoot at te beginning 
+        secondaryTimer = float.PositiveInfinity;
+        cursorChanger.ChangeToTargetCursor();
+        currentLoadedSecondary.Setup(shooter);
+        audioSrc.PlayOneShot(currentLoadedSecondary.GetEquipSfx());
+
+        uiManager.UpdateSecondaryIcon(currentLoadedSecondary.GetStaticWeaponSprite());
+        uiManager.UpdateCharges(currentLoadedSecondary.GetAmmoCount());
+        //currentLoadedWeapon.SetIsGoingToBePickedUp(false);
+        loadTime = Time.time;
+    }
+
+    private void UnloadCurrentSecondary()
+    {
+        if (currentLoadedSecondary == null)
+        {
+            throw new NullReferenceException("GUN CANNOT BE DELOADED IF NO ONE HAS BEEN LOADED");
+        }
+
+        if (Time.time - loadTime <= 0.3f)
+        {
+            return; // not enough time has passed since equipping
+        }
+
+        Debug.Log("Secondary deloaded");
+        audioSrc.PlayOneShot(currentLoadedSecondary.GetEquipSfx());
+
+        currentLoadedSecondary.PostSetup();
+        cursorChanger.ChangeToDefaultCursor();
+        Destroy(this.secondaryPrefab);
+        secondaryTimer = 0;
+        currentLoadedSecondary = null;
+
+        uiManager.UpdateCharges(0);
+        uiManager.UpdateSecondaryIcon(null);
     }
 
     private void UnloadCurrentGun()
@@ -135,9 +191,49 @@ public class WeaponManager : MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    {
+    {   
+        if(playerScript == null){
+            return;
+        }
+        
+        if(!playerScript.IsPlayerAlive()){
+            return;
+        }
+        
+        ManagePrimary();
+        ManageSecondary();
+    }
+
+    private void ManageSecondary(){
+        if(currentLoadedSecondary == null){
+            return;
+        }
+
+        secondaryTimer += Time.deltaTime;
+
+        if(currentLoadedSecondary.GetAmmoCount() < 1){
+            UnloadCurrentSecondary();
+            return;
+        }
+
+        if(Input.GetKeyDown(KeyCode.Q) && secondaryTimer >= currentLoadedSecondary.GetFireRate() 
+        && currentLoadedSecondary.GetAmmoCount() > 0)
+        {
+            if(currentLoadedWeapon != null){
+                playerAnimCtrl.SetPlayerLastSprite(currentLoadedWeapon.GetEquippedSprite());
+            }
+            secondaryTimer = 0;
+            currentLoadedSecondary.Shoot();
+            audioSrc.PlayOneShot(currentLoadedSecondary.GetShotSfx());
+
+            uiManager.UpdateCharges(currentLoadedSecondary.GetAmmoCount());
+            return;
+        }
+    }
+
+    private void ManagePrimary(){
         // we do nothing if we do not have a loaded weapon already
-        if (currentLoadedWeapon == null || !playerScript.IsPlayerAlive())
+        if (currentLoadedWeapon == null)
         {
             return;
         }
@@ -183,7 +279,7 @@ public class WeaponManager : MonoBehaviour
 
         if (Input.GetMouseButton((int)Utils.Enums.MouseButtons.LeftButton) &&
             currentLoadedWeapon is IThrowable throwable &&
-            currentLoadedWeapon.GetAmmoCount() < 1 && currentLoadedWeapon.GetNumberOfReloads() < 1 && 
+            currentLoadedWeapon.GetAmmoCount() < 1 && currentLoadedWeapon.GetNumberOfReloads() < 1 &&
             timer >= currentLoadedWeapon.GetFireRate())
         {
             timer = 0;
@@ -197,6 +293,10 @@ public class WeaponManager : MonoBehaviour
     public IGun GetCurrentLoadedWeapon()
     {
         return currentLoadedWeapon;
+    }
+
+    public ISecondary GetCurrentLoadedSecondary(){
+        return currentLoadedSecondary;
     }
 
     public void ResizePlayerCollider()
