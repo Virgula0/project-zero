@@ -7,15 +7,21 @@ public class PlayerAnimationScript : MonoBehaviour
     [SerializeField] private Sprite playerDefaultSprite;
 
     private Animator animatorRef;
+    private PlayerLegsAnimationScript legsScriptRef;
     private SpriteRenderer spriteRendererRef;
     private Sprite idleSwordSprite;
     private bool isAnimationScriptReady = false;
+    private Camera playerCameraRef;
+    private GameObject playerRef;
 
     void Start()
     {
         animatorRef = GetComponent<Animator>();
         spriteRendererRef = GetComponent<SpriteRenderer>();
         isAnimationScriptReady = true;
+        playerCameraRef = Camera.main;
+        playerRef = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
+        legsScriptRef = transform.parent.GetComponentInChildren<PlayerLegsAnimationScript>();
     }
 
     public bool IsAnimationScriptReady() => isAnimationScriptReady;
@@ -25,6 +31,20 @@ public class PlayerAnimationScript : MonoBehaviour
         // Disable animator
         gameObject.GetComponentInChildren<Animator>().enabled = false;
         SetEquippedWeponSprite(idleSwordSprite);
+    }
+
+    public void OnTeleportInAnimationEnd(){
+        Debug.Log("TELEPORT IN ENDED");
+        legsScriptRef.SetIsTeleporting(true);
+        Vector2 mousePosition = playerCameraRef.ScreenToWorldPoint(Input.mousePosition);
+        playerRef.GetComponent<Rigidbody2D>().position = mousePosition;
+        animatorRef.SetTrigger("teleport_end");
+    }
+
+    public void OnTeleportOutEnd(){
+        Debug.Log("TELEPORT OUT ENDED");
+        animatorRef.enabled = false;
+        legsScriptRef.SetIsTeleporting(false);
     }
 
     public void SetPlayerDeadSprite(IGun weapon)

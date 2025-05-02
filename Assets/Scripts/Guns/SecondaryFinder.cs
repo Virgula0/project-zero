@@ -28,7 +28,7 @@ public class SecondaryFinder : MonoBehaviour
 
         if(obj.layer == (int)Utils.Enums.ObjectLayers.Player)
         {
-            if (!Input.GetKeyDown(KeyCode.Q))
+            if (!Input.GetKeyDown(KeyCode.F))
             {
                 return;
             }

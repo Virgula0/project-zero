@@ -2,11 +2,12 @@ using UnityEngine;
 
 public class TeleportScript : MonoBehaviour, ISecondary
 {
-    private readonly float fireRate = 0.5f; // in seconds, 0.5 seconds between each shot
+    private readonly float fireRate = 1f; // in seconds, 0.5 seconds between each shot
     private readonly int chargesCap = 3;
     private int currentCharges;
     private GameObject palyerRef;
     private Camera playerCameraRef;
+    private Animator playerAnimatorRef;
     
     [SerializeField] private Sprite staticSecSprite;
     [SerializeField] private AudioClip shotSound;
@@ -18,6 +19,7 @@ public class TeleportScript : MonoBehaviour, ISecondary
     {
         palyerRef = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
         playerCameraRef = Camera.main;
+        playerAnimatorRef = palyerRef.GetComponentInChildren<Animator>();
     }
 
     public Sprite GetEquippedSprite()
@@ -64,13 +66,12 @@ public class TeleportScript : MonoBehaviour, ISecondary
     {
         this.palyerRef = player;
         this.currentCharges = this.chargesCap;
+        this.playerAnimatorRef = player.GetComponentInChildren<Animator>();
     }
 
     public void Shoot()
-    {
-        Vector2 mousePosition = playerCameraRef.ScreenToWorldPoint(Input.mousePosition);
-        Debug.Log("CAM POS: " + mousePosition);
-        palyerRef.GetComponent<Rigidbody2D>().position = mousePosition;
+    {   playerAnimatorRef.enabled = true;
+        playerAnimatorRef.SetTrigger("teleporting");
         currentCharges -= 1;
     }
 

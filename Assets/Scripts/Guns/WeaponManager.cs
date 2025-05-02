@@ -6,6 +6,7 @@ public class WeaponManager : MonoBehaviour
 {
     private IGun currentLoadedWeapon;
     private float timer; // timer counts the timer elapsed from the last shot, in seconds
+    private float secondaryTimer;
     private UIManager uiManager;
     private bool isReloading = false;
     private Rigidbody2D playerBody;
@@ -106,12 +107,12 @@ public class WeaponManager : MonoBehaviour
         currentLoadedSecondary = secondary;
 
         // we're allowed to shoot at te beginning 
-        timer = float.PositiveInfinity;
+        secondaryTimer = float.PositiveInfinity;
         cursorChanger.ChangeToTargetCursor();
         currentLoadedSecondary.Setup(shooter);
         audioSrc.PlayOneShot(currentLoadedSecondary.GetEquipSfx());
 
-        uiManager.UpdateWeaponIcon(currentLoadedSecondary.GetStaticWeaponSprite());
+        uiManager.UpdateSecondaryIcon(currentLoadedSecondary.GetStaticWeaponSprite());
         uiManager.UpdateCharges(currentLoadedSecondary.GetAmmoCount());
         //currentLoadedWeapon.SetIsGoingToBePickedUp(false);
         loadTime = Time.time;
@@ -135,11 +136,11 @@ public class WeaponManager : MonoBehaviour
         currentLoadedSecondary.PostSetup();
         cursorChanger.ChangeToDefaultCursor();
         Destroy(this.secondaryPrefab);
-        timer = 0;
+        secondaryTimer = 0;
         currentLoadedSecondary = null;
 
         uiManager.UpdateCharges(0);
-        uiManager.UpdateWeaponIcon(null);
+        uiManager.UpdateSecondaryIcon(null);
     }
 
     private void UnloadCurrentGun()
@@ -214,13 +215,19 @@ public class WeaponManager : MonoBehaviour
             return;
         }
 
+        secondaryTimer += Time.deltaTime;
+
         if(currentLoadedSecondary.GetAmmoCount() < 1){
             UnloadCurrentSecondary();
             return;
         }
 
-        if(Input.GetKeyDown(KeyCode.Q)){
+        if(Input.GetKeyDown(KeyCode.Q) && secondaryTimer >= currentLoadedSecondary.GetFireRate() 
+        && currentLoadedSecondary.GetAmmoCount() > 0)
+        {
+            secondaryTimer = 0;
             currentLoadedSecondary.Shoot();
+            audioSrc.PlayOneShot(currentLoadedSecondary.GetShotSfx());
 
             uiManager.UpdateCharges(currentLoadedSecondary.GetAmmoCount());
             return;

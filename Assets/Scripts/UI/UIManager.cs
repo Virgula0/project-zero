@@ -47,6 +47,13 @@ public class UIManager : MonoBehaviour
         chargesText.GetComponent<TextMeshProUGUI>().text = "CHARGES: " + numCharges.ToString();
     }
 
+    public void UpdateSecondaryIcon(Sprite newSprite){
+        Color currentColor = secondaryIcon.color;
+        currentColor.a = 1f - secondaryIcon.color.a;
+        secondaryIcon.color = currentColor;
+        secondaryIcon.sprite = newSprite;
+    }
+
     public void UpdatePoints(int points)
     {
         pointsText.GetComponent<TextMeshProUGUI>().text = points.ToString() + " pts";
