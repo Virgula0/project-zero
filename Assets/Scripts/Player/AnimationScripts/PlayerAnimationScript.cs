@@ -35,7 +35,6 @@ public class PlayerAnimationScript : MonoBehaviour
     }
 
     public void OnTeleportInAnimationEnd(){
-        Debug.Log("TELEPORT IN ENDED");
         legsScriptRef.SetIsTeleporting(true);
         Vector2 mousePosition = playerCameraRef.ScreenToWorldPoint(Input.mousePosition);
         playerRef.GetComponent<Rigidbody2D>().position = mousePosition;
@@ -43,7 +42,6 @@ public class PlayerAnimationScript : MonoBehaviour
     }
 
     public void OnTeleportOutEnd(){
-        Debug.Log("TELEPORT OUT ENDED");
         if(playerLastSprite != null){
             spriteRendererRef.sprite = playerLastSprite;
             playerLastSprite = null;
