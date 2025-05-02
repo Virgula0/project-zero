@@ -31,7 +31,14 @@ namespace Utils
     {
         public const string PLAYER_SWORD_ATTACK = "PlayerSwordAttackAnimation";
         public const string ENEMY_SWORD_ATTACK = "EnemySwordAttackAnimation";
+        public const string TELEPORT_ANIMATION = "PlayerTeleportInAnimation";
+
+        public class Triggers
+        {
+            public const string TELEPORTING = "teleporting";
+        }
     }
+
 
     public class Const
     {

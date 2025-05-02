@@ -1,25 +1,48 @@
 using UnityEngine;
 
-public class TeleportScript : MonoBehaviour, ISecondary
+public class TeleportPrefab : MonoBehaviour, ISecondary
 {
     private readonly float fireRate = 1f; // in seconds, 0.5 seconds between each shot
     private readonly int chargesCap = 3;
     private int currentCharges;
-    private GameObject palyerRef;
-    private Camera playerCameraRef;
+    private GameObject playerRef;
     private Animator playerAnimatorRef;
-    
+
     [SerializeField] private Sprite staticSecSprite;
     [SerializeField] private AudioClip shotSound;
     [SerializeField] private AudioClip readySound;
     [SerializeField] private AudioClip equipSound;
+    [SerializeField] private GameObject teleportScriptPrefab;
+
+    private GameObject currentInitPrefab;
+    private TeleportScript currentInitScript;
+    private GameObject legsObj;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        palyerRef = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
-        playerCameraRef = Camera.main;
-        playerAnimatorRef = palyerRef.GetComponentInChildren<Animator>();
+        playerRef = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
+        playerAnimatorRef = playerRef.GetComponentInChildren<Animator>();
+    }
+
+    public void Setup(GameObject player)
+    {
+        this.playerRef = player;
+        this.currentCharges = this.chargesCap;
+        this.playerAnimatorRef = player.GetComponentInChildren<Animator>();
+        legsObj = playerRef.transform.GetChild(1).gameObject;
+        currentInitPrefab = Instantiate(teleportScriptPrefab, playerRef.transform.position, Quaternion.identity);
+        currentInitScript = currentInitPrefab.GetComponent<TeleportScript>();
+        currentInitScript.Initialize(legsObj);
+    }
+
+    public void Shoot()
+    {
+        legsObj.SetActive(false);
+        playerAnimatorRef.enabled = true;
+        playerAnimatorRef.SetTrigger(Utils.Animations.Triggers.TELEPORTING);
+        currentInitScript.Run(playerAnimatorRef);
+        this.currentCharges -= 1;
     }
 
     public Sprite GetEquippedSprite()
@@ -59,20 +82,7 @@ public class TeleportScript : MonoBehaviour, ISecondary
 
     public void PostSetup()
     {
-        return;
-    }
-
-    public void Setup(GameObject player)
-    {
-        this.palyerRef = player;
-        this.currentCharges = this.chargesCap;
-        this.playerAnimatorRef = player.GetComponentInChildren<Animator>();
-    }
-
-    public void Shoot()
-    {   playerAnimatorRef.enabled = true;
-        playerAnimatorRef.SetTrigger("teleporting");
-        currentCharges -= 1;
+        Destroy(currentInitPrefab);
     }
 
     public void Reload()

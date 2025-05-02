@@ -295,6 +295,7 @@ MonoBehaviour:
   shotSound: {fileID: 8300000, guid: d94bc09fb255bad4a82d429ceefc44ca, type: 3}
   readySound: {fileID: 8300000, guid: a8cbcabb8f0968242aa9ffe6e4cb8416, type: 3}
   equipSound: {fileID: 8300000, guid: fe7ebb81a58a3b54c81cb1093485c0c6, type: 3}
+  teleportScriptPrefab: {fileID: 4521634595782343921, guid: b6f2a03f15bbbc4ad8beb7e2fb6e2c7e, type: 3}
 --- !u!1 &7247755495829575684
 GameObject:
   m_ObjectHideFlags: 0
