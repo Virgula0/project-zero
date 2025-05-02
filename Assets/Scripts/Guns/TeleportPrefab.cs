@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class TeleportPrefab : MonoBehaviour, ISecondary
@@ -84,6 +85,7 @@ public class TeleportPrefab : MonoBehaviour, ISecondary
 
     public void PostSetup()
     {
+        legsObj.SetActive(true);
         Destroy(currentInitPrefab);
     }
 

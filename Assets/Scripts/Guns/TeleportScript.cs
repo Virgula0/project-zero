@@ -22,7 +22,7 @@ public class TeleportScript : MonoBehaviour
         StartCoroutine(WaitForAnimation(playerAnimatorRef, Utils.Animations.TELEPORT_ANIMATION));
         return true;
     }
-
+    
     private IEnumerator WaitForAnimation(Animator animator, string stateName)
     {
         isBusy = true;
