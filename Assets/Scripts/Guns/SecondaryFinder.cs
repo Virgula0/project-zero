@@ -32,6 +32,12 @@ public class SecondaryFinder : MonoBehaviour
             {
                 return;
             }
+            
+            if(playerManager.GetCurrentLoadedSecondary() != null){
+                Debug.Log("YOU CANNOT EQUIP ANOTHER SECONDARY");
+                return;
+            }
+
             Debug.Log("You got a secondary! " + gameObject.name);
             playerManager.LoadNewSecondary(secondary, this.gameObjectRef, obj);
             HandleSecondaryPickup();

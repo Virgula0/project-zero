@@ -96,12 +96,6 @@ public class WeaponManager : MonoBehaviour
             throw new NullReferenceException("PLAYER ANIMATION SCRIPT CANNOT BE NULL, THE REFERENCE TO THE PLAYER ANIMATION SCRIPT IS NULL");
         }
 
-        if (currentLoadedSecondary != null)
-        {
-            //TODO add playsound
-            return;
-        }
-
         // must be done whatever a new gun gets loaded
         this.secondaryPrefab = prefab;
         currentLoadedSecondary = secondary;
@@ -225,6 +219,9 @@ public class WeaponManager : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.Q) && secondaryTimer >= currentLoadedSecondary.GetFireRate() 
         && currentLoadedSecondary.GetAmmoCount() > 0)
         {
+            if(currentLoadedWeapon != null){
+                playerAnimCtrl.SetPlayerLastSprite(currentLoadedWeapon.GetEquippedSprite());
+            }
             secondaryTimer = 0;
             currentLoadedSecondary.Shoot();
             audioSrc.PlayOneShot(currentLoadedSecondary.GetShotSfx());
@@ -296,6 +293,10 @@ public class WeaponManager : MonoBehaviour
     public IGun GetCurrentLoadedWeapon()
     {
         return currentLoadedWeapon;
+    }
+
+    public ISecondary GetCurrentLoadedSecondary(){
+        return currentLoadedSecondary;
     }
 
     public void ResizePlayerCollider()

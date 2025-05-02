@@ -13,6 +13,7 @@ public class PlayerAnimationScript : MonoBehaviour
     private bool isAnimationScriptReady = false;
     private Camera playerCameraRef;
     private GameObject playerRef;
+    private Sprite playerLastSprite;
 
     void Start()
     {
@@ -43,6 +44,10 @@ public class PlayerAnimationScript : MonoBehaviour
 
     public void OnTeleportOutEnd(){
         Debug.Log("TELEPORT OUT ENDED");
+        if(playerLastSprite != null){
+            spriteRendererRef.sprite = playerLastSprite;
+            playerLastSprite = null;
+        }
         animatorRef.enabled = false;
         legsScriptRef.SetIsTeleporting(false);
     }
@@ -65,6 +70,10 @@ public class PlayerAnimationScript : MonoBehaviour
 
         int randomInt = Random.Range(0, chosenSprites.Length);
         spriteRendererRef.sprite = chosenSprites[randomInt];
+    }
+
+    public void SetPlayerLastSprite(Sprite lastSprite){
+        playerLastSprite = lastSprite;
     }
 
     public void SetDefaultSprite()
