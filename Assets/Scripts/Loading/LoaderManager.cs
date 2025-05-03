@@ -83,9 +83,6 @@ public class DirectorySceneLoader : MonoBehaviour
         Scene firstScene = SceneManager.GetSceneByName(firstSceneName);
         if (firstScene.IsValid())
         {
-            if (!SceneManager.SetActiveScene(firstScene)){
-                Debug.LogError(firstScene.name + "should be loaded but was not loaded when trying to set to active");
-            }
             Debug.Log("First scene is now active: " + firstSceneName);
         }
         else

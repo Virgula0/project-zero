@@ -12,15 +12,26 @@ public class CameraController : MonoBehaviour
     private PlayerScript playerScript;
     private Camera cam;
 
+    void Awake()
+    {
+        DontDestroyOnLoad(gameObject); // don't destory when switching scene
+        cam = GetComponent<Camera>();
+    }
+
     void Start()
     {
         originalDisplacementMultiplier = displacementMultiplier;
         playerScript = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponent<PlayerScript>();
-        cam = Camera.main;
     }
 
     void Update()
     {
+        if (cam == null)
+        {
+            Debug.LogError("Camera in camera controller is null");
+            return;
+        }
+
         if (!playerScript.IsPlayerAlive()) return;
 
         if (Input.GetKey(panKey))
