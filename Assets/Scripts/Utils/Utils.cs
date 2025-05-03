@@ -23,7 +23,8 @@ namespace Utils
             Enemy = 7,
             BulletByPlayer = 8,
             SwingByPlayer = 9,
-            ParriableLayer = 10
+            ParriableLayer = 10,
+            BodyOnTheGround = 11,
         }
     }
 
