@@ -98,6 +98,7 @@ public class ChaseMovement : MonoBehaviour, IMovement
 
         if (path == null || path.Length < 1)
         {
+            busy = false;
             yield break;
         }
 

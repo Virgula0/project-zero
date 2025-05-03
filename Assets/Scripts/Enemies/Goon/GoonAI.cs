@@ -87,7 +87,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         }
 
         // Add patrol waypoints
-        ConnectPatrolWaypoints();
+        // ConnectPatrolWaypoints();
         // Connect the global waypoints into our local graph
         ConnectGlobalWaypoints(glob);
         // Connect waypoints from other enemies using the global waypoints reference
