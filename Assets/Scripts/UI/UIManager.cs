@@ -13,9 +13,13 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Image weaponIcon;
     [SerializeField] private Image secondaryIcon;
 
-    void Start()
+    void Update()
     {
-        SetLevelText();
+        if (levelText.GetComponent<TextMeshProUGUI>().text != SceneManager.GetActiveScene().name)
+        {
+            SetLevelText();
+            return;
+        }
     }
 
     public void UpdateBullets(int numBullets)
