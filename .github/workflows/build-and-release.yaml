@@ -4,12 +4,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    types:
-      - opened
-      - reopened
-      - ready_for_review
-      - synchronize
 
 jobs:
   buildForWindowsAndLinuxAndOSX:
@@ -99,7 +93,7 @@ jobs:
           draft: false
           prerelease: true
           body: |
-            ![Release Banner](images/logo/logo.png)
+            ![Release Banner](https://raw.githubusercontent.com/Virgula0/project-zero/main/images/logo/logo.png)
 
           artifacts: |
             StandaloneOSX.zip
