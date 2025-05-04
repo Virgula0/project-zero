@@ -92,6 +92,9 @@ jobs:
           name: "${{ env.VERSION }}-pre-${{ github.run_number }}"
           draft: false
           prerelease: true
+          body: |
+            ![Release Banner](https://raw.githubusercontent.com/Virgula0/project-zero/main/images/logo/logo.png)
+
           artifacts: |
             StandaloneOSX.zip
             StandaloneWindows64.zip
