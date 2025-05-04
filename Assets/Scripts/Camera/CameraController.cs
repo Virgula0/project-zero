@@ -14,7 +14,6 @@ public class CameraController : MonoBehaviour
 
     void Awake()
     {
-        DontDestroyOnLoad(gameObject); // don't destory when switching scene
         cam = GetComponent<Camera>();
     }
 

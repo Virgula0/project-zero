@@ -55,6 +55,7 @@ namespace Utils
         public const string CURSOR_CHANGER_TAG = "CursorChanger";
         public const string LOGIC_MANAGER_TAG = "LogicManager";
         public const string UI_MANAGER_TAG = "UIManager";
+        public const string SCENE_SWITCHER_TAG = "SceneSwitcher";
     }
 
     public class Functions
