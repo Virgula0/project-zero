@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - ready_for_review
+      - synchronize
 
 jobs:
   buildForWindowsAndLinuxAndOSX:
@@ -92,6 +98,9 @@ jobs:
           name: "${{ env.VERSION }}-pre-${{ github.run_number }}"
           draft: false
           prerelease: true
+          body: |
+            ![Release Banner](images/logo/logo.png)
+
           artifacts: |
             StandaloneOSX.zip
             StandaloneWindows64.zip
