@@ -55,6 +55,23 @@ public class LogicManager : MonoBehaviour
         playerspriteRef.SetPlayerDeadSprite(weapon);
     }
 
+    public void GameOverAmbient()
+    {
+        if (playerReference.IsGodMode())
+        {
+            Debug.LogWarning("Unable to game over, god mode is activated");
+            return;
+        }
+        // manages game over
+        cursorChanger.ChangeToDefaultCursor();
+        playerUI.SetActive(false);
+        gameOverPrefab.SetActive(true);
+        playerReference.SetIsPlayerAlive(false);
+        
+        playerReference.PlayDeathSound();
+        playerspriteRef.SetPlayerDeadSpriteAmbient();
+    }
+
     public void ReloadSceneWithFade()
     {
         // Make sure the black overlay starts fully transparent:

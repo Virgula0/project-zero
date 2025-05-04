@@ -70,6 +70,16 @@ public class PlayerAnimationScript : MonoBehaviour
         spriteRendererRef.sprite = chosenSprites[randomInt];
     }
 
+    public void SetPlayerDeadSpriteAmbient()
+    {
+        if (animatorRef.GetCurrentAnimatorStateInfo(0).IsName(Utils.Animations.PLAYER_SWORD_ATTACK))
+        {
+            animatorRef.enabled = false;
+        }
+
+        spriteRendererRef.sprite = playerGunDeadSprites[0];
+    }
+
     public void SetPlayerLastSprite(Sprite lastSprite){
         playerLastSprite = lastSprite;
     }
