@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 // Used for managing logic, game over, sprites to be changed, point logic
 public class LogicManager : MonoBehaviour
 {
-    private int totalPoints;
+    private int totalPoints = 0;
     private PlayerScript playerReference;
     private bool isTheRoomClear = false;
     [SerializeField] private CanvasGroup fadeCanvasGroup; // add a canvas UI with black screen image
@@ -23,6 +24,21 @@ public class LogicManager : MonoBehaviour
         this.ui = GameObject.FindGameObjectWithTag(Utils.Const.UI_MANAGER_TAG).GetComponent<UIManager>();
         this.cursorChanger = GameObject.FindGameObjectWithTag(Utils.Const.CURSOR_CHANGER_TAG).GetComponent<CursorChanger>();
         this.playerspriteRef = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponentInChildren<PlayerAnimationScript>();
+
+        if (SwitchScene.Instance != null)
+        {
+            if (SwitchScene.Instance.UpdateLogicReference(this))
+            {
+                int pointsSaved = SwitchScene.Instance.GetCurrentSavedData();
+
+                if (this.totalPoints < pointsSaved)
+                {
+                    this.totalPoints = pointsSaved;
+                }
+            }
+        }
+
+        ui.UpdatePoints(this.totalPoints);
     }
 
     void Update()
@@ -50,7 +66,7 @@ public class LogicManager : MonoBehaviour
         playerUI.SetActive(false);
         gameOverPrefab.SetActive(true);
         playerReference.SetIsPlayerAlive(false);
-        
+
         playerReference.PlayDeathSound();
         playerspriteRef.SetPlayerDeadSprite(weapon);
     }
@@ -71,6 +87,11 @@ public class LogicManager : MonoBehaviour
         }
         totalPoints += CalculateScore(points);
         ui.UpdatePoints(totalPoints);
+    }
+
+    public int GetTotalPoints()
+    {
+        return totalPoints;
     }
 
     private void CheckRestartGame()
