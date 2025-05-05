@@ -75,5 +75,6 @@ public interface ISecondary :
     IFireable,
     IVisualWeapon,
     IAudioWeapon,
-    IReloadable
+    IReloadable,
+    IPickupable
 {}

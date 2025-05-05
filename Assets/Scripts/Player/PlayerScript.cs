@@ -10,6 +10,7 @@ public class PlayerScript : MonoBehaviour
     private DashScript dash;
     private bool isPlayerAlive = true;
     private AudioSource audioSrc;
+
     [SerializeField] private bool godMode = false;
     [SerializeField] private AudioClip deathSfx;
 
@@ -30,6 +31,7 @@ public class PlayerScript : MonoBehaviour
             playerRb.linearVelocity = Vector2.zero;
             return;
         }
+
         if (Input.GetKeyDown(KeyCode.Space))
         {
             dash.StartDash();

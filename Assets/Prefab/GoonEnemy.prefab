@@ -174,24 +174,8 @@ MonoBehaviour:
   runAwaySpeed: 0
   findAWaponSpeed: 0
   stoppingDistance: 5
-  patrolWaypoints:
-  - {x: 8.42, y: 7.1}
-  - {x: 8.42, y: -1.5}
-  - {x: -2.39, y: -1.5}
-  - {x: -2.39, y: 14}
-  - {x: 8.39, y: 14}
-  exitWaypoints:
-  - {x: 4.13, y: -1.45}
-  - {x: 4.13, y: -9.57}
-  - {x: -19.56, y: -9.57}
-  - {x: -19.56, y: 22.11}
-  - {x: 35.5, y: 22.6}
-  - {x: 35.5, y: -9.7}
-  - {x: 8.16, y: 27.9}
-  - {x: -19.67, y: 5}
-  - {x: 35.8, y: 5}
-  - {x: 20.3, y: -9.42}
-  - {x: -7.1, y: -9.42}
+  patrolWaypoints: []
+  exitWaypoints: []
   deathSfx: {fileID: 8300000, guid: 6d59adada5521604daac9f941b5fd3ac, type: 3}
 --- !u!114 &8164756090621583616
 MonoBehaviour:
@@ -373,7 +357,7 @@ Rigidbody2D:
     m_Bits: 64
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 136
+    m_Bits: 2184
   m_Interpolate: 1
   m_SleepingMode: 1
   m_CollisionDetection: 1
@@ -410,7 +394,6 @@ MonoBehaviour:
   - {fileID: 8877434639144464712, guid: 301e9ee683b4e1749acb302d78dd40a2, type: 3}
   - {fileID: -4294718512707466487, guid: 1c24013b924e8a648b74de7f0ed99a40, type: 3}
   - {fileID: 4516111076874819667, guid: 517f102e57a075a479f6cf861b610bc4, type: 3}
-  goonAIRef: {fileID: 615861216296667522}
 --- !u!95 &1572585757056663996
 Animator:
   serializedVersion: 7
@@ -623,7 +606,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af15f443bcdf1db48a45a831017cf7b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponTemplatePrefab: {fileID: 0}
+  weaponTemplatePrefab: {fileID: 5829556277332518347, guid: 71b6dbee4d80f424cbeecc56a58ed163, type: 3}
   audioSrc: {fileID: 394443343449259241}
   enemySpriteRenderer: {fileID: 8304945337948504477}
 --- !u!82 &394443343449259241

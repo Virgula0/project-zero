@@ -138,7 +138,7 @@ BoxCollider2D:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 2056
   m_LayerOverridePriority: 0
   m_ForceSendLayers:
     serializedVersion: 2
@@ -185,7 +185,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1224
   collisionBuffer: 0.1
-  outlineMaterial: {fileID: 2100000, guid: 5871c524c6649e34cb04521f2e440e05, type: 2}
 --- !u!50 &1892267370832675392
 Rigidbody2D:
   serializedVersion: 5
@@ -208,7 +207,7 @@ Rigidbody2D:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 2056
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 1

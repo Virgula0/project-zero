@@ -25,6 +25,7 @@ namespace Utils
             SwingByPlayer = 9,
             ParriableLayer = 10,
             BodyOnTheGround = 11,
+            KillZone = 12
         }
     }
 

@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -16,6 +15,7 @@ public class LogicManager : MonoBehaviour
     private const string ScreenOverlay = "ScreenOverlay";
     private CursorChanger cursorChanger;
     private UIManager ui;
+    private Animator playerAnimatorRef;
     private PlayerAnimationScript playerspriteRef;
 
     void Start()
@@ -24,6 +24,7 @@ public class LogicManager : MonoBehaviour
         this.ui = GameObject.FindGameObjectWithTag(Utils.Const.UI_MANAGER_TAG).GetComponent<UIManager>();
         this.cursorChanger = GameObject.FindGameObjectWithTag(Utils.Const.CURSOR_CHANGER_TAG).GetComponent<CursorChanger>();
         this.playerspriteRef = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponentInChildren<PlayerAnimationScript>();
+        playerAnimatorRef = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponentInChildren<Animator>();
 
         if (SwitchScene.Instance != null)
         {
@@ -69,6 +70,24 @@ public class LogicManager : MonoBehaviour
 
         playerReference.PlayDeathSound();
         playerspriteRef.SetPlayerDeadSprite(weapon);
+    }
+
+    public void GameOver()
+    {
+        if (playerReference.IsGodMode())
+        {
+            Debug.LogWarning("Unable to game over, god mode is activated");
+            return;
+        }
+        // manages game over
+        cursorChanger.ChangeToDefaultCursor();
+        playerUI.SetActive(false);
+        gameOverPrefab.SetActive(true);
+        playerReference.SetIsPlayerAlive(false);
+        
+        playerReference.PlayDeathSound();
+        //playerAnimatorRef.enabled = false;
+        playerspriteRef.SetPlayerDeadSprite();
     }
 
     public void ReloadSceneWithFade()
