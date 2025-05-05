@@ -8,7 +8,6 @@ public class ThrowableScript : MonoBehaviour
     private Vector2 moveDirection;                          // Normalized direction vector for object movement
     [SerializeField] private LayerMask hitLayers;           // Layers that can be hit by the object
     [SerializeField] private float collisionBuffer = 0.1f;  // Small distance buffer to prevent edge-case misses
-    [SerializeField] private Material outlineMaterial; // give more brightness to the object
     private LogicManager logic;
     private SpriteRenderer spriteToRender;
     private Rigidbody2D objBody;
@@ -39,7 +38,6 @@ public class ThrowableScript : MonoBehaviour
         }
         var childRenderer = GetComponentInChildren<SpriteRenderer>();
         childRenderer.sprite = spriteToRender.sprite;
-        childRenderer.material = outlineMaterial;
 
         box = GetComponent<BoxCollider2D>();
         if (box != null && childRenderer.sprite != null)

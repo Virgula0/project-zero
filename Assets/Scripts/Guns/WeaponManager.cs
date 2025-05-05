@@ -35,13 +35,13 @@ public class WeaponManager : MonoBehaviour
         this.uiManager = GameObject.FindGameObjectWithTag(Utils.Const.UI_MANAGER_TAG).GetComponent<UIManager>();
         this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER_TAG).GetComponent<WeaponSpawner>();
         this.playerScript = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponent<PlayerScript>();
+        playerCollider = gameObject.GetComponentInParent<BoxCollider2D>();
 
         while (!playerAnimCtrl.IsAnimationScriptReady()) // let's wait for the script animation to be ready first
         {
             yield return null;
         }
 
-        playerCollider = gameObject.GetComponentInParent<BoxCollider2D>();
         playerAnimCtrl.SetDefaultSprite();
         ResizePlayerCollider();
     }
@@ -108,7 +108,7 @@ public class WeaponManager : MonoBehaviour
 
         uiManager.UpdateSecondaryIcon(currentLoadedSecondary.GetStaticWeaponSprite());
         uiManager.UpdateCharges(currentLoadedSecondary.GetAmmoCount());
-        //currentLoadedWeapon.SetIsGoingToBePickedUp(false);
+        currentLoadedSecondary.SetIsGoingToBePickedUp(false);
         loadTime = Time.time;
     }
 

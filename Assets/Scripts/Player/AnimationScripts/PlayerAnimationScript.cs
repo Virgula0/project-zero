@@ -13,16 +13,18 @@ public class PlayerAnimationScript : MonoBehaviour
     private bool isAnimationScriptReady = false;
     private Camera playerCameraRef;
     private GameObject playerRef;
+    private PlayerScript playerScript;
     private Sprite playerLastSprite;
 
     void Start()
     {
         animatorRef = GetComponent<Animator>();
         spriteRendererRef = GetComponent<SpriteRenderer>();
-        isAnimationScriptReady = true;
         playerCameraRef = Camera.main;
         playerRef = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
         legsScriptRef = transform.parent.GetComponentInChildren<PlayerLegsAnimationScript>();
+        playerScript = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponent<PlayerScript>();
+        isAnimationScriptReady = true;
     }
 
     public bool IsAnimationScriptReady() => isAnimationScriptReady;
@@ -34,19 +36,29 @@ public class PlayerAnimationScript : MonoBehaviour
         SetEquippedWeponSprite(idleSwordSprite);
     }
 
-    public void OnTeleportInAnimationEnd(){
+    public void OnTeleportInAnimationEnd()
+    {
         legsScriptRef.SetIsTeleporting(true);
         Vector2 mousePosition = playerCameraRef.ScreenToWorldPoint(Input.mousePosition);
         playerRef.GetComponent<Rigidbody2D>().position = mousePosition;
         animatorRef.SetTrigger("teleport_end");
     }
 
-    public void OnTeleportOutEnd(){
-        if(playerLastSprite != null){
+    public void OnTeleportOutEnd()
+    {
+        if (playerLastSprite != null)
+        {
             spriteRendererRef.sprite = playerLastSprite;
             playerLastSprite = null;
         }
+
         animatorRef.enabled = false;
+
+        if (!playerScript.IsPlayerAlive())
+        {
+            SetPlayerDeadSprite();
+        }
+
         legsScriptRef.SetIsTeleporting(false);
     }
 
@@ -70,7 +82,7 @@ public class PlayerAnimationScript : MonoBehaviour
         spriteRendererRef.sprite = chosenSprites[randomInt];
     }
 
-    public void SetPlayerDeadSpriteAmbient()
+    public void SetPlayerDeadSprite()
     {
         if (animatorRef.GetCurrentAnimatorStateInfo(0).IsName(Utils.Animations.PLAYER_SWORD_ATTACK))
         {
@@ -80,7 +92,8 @@ public class PlayerAnimationScript : MonoBehaviour
         spriteRendererRef.sprite = playerGunDeadSprites[0];
     }
 
-    public void SetPlayerLastSprite(Sprite lastSprite){
+    public void SetPlayerLastSprite(Sprite lastSprite)
+    {
         playerLastSprite = lastSprite;
     }
 

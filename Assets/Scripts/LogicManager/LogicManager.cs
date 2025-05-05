@@ -15,6 +15,7 @@ public class LogicManager : MonoBehaviour
     private const string ScreenOverlay = "ScreenOverlay";
     private CursorChanger cursorChanger;
     private UIManager ui;
+    private Animator playerAnimatorRef;
     private PlayerAnimationScript playerspriteRef;
 
     void Start()
@@ -23,6 +24,7 @@ public class LogicManager : MonoBehaviour
         this.ui = GameObject.FindGameObjectWithTag(Utils.Const.UI_MANAGER_TAG).GetComponent<UIManager>();
         this.cursorChanger = GameObject.FindGameObjectWithTag(Utils.Const.CURSOR_CHANGER_TAG).GetComponent<CursorChanger>();
         this.playerspriteRef = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponentInChildren<PlayerAnimationScript>();
+        playerAnimatorRef = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponentInChildren<Animator>();
     }
 
     void Update()
@@ -55,7 +57,7 @@ public class LogicManager : MonoBehaviour
         playerspriteRef.SetPlayerDeadSprite(weapon);
     }
 
-    public void GameOverAmbient()
+    public void GameOver()
     {
         if (playerReference.IsGodMode())
         {
@@ -69,7 +71,8 @@ public class LogicManager : MonoBehaviour
         playerReference.SetIsPlayerAlive(false);
         
         playerReference.PlayDeathSound();
-        playerspriteRef.SetPlayerDeadSpriteAmbient();
+        //playerAnimatorRef.enabled = false;
+        playerspriteRef.SetPlayerDeadSprite();
     }
 
     public void ReloadSceneWithFade()

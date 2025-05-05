@@ -18,6 +18,7 @@ public class TeleportPrefab : MonoBehaviour, ISecondary
     private GameObject currentInitPrefab;
     private TeleportScript currentInitScript;
     private GameObject legsObj;
+    private bool isGoingToBePickedUp = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -107,5 +108,15 @@ public class TeleportPrefab : MonoBehaviour, ISecondary
     public int GetMegCap()
     {
         return 0;
+    }
+
+    public bool IsGoingToBePickedUp()
+    {
+        return isGoingToBePickedUp;
+    }
+
+    public void SetIsGoingToBePickedUp(bool status)
+    {
+        this.isGoingToBePickedUp = status;
     }
 }

@@ -24,11 +24,16 @@ public class SecondaryFinder : MonoBehaviour
             return;
         }
 
+        if (secondary.IsGoingToBePickedUp())
+        {
+            return;
+        }
+
         var obj = collision.gameObject;
 
         if(obj.layer == (int)Utils.Enums.ObjectLayers.Player)
         {
-            if (!Input.GetKeyDown(KeyCode.F))
+            if (!Input.GetKey(KeyCode.F))
             {
                 return;
             }
@@ -38,6 +43,7 @@ public class SecondaryFinder : MonoBehaviour
                 return;
             }
 
+            secondary.SetIsGoingToBePickedUp(true);
             Debug.Log("You got a secondary! " + gameObject.name);
             playerManager.LoadNewSecondary(secondary, this.gameObjectRef, obj);
             HandleSecondaryPickup();
