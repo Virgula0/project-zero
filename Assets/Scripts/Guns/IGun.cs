@@ -60,7 +60,7 @@ public interface IThrowable {
 }
 
 // defines if the gun is assigned to the player only or not
-public interface IEquippable{
+public interface IRestricted{
     bool IsEquippableByPlayerOnly();
 }
 

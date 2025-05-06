@@ -18,7 +18,7 @@ public class WeaponSpawner : MonoBehaviour
 
         foreach (GameObject obj in weaponsInTheScene)
         {
-            IEquippable eq = obj.GetComponent<IEquippable>();
+            IRestricted eq = obj.GetComponent<IRestricted>();
 
             // skip if the weapon is equippable by player only
             if (eq != null && eq.IsEquippableByPlayerOnly())

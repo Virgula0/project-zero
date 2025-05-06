@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 
 // This class is associated directly to prefabs and defines the entire "GunType" behaviour
-public class SimpleGun : MonoBehaviour, IGun, IEquippable, IThrowable, IRanged
+public class SimpleGun : MonoBehaviour, IGun, IRestricted, IThrowable, IRanged
 {
     private readonly float fireRate = 0.5f; // in seconds, 0.5 seconds between each shot
     private readonly int magCap = 10;

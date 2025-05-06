@@ -64,7 +64,7 @@ public class WeaponFinder : MonoBehaviour
     {
         // Destroy(this.gameObjectRef);
         gameObjectRef.SetActive(false);
-        if (weapon is IEquippable pick &&
+        if (weapon is IRestricted pick &&
             !pick.IsEquippableByPlayerOnly() &&
             !spawner.RemoveAGunFromTheGroundPosition(gameObject.transform.position))
         {
