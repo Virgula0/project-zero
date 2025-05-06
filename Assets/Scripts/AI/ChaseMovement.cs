@@ -13,7 +13,7 @@ public class ChaseMovement : MonoBehaviour, IMovement
     private BFSPathfinder bfs;
     private Vector2 enemyLatestPosition;
     private bool busy = false;
-    private float additionalSpeedWhenFollowingPath = 2f;
+    private float additionalSpeedWhenFollowingPath = 1.5f;
     private Coroutine _chaseCoroutine;
     private Func<float> getStoppingDistance;
 

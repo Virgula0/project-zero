@@ -19,7 +19,7 @@ public class GoonAnimationScript : MonoBehaviour
         gameObject.GetComponentInChildren<Animator>().enabled = false;
     }
 
-    public void SetGoonDeadSprite(IGun weapon)
+    public void SetGoonDeadSprite(IPrimary weapon)
     {
         if (animatorRef.GetCurrentAnimatorStateInfo(0).IsName(Utils.Animations.ENEMY_SWORD_ATTACK))
         {

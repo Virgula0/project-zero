@@ -27,7 +27,7 @@ public class WeaponSpawner : MonoBehaviour
             }
 
             allWeaponsPositions.Add((Vector2)obj.transform.position); // they're not physical object so this is fine
-            IGun weapon = obj.GetComponentInChildren<IGun>(); // all weapons extend IGun, sorry the name is a little bit misleading
+            IPrimary weapon = obj.GetComponentInChildren<IPrimary>(); // all weapons extend IGun, sorry the name is a little bit misleading
             if (weapon is IRanged)
             {
                 rangedWeaponsPositions.Add((Vector2)obj.transform.position);
@@ -69,7 +69,7 @@ public class WeaponSpawner : MonoBehaviour
         return allWeaponsPositions.ToArray();
     }
 
-    public bool AddAvailableGunOnTheGroundPosition(Vector2 toAdd, IGun gunObject)
+    public bool AddAvailableGunOnTheGroundPosition(Vector2 toAdd, IPrimary gunObject)
     {
         bool addedAll = !allWeaponsPositions.Contains(toAdd);
         if (addedAll) allWeaponsPositions.Add(toAdd);

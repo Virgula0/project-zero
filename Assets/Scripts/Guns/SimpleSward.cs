@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-public class SimpleSword : MonoBehaviour, IGun, IRestricted, IMelee
+public class SimpleSword : MonoBehaviour, IPrimary, IRestricted, IMelee
 {
     private readonly float fireRate = 1f; // 1 hit per second
     private readonly int magCap = int.MaxValue;
@@ -77,7 +77,7 @@ public class SimpleSword : MonoBehaviour, IGun, IRestricted, IMelee
     public AudioClip GetReloadSfx() => null;
     public AudioClip GetEquipSfx() => equipSound;
 
-    public IEnumerator SaveStatus(IGun other)
+    public IEnumerator SaveStatus(IPrimary other)
     {
         yield break;
     }

@@ -18,9 +18,9 @@ public class SwordScript : MonoBehaviour
     private float swingTimer = 0f;
     private bool isSwinging = false;
     private float waitBeforeCallCameOver = 0.2f;
-    private IGun swordRef;
+    private IPrimary swordRef;
 
-    public void Initialize(GameObject wielder, AudioClip swingSound,AudioClip parrySound, IGun sword)
+    public void Initialize(GameObject wielder, AudioClip swingSound,AudioClip parrySound, IPrimary sword)
     {
         player = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
         if (wielder.layer == (int)Utils.Enums.ObjectLayers.Player)

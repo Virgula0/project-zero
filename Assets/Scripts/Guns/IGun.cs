@@ -28,7 +28,7 @@ public interface IReloadable
 // Persistence of weapon state (ammo, upgrades, etc.)
 public interface IStatusPersistable
 {
-    IEnumerator SaveStatus(IGun other);
+    IEnumerator SaveStatus(IPrimary other);
 }
 
 // Enables “will-be-picked-up” flag on world weapons
@@ -65,7 +65,7 @@ public interface IRestricted{
 }
 
 // Full‐feature gun interface combining all individual aspects
-public interface IGun :
+public interface IPrimary :
     IInitializableWeapon,
     IFireable,
     IReloadable,

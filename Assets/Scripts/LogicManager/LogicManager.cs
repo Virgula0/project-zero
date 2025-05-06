@@ -55,7 +55,7 @@ public class LogicManager : MonoBehaviour
         return isTheRoomClear;
     }
 
-    public void GameOver(IGun weapon)
+    public void GameOver(IPrimary weapon)
     {
         if (playerReference.IsGodMode())
         {
