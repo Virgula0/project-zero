@@ -7,7 +7,9 @@ public class PassAmongScenes : MonoBehaviour
 
     void Start()
     {
-        switcher = GameObject.FindGameObjectWithTag(Utils.Const.SCENE_SWITCHER_TAG).GetComponent<SwitchScene>();
+        if (GameObject.FindGameObjectWithTag(Utils.Const.SCENE_SWITCHER_TAG) is GameObject scene && scene != null){
+            switcher = scene.GetComponent<SwitchScene>();
+        }
         logic = GameObject.FindGameObjectWithTag(Utils.Const.LOGIC_MANAGER_TAG).GetComponent<LogicManager>();
     }
 
