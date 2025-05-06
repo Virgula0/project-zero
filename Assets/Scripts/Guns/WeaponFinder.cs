@@ -52,6 +52,10 @@ public class WeaponFinder : MonoBehaviour
                     Debug.Log("This enemy cannot equip this type of weapon or is dead");
                     break;
                 }
+                if (manager.GetCurrentLoadedWeapon() != null){
+                    Debug.Log("Enemy already have an equipped weapon, skipping");
+                    break;
+                }
                 weapon.SetIsGoingToBePickedUp(true);
                 Debug.Log("Enemy got a weapon! " + gameObject.name);
                 manager.LoadNewGun(weapon, obj);
