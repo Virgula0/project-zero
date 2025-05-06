@@ -59,7 +59,6 @@ namespace Utils
         public const string SCENE_SWITCHER_TAG = "SceneSwitcher";
         public const string MAIN_MENU_SCENE = "MainMenuScene";
         public const string LOAD_MENU_SCENE = "LoadingScene";
-        public const string MAIN_MENU_OBJ = "MainMenuObject";
     }
 
     public class Functions

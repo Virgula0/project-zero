@@ -8,7 +8,7 @@ using UnityEngine;
 public class PointsRecap : MonoBehaviour
 {
     private SwitchScene switcher;
-    private int points;
+    private int points = 3000;
     [SerializeField] private AudioSource source;
     [SerializeField] private AudioClip machineSound;
     [SerializeField] TMP_Text pointsText;
@@ -18,12 +18,15 @@ public class PointsRecap : MonoBehaviour
     {
         switcher = GameObject.FindGameObjectWithTag(Utils.Const.SCENE_SWITCHER_TAG).GetComponent<SwitchScene>();
         points = switcher.GetCurrentSavedData();
-        var obj = GameObject.FindGameObjectWithTag(Utils.Const.MAIN_MENU_OBJ).GetComponent<StartMainMenu>();
+        StartMainMenu obj = StartMainMenu.Instance;
         Repository repo = obj.GetRepository();
+        obj.GetCursorChangerScript().ChangeToDefaultCursor();
+
 
         repo.InsertData(Repository.Tables.Stats.ToString(), new Dictionary<string, object>{
                     { "PlayerName", "test" },
-                    { "Score",points }
+                    { "Score",points },
+                    {"Time", ((Time.time - obj.GetStartPlayTime())/60).ToString()}
         });
 
         StartCoroutine(PlaySound());

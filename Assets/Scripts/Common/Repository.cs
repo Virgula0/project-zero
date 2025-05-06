@@ -18,9 +18,13 @@ namespace Assets.Scripts.Common
             Stats = 0,
         }
 
-        public Repository()
+        public Repository(bool deleteTableFirst)
         {
             this.ConnectToDatabase();
+            if (deleteTableFirst)
+            {
+                DeleteTables();
+            }
             this.CreateStatsTable();
         }
 
@@ -39,10 +43,20 @@ namespace Assets.Scripts.Common
         {
             using (var command = dbConnection.CreateCommand())
             {
-                command.CommandText = "CREATE TABLE IF NOT EXISTS Stats (ID INTEGER PRIMARY KEY AUTOINCREMENT, PlayerName TEXT, Score INTEGER);";
+                command.CommandText = "CREATE TABLE IF NOT EXISTS Stats (ID INTEGER PRIMARY KEY AUTOINCREMENT, PlayerName TEXT, Score INTEGER, Time TEXT);";
                 command.ExecuteNonQuery();
             }
             Debug.Log("Table created successfully");
+        }
+
+        public void DeleteTables()
+        {
+            using (var command = dbConnection.CreateCommand())
+            {
+                command.CommandText = "DROP TABLE IF EXISTS Stats";
+                command.ExecuteNonQuery();
+            }
+            Debug.Log("Table deleted successfully");
         }
 
         /*

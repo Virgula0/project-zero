@@ -14,7 +14,6 @@ TagManager:
   - LogicManager
   - UIManager
   - SceneSwitcher
-  - MainMenuObject
   layers:
   - Default
   - TransparentFX

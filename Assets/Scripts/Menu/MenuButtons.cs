@@ -1,3 +1,4 @@
+using Assets.Scripts.Menu;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -38,6 +39,7 @@ public class MenuButtons : MonoBehaviour
     public void ClickStart()
     {
         ClickSound();
+        StartMainMenu.Instance.BeginPlayTime();
         SceneManager.LoadScene(loadingScene);
     }
 
