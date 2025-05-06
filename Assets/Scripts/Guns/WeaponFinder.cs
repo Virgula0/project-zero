@@ -4,7 +4,7 @@ using UnityEngine;
 public class WeaponFinder : MonoBehaviour
 {
     private WeaponManager playerManager;
-    private IGun weapon;
+    private IPrimary weapon;
     private GameObject gameObjectRef;
     private WeaponSpawner spawner;
 
@@ -12,7 +12,7 @@ public class WeaponFinder : MonoBehaviour
     void Awake()
     {
         this.playerManager = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_MANAGER_TAG).GetComponent<WeaponManager>();
-        this.weapon = GetComponentInParent<IGun>(); // in parent, the concrete script of the gun which implements Igun must be present
+        this.weapon = GetComponentInParent<IPrimary>(); // in parent, the concrete script of the gun which implements Igun must be present
         this.gameObjectRef = transform.parent.gameObject;
         this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER_TAG).GetComponent<WeaponSpawner>();
     }
@@ -50,6 +50,10 @@ public class WeaponFinder : MonoBehaviour
                 if (!manager.CanWeaponBeEquipped(weapon))
                 {
                     Debug.Log("This enemy cannot equip this type of weapon or is dead");
+                    break;
+                }
+                if (manager.GetCurrentLoadedWeapon() != null){
+                    Debug.Log("Enemy already have an equipped weapon, skipping");
                     break;
                 }
                 weapon.SetIsGoingToBePickedUp(true);

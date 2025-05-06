@@ -7,12 +7,12 @@ public class SingleBulletScript : MonoBehaviour
     private Vector2 moveDirection;       // Normalized direction vector for bullet movement
     private bool isPlayer = false;
     private LogicManager logic;
-    private IGun gunRef;
+    private IPrimary gunRef;
 
     [SerializeField] private LayerMask hitLayers; // Layers that can be hit by the bullet
     [SerializeField] private float collisionBuffer = 0.1f; // Small distance buffer to prevent edge-case misses
 
-    public void Initialize(GameObject player, IGun gun)
+    public void Initialize(GameObject player, IPrimary gun)
     {
         if (player.layer == (int)Utils.Enums.ObjectLayers.Player)
         {

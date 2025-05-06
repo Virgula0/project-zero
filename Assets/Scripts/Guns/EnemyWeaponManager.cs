@@ -11,7 +11,7 @@ public class EnemyWeaponManager : MonoBehaviour
     [SerializeField] AudioSource audioSrc;
     [SerializeField] SpriteRenderer enemySpriteRenderer;
 
-    private IGun currentLoadedWeapon; // an enemy could have a gun at the beginning. If it does not have it it will start to search one.
+    private IPrimary currentLoadedWeapon; // an enemy could have a gun at the beginning. If it does not have it it will start to search one.
     private float timer; // timer counts the timer elapsed from the last shot, in seconds
     private Sprite defaultEnemySprite;
     private bool isEnemyAlerted = false;
@@ -24,6 +24,7 @@ public class EnemyWeaponManager : MonoBehaviour
     private int totalShotsDelivered;
     private IEnemy enemyRef;
     private Rigidbody2D playerBody;
+    private float initialDetectionTime = 0;
 
     void Start()
     {
@@ -38,7 +39,7 @@ public class EnemyWeaponManager : MonoBehaviour
             // 1) Find the prefab’s MonoBehaviour that implements IGun
             var templateMono = weaponTemplatePrefab
                 .GetComponents<MonoBehaviour>()
-                .FirstOrDefault(mb => mb is IGun);
+                .FirstOrDefault(mb => mb is IPrimary);
 
             if (templateMono == null)
                 throw new InvalidOperationException(
@@ -53,7 +54,7 @@ public class EnemyWeaponManager : MonoBehaviour
             JsonUtility.FromJsonOverwrite(json, newMono);
 
             // 4) Cast back to IGun and finish setup
-            var newGun = newMono as IGun;
+            var newGun = newMono as IPrimary;
             if (newGun == null)
                 throw new InvalidCastException($"Added component {compType.Name} doesn’t implement IGun?");
 
@@ -62,10 +63,11 @@ public class EnemyWeaponManager : MonoBehaviour
         ResizeEnemyCollider();
     }
 
-    public IGun GetCurrentLoadedWeapon()
+    public IPrimary GetCurrentLoadedWeapon()
     {
         return currentLoadedWeapon;
     }
+
 
     // Update is called once per frame
     void Update()
@@ -83,6 +85,11 @@ public class EnemyWeaponManager : MonoBehaviour
         }
 
         timer += Time.deltaTime;
+
+        if (Time.time - initialDetectionTime <= 0.5f ) // the player has 0.5 seconds after the detection
+        {
+            return;
+        }
 
         if (!isEnemyAlerted || isPlayerBehindAWall)
         {
@@ -130,14 +137,15 @@ public class EnemyWeaponManager : MonoBehaviour
     }
 
     // this will be invoked externally
-    public void LoadNewGun(IGun weapon, GameObject shooter)
+    public void LoadNewGun(IPrimary weapon, GameObject shooter)
     {
         if (weapon == null)
         {
             throw new NullReferenceException("ENEMY LOAD CANNOT BE NULL, THE PASSED REFERENCE TO WEAPON MANAGER IS NULL");
         }
-        
-        if (this.currentLoadedWeapon != null){
+
+        if (this.currentLoadedWeapon != null)
+        {
             Debug.LogWarning("Enemy has already a weapon cannot load another one");
         }
 
@@ -183,6 +191,12 @@ public class EnemyWeaponManager : MonoBehaviour
 
     public void ChangeEnemyStatus(bool status)
     {
+        if (!status)
+            this.initialDetectionTime = 0;
+
+        if (status && this.initialDetectionTime == 0)
+            this.initialDetectionTime = Time.time;
+            
         this.isEnemyAlerted = status;
     }
 
@@ -201,7 +215,7 @@ public class EnemyWeaponManager : MonoBehaviour
         this.isPlayerBehindAWall = condition;
     }
 
-    public bool CanWeaponBeEquipped(IGun weapon)
+    public bool CanWeaponBeEquipped(IPrimary weapon)
     {
         if (weaponTypesThatCanBeEquipped == null || weapon == null)
         {
