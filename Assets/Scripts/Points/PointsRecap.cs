@@ -61,9 +61,8 @@ public class PointsRecap : MonoBehaviour
                 pointsText.text = current.ToString();
                 lastDisplayed = current;
             }
-            yield return null;    // wait until next frame
+            yield return null;
         }
-        // ensure we end exactly on the target
         pointsText.text = points.ToString();
         animFinished = true;
     }
