@@ -8,6 +8,7 @@ public class EnemyScript : MonoBehaviour
     private SpriteRenderer sprite;
     private Detector playerDetector;
     private Rigidbody2D playerBody;
+    private IEnemy enemyScript;
 
     void Start()
     {   
@@ -15,11 +16,18 @@ public class EnemyScript : MonoBehaviour
         body = GetComponentInChildren<Rigidbody2D>();
         playerDetector = gameObject.GetComponentInChildren<Detector>();
         playerBody = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponentInChildren<Rigidbody2D>();
+        enemyScript = gameObject.GetComponentInChildren<IEnemy>();
         lastPosition = body.position;
     }
 
     void FixedUpdate()
     {
+
+        if (enemyScript.IsEnemyDead())
+        {
+            return;
+        }
+
         Vector2 currentPosition = body.position;
         Vector2 movement = currentPosition - lastPosition;
 
