@@ -16,5 +16,9 @@ namespace Assets.Scripts.Menu
                 rep = new Repository();
             }
         }
+
+        public Repository GetRepository(){
+            return rep;
+        }
     }
 }
