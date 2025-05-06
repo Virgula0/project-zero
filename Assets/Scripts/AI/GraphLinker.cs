@@ -5,106 +5,107 @@ using UnityEngine;
 // Finds the pair of Vector2 (one from each array) with the minimum squared distance.
 public class GraphLinker
 {
-    private static void FindClosestPair(Vector2[] arrayA, Vector2[] arrayB, out Vector2 bestFromA, out Vector2 bestFromB)
+    /// <summary>
+    /// Finds the closest pair (one point from A, one from B) whose connecting segment
+    /// is completely clear of colliders in the given obstacleMask.
+    /// </summary>
+    /// <returns>
+    /// True if at least one unblocked pair was found (and bestFromA/B set);
+    /// false if every pair was blocked, in which case bestFromA/B remain Vector2.zero.
+    /// </returns>
+    private static bool FindClosestVisiblePair(
+        Vector2[] arrayA,
+        Vector2[] arrayB,
+        LayerMask obstacleMask,
+        out Vector2 bestFromA,
+        out Vector2 bestFromB)
     {
-        float minSqrDistance = float.MaxValue;
+        float minSqrDist = float.MaxValue;
         bestFromA = Vector2.zero;
         bestFromB = Vector2.zero;
+        bool found = false;
 
-        // Iterate over all pairs.
-        foreach (Vector2 a in arrayA)
+        for (int i = 0; i < arrayA.Length; i++)
         {
-            foreach (Vector2 b in arrayB)
+            Vector2 a = arrayA[i];
+            for (int j = 0; j < arrayB.Length; j++)
             {
-                // Use squared distance to avoid the cost of the square root.
-                float currentSqrDistance = (a - b).sqrMagnitude;
-                if (currentSqrDistance < minSqrDistance)
-                {
-                    minSqrDistance = currentSqrDistance;
-                    bestFromA = a;
-                    bestFromB = b;
-                }
+                Vector2 b = arrayB[j];
+                // 1) Quick distance check
+                float d2 = (a - b).sqrMagnitude;
+                if (d2 >= minSqrDist)
+                    continue;
+
+                // 2) Line‐of‐sight check: Physics2D.Linecast returns true if something is hit
+                if (Physics2D.Linecast(a, b, obstacleMask))
+                    continue;
+
+                // This pair is both closer and unobstructed
+                minSqrDist = d2;
+                bestFromA = a;
+                bestFromB = b;
+                found = true;
             }
         }
+
+        return found;
     }
 
     /// <summary>
-    /// Links two graph dictionaries by re-indexing the second graph and adding an edge between the two closest nodes.
+    /// Merges two adjacency‐list graphs and links them by adding one edge between
+    /// their closest mutually visible nodes.
     /// </summary>
-    /// <param name="graph1">The first graph dictionary, with keys matching the indices of points1.</param>
-    /// <param name="graph2">The second graph dictionary, with keys matching the indices of points2.</param>
-    /// <param name="points1">The ordered array of Vector2 for graph1.</param>
-    /// <param name="points2">The ordered array of Vector2 for graph2.</param>
-    /// <returns>A new dictionary representing the merged graph with an added connection between the two closest nodes.</returns>
+    /// <param name="graph1">First graph (indices match points1).</param>
+    /// <param name="graph2">Second graph (indices match points2).</param>
+    /// <param name="points1">Positions of graph1’s nodes.</param>
+    /// <param name="points2">Positions of graph2’s nodes.</param>
+    /// <param name="obstacleMask">LayerMask indicating which layers count as obstacles.</param>
+    /// <returns>The merged graph (with graph2’s indices offset, plus one new connection).</returns>
     public Dictionary<int, List<int>> LinkGraphs(
         Dictionary<int, List<int>> graph1,
         Dictionary<int, List<int>> graph2,
         Vector2[] points1,
-        Vector2[] points2)
+        Vector2[] points2,
+        LayerMask obstacleMask)
     {
-        // Create a new dictionary for the merged graph
-        Dictionary<int, List<int>> mergedGraph = new Dictionary<int, List<int>>();
+        // 1) Copy graph1
+        var merged = new Dictionary<int, List<int>>(graph1.Count);
+        foreach (var kv in graph1)
+            merged[kv.Key] = new List<int>(kv.Value);
 
-        // First, add all of graph1 as-is.
-        foreach (var kvp in graph1)
-        {
-            // Clone the list if necessary to avoid modifying the original dictionary.
-            mergedGraph.Add(kvp.Key, new List<int>(kvp.Value));
-        }
-
-        // Determine the offset as the count of nodes in graph1.
+        // 2) Copy graph2 with re-indexed keys & neighbors
         int offset = graph1.Count;
-
-        // Re-index graph2 and add its nodes into mergedGraph.
-        foreach (var kvp in graph2)
+        foreach (var kv in graph2)
         {
-            int newKey = kvp.Key + offset;
-            List<int> newNeighbors = new List<int>();
-            foreach (int neighbor in kvp.Value)
-            {
-                newNeighbors.Add(neighbor + offset);
-            }
-            mergedGraph.Add(newKey, newNeighbors);
+            int key2 = kv.Key + offset;
+            var neigh = new List<int>();
+            foreach (int n in kv.Value)
+                neigh.Add(n + offset);
+            merged[key2] = neigh;
         }
 
-        // Find the closest pair of nodes between points1 and points2.
-        Vector2 bestFrom1, bestFrom2;
-        FindClosestPair(points1, points2, out bestFrom1, out bestFrom2);
+        // 3) Find closest *visible* pair
+        Vector2 aPos, bPos;
+        bool ok = FindClosestVisiblePair(points1, points2, obstacleMask, out aPos, out bPos);
 
-        // Identify their indices.
-        int indexFrom1 = Array.IndexOf(points1, bestFrom1);
-        int indexFrom2 = Array.IndexOf(points2, bestFrom2);
-        // Re-index for the second graph.
-        int reindexedIndexFrom2 = indexFrom2 + offset;
-
-        // Now, add a connection (bidirectional) between these two nodes.
-        // For graph1 node:
-        if (mergedGraph.ContainsKey(indexFrom1))
+        if (!ok)
         {
-            if (!mergedGraph[indexFrom1].Contains(reindexedIndexFrom2))
-            {
-                mergedGraph[indexFrom1].Add(reindexedIndexFrom2);
-            }
-        }
-        else
-        {
-            mergedGraph[indexFrom1] = new List<int> { reindexedIndexFrom2 };
+            Debug.LogWarning("GraphLinker: no unobstructed link found—sub‐graphs remain disconnected.");
+            return merged;
         }
 
-        // For graph2 node (re-indexed):
-        if (mergedGraph.ContainsKey(reindexedIndexFrom2))
-        {
-            if (!mergedGraph[reindexedIndexFrom2].Contains(indexFrom1))
-            {
-                mergedGraph[reindexedIndexFrom2].Add(indexFrom1);
-            }
-        }
-        else
-        {
-            mergedGraph[reindexedIndexFrom2] = new List<int> { indexFrom1 };
-        }
+        // 4) Get their original indices
+        int idx1 = Array.IndexOf(points1, aPos);
+        int idx2 = Array.IndexOf(points2, bPos) + offset;
 
-        return mergedGraph;
+        // 5) Add the bidirectional edge
+        if (!merged[idx1].Contains(idx2))
+            merged[idx1].Add(idx2);
+
+        if (!merged[idx2].Contains(idx1))
+            merged[idx2].Add(idx1);
+
+        return merged;
     }
 
     // This function defines connections between Vector2 points. 
