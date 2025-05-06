@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class WeaponManager : MonoBehaviour
 {
-    private IGun currentLoadedWeapon;
+    private IPrimary currentLoadedWeapon;
     private float timer; // timer counts the timer elapsed from the last shot, in seconds
     private float secondaryTimer;
     private UIManager uiManager;
@@ -47,7 +47,7 @@ public class WeaponManager : MonoBehaviour
     }
 
     // this will be invoked externally
-    public void LoadNewGun(IGun weapon, GameObject shooter, GameObject prefab)
+    public void LoadNewGun(IPrimary weapon, GameObject shooter, GameObject prefab)
     {
         if (weapon == null)
         {
@@ -184,7 +184,7 @@ public class WeaponManager : MonoBehaviour
         Vector2 up = new Vector2(-forward.y, forward.x); // rotate forward by 90° CCW
         Vector2 spawnPos = origin + forward * forwardSpawnGunPrefabOffset + up * upOffsetSpawnGunPrefab;
         GameObject newPrefab = Instantiate(gunPrefab, spawnPos, Quaternion.identity);
-        StartCoroutine(newPrefab.GetComponent<IGun>().SaveStatus(currentLoadedWeapon)); // will save the status after awaked, that's why a coroutine
+        StartCoroutine(newPrefab.GetComponent<IPrimary>().SaveStatus(currentLoadedWeapon)); // will save the status after awaked, that's why a coroutine
         newPrefab.SetActive(true);
         spawner.AddAvailableGunOnTheGroundPosition(spawnPos, currentLoadedWeapon);
     }
@@ -290,7 +290,7 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
-    public IGun GetCurrentLoadedWeapon()
+    public IPrimary GetCurrentLoadedWeapon()
     {
         return currentLoadedWeapon;
     }

@@ -62,7 +62,7 @@ public class PlayerAnimationScript : MonoBehaviour
         legsScriptRef.SetIsTeleporting(false);
     }
 
-    public void SetPlayerDeadSprite(IGun weapon)
+    public void SetPlayerDeadSprite(IPrimary weapon)
     {
         if (animatorRef.GetCurrentAnimatorStateInfo(0).IsName(Utils.Animations.PLAYER_SWORD_ATTACK))
         {
