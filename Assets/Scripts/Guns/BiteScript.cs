@@ -1,46 +1,32 @@
 using System.Collections;
 using UnityEngine;
 
-public class SwordScript : MonoBehaviour
+public class BiteScript : MonoBehaviour
 {
-    [SerializeField] private float coneAngle = 160f;
-    [SerializeField] private float coneRange = 5f;
-    private bool isPlayer = false;
-    private bool canSwing = true;
+    [SerializeField] private float coneAngle = 45f;
+    [SerializeField] private float coneRange = 3f;
+    private bool canBite = true;
     private GameObject wielder; // wielder is the game object which contains the sprite
-    private AudioClip swingSound;
-    private AudioClip parrySound;
+    private AudioClip biteSound;
     [SerializeField] private LayerMask hitLayers;
     private float fireRate = 1f;
     private LogicManager logic;
     private LayerMask finalHitLayers;
     private GameObject player;
-    private float swingTimer = 0f;
-    private bool isSwinging = false;
+    private float biteTimer = 0f;
+    private bool isBiting = false;
     private float waitBeforeCallCameOver = 0.2f;
-    private IPrimary swordRef;
+    private IPrimary biteRef;
 
-    public void Initialize(GameObject wielder, AudioClip swingSound,AudioClip parrySound, IPrimary sword)
+    public void Initialize(GameObject wielder, AudioClip biteSound, IPrimary bite)
     {
         player = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
-        if (wielder.layer == (int)Utils.Enums.ObjectLayers.Player)
-        {
-            gameObject.layer = (int)Utils.Enums.ObjectLayers.SwingByPlayer;
-            isPlayer = true;
-        }
 
         this.wielder = wielder;
-        this.swingSound = swingSound;
-        this.parrySound = parrySound;
-        this.swordRef = sword;
+        this.biteSound = biteSound;
+        this.biteRef = bite;
 
         int shooterLayerValue;
-        if (isPlayer)
-        {
-            shooterLayerValue = 1 << (int)Utils.Enums.ObjectLayers.Player;
-            finalHitLayers = hitLayers & ~shooterLayerValue;
-            return;
-        }
 
         shooterLayerValue = 1 << (int)Utils.Enums.ObjectLayers.Enemy;
         finalHitLayers = hitLayers & ~shooterLayerValue;
@@ -52,64 +38,53 @@ public class SwordScript : MonoBehaviour
                          .GetComponent<LogicManager>();
     }
 
-    public bool GetCanSwing()
+    public bool GetCanBite()
     {
-        return canSwing;
+        return canBite;
     }
 
     void Update()
     {
-        if (isSwinging)
+        //Debug.Log(isBiting);
+        if (isBiting)
         {
-            swingTimer += Time.deltaTime;
+            biteTimer += Time.deltaTime;
 
             // Hit happens after 0.1s
-            if (swingTimer >= 0.1f && swingTimer < 0.1f + Time.deltaTime)
+            if (biteTimer >= 0.1f && biteTimer < 0.1f + Time.deltaTime)
             {
+                Debug.Log("PERFORMING HIT");
                 PerformHit();
             }
 
-            // Swing cooldown ends
-            if (swingTimer >= 1f / fireRate)
+            // Bite cooldown ends
+            if (biteTimer >= 1f / fireRate)
             {
-                if (!isPlayer)
-                {
-                    // restore original layer for enemy
-                    Utils.Functions.SetLayerRecursively(wielder.transform.parent.gameObject, (int)Utils.Enums.ObjectLayers.Enemy);
-                }
-                canSwing = true;
-                isSwinging = false;
+                canBite = true;
+                isBiting = false;
             }
         }
     }
 
-    public void Swing()
+    public void Bite()
     {
-        if (!canSwing) return;
+        Debug.Log("INSIDE BITE");
+        if (!canBite) return;
 
         Vector2 dir;
-        if (isPlayer)
-        {
-            Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            dir = mouseWorld - wielder.transform.position;
-        }
-        else
-        {
-            // enemy
-            Utils.Functions.SetLayerRecursively(wielder.transform.parent.gameObject, (int)Utils.Enums.ObjectLayers.ParriableLayer);
-            dir = player.transform.position - wielder.transform.position;
-        }
+        // enemy
+        dir = player.transform.position - wielder.transform.position;
 
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
         transform.position = wielder.transform.position;
 
-        if (swingSound != null)
-            AudioSource.PlayClipAtPoint(swingSound, wielder.transform.position);
+        if (biteSound != null)
+            AudioSource.PlayClipAtPoint(biteSound, wielder.transform.position);
 
-        canSwing = false;
-        isSwinging = true;
-        swingTimer = 0f;
+        canBite = false;
+        isBiting = true;
+        biteTimer = 0f;
     }
 
     private void PerformHit()
@@ -135,10 +110,6 @@ public class SwordScript : MonoBehaviour
 
         switch (hitLayer)
         {
-            case Utils.Enums.ObjectLayers.ParriableLayer when isPlayer:
-                ProcessParry(collider);
-                break;
-
             case Utils.Enums.ObjectLayers.Player:
                 ProcessPlayerHit();
                 break;
@@ -147,27 +118,10 @@ public class SwordScript : MonoBehaviour
                 Debug.Log("Hit wall");
                 break;
 
-            case Utils.Enums.ObjectLayers.Enemy:
-                ProcessEnemyHit(collider);
-                break;
-
             default:
                 // Layer not relevant
                 break;
         }
-    }
-
-    private void ProcessParry(Collider2D collider)
-    {
-        Debug.Log("PARRY DETECTED");
-        var enemy = collider.transform.parent
-                             .GetComponentInChildren<IEnemy>();
-
-        if (enemy == null || enemy.IsEnemyDead() || enemy.IsStunned())
-            return;
-
-        AudioSource.PlayClipAtPoint(parrySound, wielder.transform.position);
-        enemy.SetIsEnemyStunned();
     }
 
     // Initiates player hit logic with a delay before stunned check
@@ -192,22 +146,8 @@ public class SwordScript : MonoBehaviour
             yield break;
 
         Debug.Log("Hit player");
-        logic.GameOver(swordRef);
+        logic.GameOver(biteRef);
     }
-
-    private void ProcessEnemyHit(Collider2D collider)
-    {
-        Debug.Log("Hit enemy");
-        var enemy = collider.transform.parent
-                             .GetComponentInChildren<IEnemy>();
-
-        if (enemy == null || enemy.IsEnemyDead())
-            return;
-
-        enemy.SetIsEnemyDead(true);
-        logic.AddEnemyKilledPoints(enemy as IPoints);
-    }
-
 
 #if UNITY_EDITOR
     void OnDrawGizmosSelected()

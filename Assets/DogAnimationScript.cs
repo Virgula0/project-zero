@@ -16,7 +16,6 @@ public class DogAnimationScript : MonoBehaviour
         // Calculate movement delta
         speed = (transform.position - lastPosition).magnitude / Time.deltaTime;
 
-        Debug.Log(speed);
         // Set Animator speed parameter
         animatorRef.SetFloat("speed", speed);
 

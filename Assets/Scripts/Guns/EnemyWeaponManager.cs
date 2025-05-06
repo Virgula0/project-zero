@@ -11,7 +11,7 @@ public class EnemyWeaponManager : MonoBehaviour
     [SerializeField] AudioSource audioSrc;
     [SerializeField] SpriteRenderer enemySpriteRenderer;
 
-    private IGun currentLoadedWeapon; // an enemy could have a gun at the beginning. If it does not have it it will start to search one.
+    private IPrimary currentLoadedWeapon; // an enemy could have a gun at the beginning. If it does not have it it will start to search one.
     private float timer; // timer counts the timer elapsed from the last shot, in seconds
     private Sprite defaultEnemySprite;
     private bool isEnemyAlerted = false;
@@ -38,11 +38,11 @@ public class EnemyWeaponManager : MonoBehaviour
             // 1) Find the prefab’s MonoBehaviour that implements IGun
             var templateMono = weaponTemplatePrefab
                 .GetComponents<MonoBehaviour>()
-                .FirstOrDefault(mb => mb is IGun);
+                .FirstOrDefault(mb => mb is IPrimary);
 
             if (templateMono == null)
                 throw new InvalidOperationException(
-                    $"Prefab {weaponTemplatePrefab.name} has no component implementing IGun");
+                    $"Prefab {weaponTemplatePrefab.name} has no component implementing IPrimary");
 
             // 2) Add a new empty component of that exact type to the enemy
             var compType = templateMono.GetType();
@@ -53,7 +53,7 @@ public class EnemyWeaponManager : MonoBehaviour
             JsonUtility.FromJsonOverwrite(json, newMono);
 
             // 4) Cast back to IGun and finish setup
-            var newGun = newMono as IGun;
+            var newGun = newMono as IPrimary;
             if (newGun == null)
                 throw new InvalidCastException($"Added component {compType.Name} doesn’t implement IGun?");
 
@@ -62,7 +62,7 @@ public class EnemyWeaponManager : MonoBehaviour
         ResizeEnemyCollider();
     }
 
-    public IGun GetCurrentLoadedWeapon()
+    public IPrimary GetCurrentLoadedWeapon()
     {
         return currentLoadedWeapon;
     }
@@ -70,7 +70,6 @@ public class EnemyWeaponManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
         if (isReloading)
         {
             return;
@@ -114,7 +113,8 @@ public class EnemyWeaponManager : MonoBehaviour
 
         int beforeShootAmmo = currentLoadedWeapon.GetAmmoCount();
         if (timer >= currentLoadedWeapon.GetFireRate() && beforeShootAmmo > 0)
-        {
+        {   
+            Debug.Log("INSIDE THE WEAPON MANAGER SHOOT");
             timer = 0;
             currentLoadedWeapon.Shoot();
             totalShotsDelivered += Mathf.Max(0, beforeShootAmmo - currentLoadedWeapon.GetAmmoCount()); // Mathf.Max avoid negative values
@@ -130,7 +130,7 @@ public class EnemyWeaponManager : MonoBehaviour
     }
 
     // this will be invoked externally
-    public void LoadNewGun(IGun weapon, GameObject shooter)
+    public void LoadNewGun(IPrimary weapon, GameObject shooter)
     {
         if (weapon == null)
         {
@@ -144,15 +144,19 @@ public class EnemyWeaponManager : MonoBehaviour
         Debug.Log("Enemy loaded a weapon");
         // must be done whatever a new gun gets loaded
         currentLoadedWeapon = weapon;
-        enemySpriteRenderer.sprite = weapon.GetEquippedSprite();
+        if(weapon.GetEquippedSprite() != null){
+            enemySpriteRenderer.sprite = weapon.GetEquippedSprite();
+        }
 
         // we're allowed to shoot at te beginning 
         timer = float.PositiveInfinity;
         currentLoadedWeapon.Setup(shooter);
 
-        enemySpriteRenderer.sprite = weapon.GetGoonEquippedSprite();
+        if(weapon.GetGoonEquippedSprite() != null){
+            enemySpriteRenderer.sprite = weapon.GetGoonEquippedSprite();
 
-        ResizeEnemyCollider();
+            ResizeEnemyCollider();
+        }
 
         needsToFindAWeapon = false; // enemy do not needs to find a weapon anymore
         if (needsToPLayOnLoad)
@@ -201,7 +205,7 @@ public class EnemyWeaponManager : MonoBehaviour
         this.isPlayerBehindAWall = condition;
     }
 
-    public bool CanWeaponBeEquipped(IGun weapon)
+    public bool CanWeaponBeEquipped(IPrimary weapon)
     {
         if (weaponTypesThatCanBeEquipped == null || weapon == null)
         {
