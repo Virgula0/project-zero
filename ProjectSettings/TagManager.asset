@@ -13,7 +13,6 @@ TagManager:
   - CursorChanger
   - LogicManager
   - UIManager
-  - SceneSwitcher
   layers:
   - Default
   - TransparentFX

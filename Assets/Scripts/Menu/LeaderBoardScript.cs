@@ -29,7 +29,7 @@ public class LeaderBoardScript : MonoBehaviour
 
         foreach (var player in players)
         {
-            Debug.Log($"ID: {player["ID"]}, Name: {player["PlayerName"]}, Age: {player["Score"]}, Time: {player["Time"]}");
+            // Debug.Log($"ID: {player["ID"]}, Name: {player["PlayerName"]}, Age: {player["Score"]}, Time: {player["Time"]}");
 
             GameObject newRow = Instantiate(row, contentParent); // Sets Content as parent
             newRow.transform.localScale = Vector3.one; // Ensure scale is correct

@@ -16,7 +16,7 @@ public class PointsRecap : MonoBehaviour
 
     void Start()
     {
-        switcher = GameObject.FindGameObjectWithTag(Utils.Const.SCENE_SWITCHER_TAG).GetComponent<SwitchScene>();
+        switcher = SwitchScene.Instance;
         points = switcher.GetCurrentSavedData();
         StartMainMenu obj = StartMainMenu.Instance;
         Repository repo = obj.GetRepository();
