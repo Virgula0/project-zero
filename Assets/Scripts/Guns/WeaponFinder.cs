@@ -26,7 +26,8 @@ public class WeaponFinder : MonoBehaviour
             return;
         }
 
-        if (weapon.IsGoingToBePickedUp()){
+        if (weapon.IsGoingToBePickedUp())
+        {
             return;
         }
 
@@ -63,7 +64,9 @@ public class WeaponFinder : MonoBehaviour
     {
         // Destroy(this.gameObjectRef);
         gameObjectRef.SetActive(false);
-        if (!spawner.RemoveAGunFromTheGroundPosition(gameObject.transform.position))
+        if (weapon is IRestricted pick &&
+            !pick.IsEquippableByPlayerOnly() &&
+            !spawner.RemoveAGunFromTheGroundPosition(gameObject.transform.position))
         {
             Debug.LogWarning("An element should have been removed and it was not!");
         }

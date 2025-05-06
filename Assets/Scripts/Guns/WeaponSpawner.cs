@@ -18,6 +18,14 @@ public class WeaponSpawner : MonoBehaviour
 
         foreach (GameObject obj in weaponsInTheScene)
         {
+            IRestricted eq = obj.GetComponent<IRestricted>();
+
+            // skip if the weapon is equippable by player only
+            if (eq != null && eq.IsEquippableByPlayerOnly())
+            {
+                continue;
+            }
+
             allWeaponsPositions.Add((Vector2)obj.transform.position); // they're not physical object so this is fine
             IGun weapon = obj.GetComponentInChildren<IGun>(); // all weapons extend IGun, sorry the name is a little bit misleading
             if (weapon is IRanged)
