@@ -37,6 +37,7 @@ public class DogAI : MonoBehaviour, IEnemy, IPoints
     private PlayerScript playerScript;
     private WeaponManager playerWeaponManager;
     private AudioSource audioSrc;
+    private DogAnimationScript animationScript;
 
     private bool awakeReady = false;
     private bool isEnemyDead = false;
@@ -119,6 +120,7 @@ public class DogAI : MonoBehaviour, IEnemy, IPoints
         player = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
         playerDetector = gameObject.GetComponent<Detector>();
         playerScript = player.GetComponent<PlayerScript>();
+        animationScript = gameObject.transform.parent.GetComponentInChildren<DogAnimationScript>();
         playerWeaponManager = player.GetComponentInChildren<WeaponManager>();
         audioSrc = transform.parent.GetComponent<AudioSource>();
 
@@ -265,6 +267,7 @@ public class DogAI : MonoBehaviour, IEnemy, IPoints
         if (isEnemyDead)
         {
             audioSrc.PlayOneShot(deathSfx);
+            animationScript.SetDogDeadSprite(playerWeaponManager.GetCurrentLoadedWeapon());
         }
 
         currentMovement = null;

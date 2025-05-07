@@ -198,6 +198,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d45fd81ed160a1347a6dc670f31b0349, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dogGunDeathSprites:
+  - {fileID: -6978507988615449802, guid: 6be34edc67ad3684182b24cd6befb71e, type: 3}
+  - {fileID: 3559305391485993727, guid: f01d2c499799eac4f89d2c1e3826e968, type: 3}
+  - {fileID: -3498010969144068937, guid: b1923fcde32190341a6ce211e9e8e786, type: 3}
+  - {fileID: 8340814213299240560, guid: f9d7c346e0cc9af4cb0fb16d319df6b6, type: 3}
+  dogBladeDeathSprites:
+  - {fileID: -8992444528759439592, guid: b102995d3668b534fa1d4fdbd38c5b51, type: 3}
+  - {fileID: 4820006171348435290, guid: eb012136cfba5f64ab3a61ff68bb1b73, type: 3}
+  - {fileID: -8656933295113013863, guid: 9d543f878b9a3fe40b67525e4c02e72f, type: 3}
+  - {fileID: -8371969052052999900, guid: ccd9f3122de11844496d0125b014a387, type: 3}
+  - {fileID: 3762373435741701150, guid: 235dbb1b584c1984bbc17ce2bc221dee, type: 3}
+  - {fileID: -413277539802267684, guid: 97ef17d84bbc6df4f852e395ba2ef5ac, type: 3}
+  - {fileID: -2838412389806652059, guid: 56dc197b9d9178940a0e1936cc184967, type: 3}
 --- !u!1 &900764999012937705
 GameObject:
   m_ObjectHideFlags: 0
