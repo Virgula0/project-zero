@@ -124,7 +124,6 @@ public class LogicManager : MonoBehaviour
 
     private void CheckAllEnemiesDead()
     {
-        // cache this if your room composition doesn't change mid‐room!
         var enemies = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None)
                           .OfType<IEnemy>();
 
@@ -146,7 +145,7 @@ public class LogicManager : MonoBehaviour
       *  The term w₂·(1/(T+ε)) is largest when T is small, and falls off as T increases.
       *
       *  Plus base points
-      *  You simply add your existing GetBasePoints().
+      *  Simply add existing GetBasePoints().
       * in other words:
       *
       * - the less is the TotalChasedTime, the higher will be the point

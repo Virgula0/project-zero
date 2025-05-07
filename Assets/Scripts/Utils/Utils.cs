@@ -56,7 +56,8 @@ namespace Utils
         public const string CURSOR_CHANGER_TAG = "CursorChanger";
         public const string LOGIC_MANAGER_TAG = "LogicManager";
         public const string UI_MANAGER_TAG = "UIManager";
-        public const string SCENE_SWITCHER_TAG = "SceneSwitcher";
+        public const string MAIN_MENU_SCENE = "MainMenuScene";
+        public const string LOAD_MENU_SCENE = "LoadingScene";
     }
 
     public class Functions
@@ -86,6 +87,24 @@ namespace Utils
             addedIndex = array.Length;
             return newArray;
         }
+
+        public static Vector2[] CombineVector2Arrays(Vector2[] firstArray, Vector2[] secondArray)
+        {
+            Vector2[] combinedArray = new Vector2[firstArray.Length + secondArray.Length];
+
+            for (int i = 0; i < firstArray.Length; i++)
+            {
+                combinedArray[i] = firstArray[i];
+            }
+
+            for (int i = 0; i < secondArray.Length; i++)
+            {
+                combinedArray[firstArray.Length + i] = secondArray[i];
+            }
+
+            return combinedArray;
+        }
+
         /// Returns a new array containing only those points in <paramref name="source"/>
         /// that are not exactly equal to any point in <paramref name="toRemove"/>.
         public static Vector2[] RemoveAll(Vector2[] source, Vector2[] toRemove)

@@ -13,7 +13,6 @@ public class WeaponFinderMovement : MonoBehaviour, IMovement
     private List<Type> typesThatCanBeEquipped;
     private EnemyWeaponManager enemyWeaponManager;
     private bool busy = false;
-    private bool atLeastAWeaponAvailable = true;
     private Coroutine _finderCoroutine;
     private Detector playerDetector;
 
@@ -38,7 +37,7 @@ public class WeaponFinderMovement : MonoBehaviour, IMovement
     }
 
     // this functions using tree of ranged or melee weapons returns the coordintates of the weapoon closer to the enemy
-    // this ignores bodies within the enemy and weapoins at the moment
+    // this ignores bodies within the enemy and waypoints at the moment
     // also, as it is coded it gives priority to the first Type declared to typesThatCanBeEquipped, so the order matters
     public Vector2? CloserWeaponToEnemy(Vector2 enemyPos, Vector2? closerWeaponToEnemy)
     {
@@ -83,19 +82,12 @@ public class WeaponFinderMovement : MonoBehaviour, IMovement
 
         if (closerEquippableWeapon == null)
         {
-            atLeastAWeaponAvailable = false;
             Debug.LogWarning("Closer weapon to enemy is null, nothing found");
             return;
         }
 
         busy = true;
-        atLeastAWeaponAvailable = true;
         _finderCoroutine = StartCoroutine(MoveToThePointCoroutine(enemyTransform, (Vector2)closerEquippableWeapon));
-    }
-
-    public bool GetIsAtLeastAWeaponAvailable()
-    {
-        return this.atLeastAWeaponAvailable;
     }
 
     public Vector2 FindClosestWayPoint(Rigidbody2D enemyRigidbody, Vector2[] toExclude, out int index)
@@ -124,7 +116,7 @@ public class WeaponFinderMovement : MonoBehaviour, IMovement
             float distanceToClosest = Vector2.Distance(enemyRB.position, closestPoint);
             RaycastHit2D hit = Physics2D.Raycast(enemyRB.position, directionToClosest, distanceToClosest, playerDetector.GetObstacleLayers());
             clearPath = hit.collider == null;
-
+            Debug.Log(clearPath);
             if (!clearPath)
             {
                 vectorsToExclude.Add(closestPoint);
@@ -132,15 +124,17 @@ public class WeaponFinderMovement : MonoBehaviour, IMovement
             }
         }
 
+        Debug.Log(closestPoint);
+
         if (currentIteration >= maxIterations)
         {
             StopCoroutines(true);
-            Debug.LogWarning("WARNING! Cannot find clearest closer waypoint while coward");
+            Debug.LogWarning("WARNING! Cannot find clearest closer waypoint on weapon finder movement");
         }
 
         //Vector2 enemyCloserWaypoint = kdTree.FindNearest(enemyRB.position, out _);
         Vector2[] path = bfs.PathToPoint(closestPoint, targetWaypoint);
-
+        Debug.Log(Utils.Functions.Vector2ArrayToString(path));
         // walk the path
         foreach (Vector2 waypoint in path)
             yield return MoveToDestinationWithChecks(enemyRB, waypoint, closerEquippableWeapon);
