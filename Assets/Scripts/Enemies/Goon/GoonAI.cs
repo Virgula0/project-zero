@@ -147,6 +147,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
 
     private void ConnectGlobalWaypoints(GlobalWaypoints glob)
     {
+        /*
         // Get the remapped global waypoints dictionary
         Dictionary<int, int> dict = glob.GetGlobalWaypointsRemapped();
 
@@ -162,6 +163,26 @@ public class AI : MonoBehaviour, IEnemy, IPoints
             this.connectionGraph[index].Add(addedIndex);
             treeStructure.UpdateVectorSetOnInsert(elemToLink);
         }
+        */
+
+        // Merge connection graphs using the linker helper
+        this.connectionGraph = linker.LinkGraphs(
+            this.connectionGraph,
+            linker.GenerateConnections(glob.GetGlobalWaypointsNotRemappedVector()),
+            this.exitWaypoints,
+            glob.GetGlobalWaypointsNotRemappedVector(),
+            playerDetector.GetObstacleLayers()
+        );
+
+        // Add enemy waypoints to the current set and update the kd-tree accordingly
+        foreach (Vector2 node in glob.GetGlobalWaypointsNotRemappedVector())
+        {
+            this.exitWaypoints = Utils.Functions.AddToVector2Array(this.exitWaypoints, node, out _);
+            treeStructure.UpdateVectorSetOnInsert(node);
+        }
+
+        Debug.Log(Utils.Functions.Vector2ArrayToString(this.exitWaypoints));
+        Utils.Functions.PrintDictionary(this.connectionGraph);
     }
 
     private void ConnectOtherEnemyWaypoints(GlobalWaypoints glob)
@@ -233,6 +254,13 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     // Refactored for clarity and maintainability while preserving original logic
     void FixedUpdate()
     {
+
+        if (patrolWaypoints.Length < 1 || exitWaypoints.Length < 1)
+        {
+            Debug.LogError(ToString() + " must have at list one patrol waypoint and one exit waypoint");
+            return;
+        }
+
         if (weaponManager == null || currentMovement == null)
         {
             return;
@@ -457,5 +485,10 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     public bool IsStunned()
     {
         return Time.time < stunnedEndTime;
+    }
+
+    public IMovement GetCurrentMovement()
+    {
+        return currentMovement;
     }
 }
