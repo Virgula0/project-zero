@@ -6,7 +6,6 @@ public class EnemyScript : MonoBehaviour
     private Rigidbody2D body;
     private Vector2 lastPosition;
     private SpriteRenderer sprite;
-    private Detector playerDetector;
     private Rigidbody2D playerBody;
     private IEnemy enemyScript;
 
@@ -14,7 +13,6 @@ public class EnemyScript : MonoBehaviour
     {   
         sprite = GetComponentInChildren<SpriteRenderer>();
         body = GetComponentInChildren<Rigidbody2D>();
-        playerDetector = gameObject.GetComponentInChildren<Detector>();
         playerBody = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponentInChildren<Rigidbody2D>();
         enemyScript = gameObject.GetComponentInChildren<IEnemy>();
         lastPosition = body.position;
@@ -23,7 +21,7 @@ public class EnemyScript : MonoBehaviour
     void FixedUpdate()
     {
 
-        if (enemyScript.IsEnemyDead())
+        if (enemyScript.IsEnemyDead() || enemyScript.IsStunned())
         {
             return;
         }
@@ -31,12 +29,14 @@ public class EnemyScript : MonoBehaviour
         Vector2 currentPosition = body.position;
         Vector2 movement = currentPosition - lastPosition;
 
-        if (playerDetector.GetIsEnemyAwareOfPlayer())
+        bool followPlayer = false;
+        if (enemyScript.GetCurrentMovement() is ChaseMovement)
         {
             movement = playerBody.position - currentPosition;
+            followPlayer = true;
         }
 
-        if (playerDetector.GetIsEnemyAwareOfPlayer() || movement.sqrMagnitude > 0.001f)
+        if (followPlayer || movement.sqrMagnitude > 0.001f)
         {
             float angle = Mathf.Atan2(movement.y, movement.x) * Mathf.Rad2Deg;
             sprite.transform.rotation = Quaternion.Euler(0f, 0f, angle);

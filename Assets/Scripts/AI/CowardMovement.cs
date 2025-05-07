@@ -45,12 +45,13 @@ public class CowardMovement : MonoBehaviour, IMovement
         return kdTree.FindNearestExcluding(enemyRigidbody.position, toExclude, out index);
     }
 
-    private Vector2 CalculateClosesPoint(Rigidbody2D rb)
+    private Vector2 CalculateClosestPoint(Rigidbody2D rb)
     {
+        // this method can be overwritten in future using kdtree.FindNearestRayCasting which should do the same
         busy = true;
         bool clearPath = false;
         Vector2 closestPoint = new();
-        int maxIterations = 200; // stop after 200 iterations
+        int maxIterations = kdTree.GetPoints().Length;
         int currentIteration = 0;
         List<Vector2> vectorsToExclude = new List<Vector2>();
         while (busy && !clearPath && ++currentIteration < maxIterations)
@@ -79,7 +80,7 @@ public class CowardMovement : MonoBehaviour, IMovement
 
     private IEnumerator MoveInCircleRoutine(Rigidbody2D rb)
     {
-        Vector2 closestPoint = CalculateClosesPoint(rb);
+        Vector2 closestPoint = CalculateClosestPoint(rb);
         Vector2[] path = bfs.PathToTheFirst(closestPoint);
 
         // Step 1: move to the nearest point first
@@ -95,7 +96,7 @@ public class CowardMovement : MonoBehaviour, IMovement
         // Step 3: loop forever (or until stopped), visiting each point in order
         while (busy)
         {
-            closestPoint = CalculateClosesPoint(rb);
+            closestPoint = CalculateClosestPoint(rb);
             circularPath = closestPoint == originalWaypoints[0] ? GetCircularTraversal(patrolWaypoints, 0)
                 : GetCircularTraversal(waypoints, 0);
             foreach (var point in circularPath)

@@ -10,4 +10,5 @@ public interface IEnemy
     void SetIsEnemyDead(bool cond);
     void SetIsEnemyStunned(float duration = 3f); // by default stun will be 3 seconds for any enemy
     bool IsStunned();
+    IMovement GetCurrentMovement();
 }

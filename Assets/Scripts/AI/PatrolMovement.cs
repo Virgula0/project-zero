@@ -71,10 +71,11 @@ public class PatrolMovement : MonoBehaviour, IMovement
 
     private IEnumerator MoveDoorWaypointsCoroutine(Rigidbody2D enemyTransform)
     {
+        // this method can be overwritten in future using kdtree.FindNearestRayCasting which should do the same
         bool clearPath = false;
         Vector2 closestPoint = new();
         List<Vector2> vectorsToExclude = new List<Vector2>();
-        int maxIterations = 200; // stop after 200 iterations
+        int maxIterations = kdTree.GetPoints().Length; // stop after 200 iterations
         int currentIteration = 0;
 
         // in patrol movement we can ignore the points behind the obstacles to find the way to get back to home
