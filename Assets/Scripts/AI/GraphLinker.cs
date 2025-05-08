@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 // Finds the pair of Vector2 (one from each array) with the minimum squared distance.
 public class GraphLinker
@@ -172,5 +173,90 @@ public class GraphLinker
         }
 
         return connections;
+    }
+    public struct Subgraph
+    {
+        public Dictionary<int, List<int>> Graph;
+        public Vector2[] Nodes;
+    }
+    public Subgraph[] CreateSubgraphs(Vector2[] points, LayerMask obstacleMask)
+    {
+        int n = points.Length;
+
+        // 1) Build the full visibility graph: check each unordered pair (i<j)
+        var fullAdj = new List<int>[n];
+        for (int i = 0; i < n; i++)
+            fullAdj[i] = new List<int>();
+
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = i + 1; j < n; j++)
+            {
+                // if there’s no obstacle between points[i] and points[j], link them
+                if (!Physics2D.Linecast(points[i], points[j], obstacleMask))
+                {
+                    fullAdj[i].Add(j);
+                    fullAdj[j].Add(i);
+                }
+            }
+        }
+
+        // 2) Find connected components via BFS
+        var seen = new bool[n];
+        var subs = new List<Subgraph>();
+
+        for (int start = 0; start < n; start++)
+        {
+            if (seen[start]) continue;
+
+            var queue = new Queue<int>();
+            var comp = new List<int>();
+
+            seen[start] = true;
+            queue.Enqueue(start);
+
+            while (queue.Count > 0)
+            {
+                int u = queue.Dequeue();
+                comp.Add(u);
+                foreach (int v in fullAdj[u])
+                {
+                    if (!seen[v])
+                    {
+                        seen[v] = true;
+                        queue.Enqueue(v);
+                    }
+                }
+            }
+
+            // 3) Re‐index locally and build the Subgraph
+            int m = comp.Count;
+            var mapGlobalToLocal = new Dictionary<int, int>(m);
+            for (int k = 0; k < m; k++)
+                mapGlobalToLocal[comp[k]] = k;
+
+            // local node positions
+            var localNodes = new Vector2[m];
+            for (int k = 0; k < m; k++)
+                localNodes[k] = points[comp[k]];
+
+            // local adjacency
+            var localGraph = new Dictionary<int, List<int>>(m);
+            for (int k = 0; k < m; k++)
+            {
+                int gi = comp[k];
+                localGraph[k] = fullAdj[gi]
+                    .Select(gj => mapGlobalToLocal[gj])
+                    .ToList();
+            }
+
+            subs.Add(new Subgraph
+            {
+                Nodes = localNodes,
+                Graph = localGraph
+            });
+        }
+
+        return subs.ToArray();
     }
 }

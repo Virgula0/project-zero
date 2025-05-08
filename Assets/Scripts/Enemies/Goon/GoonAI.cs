@@ -31,7 +31,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     private Detector playerDetector;
     private Rigidbody2D body;
     private KdTree treeStructure;
-    private BFSPathfinder bfs;
+    private PathFinder bfs;
     private GraphLinker linker;
     private Vector2[] safeExitWaypointsCopy;
     private Dictionary<int, List<int>> connectionGraph;
@@ -87,36 +87,12 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         }
 
         // Add patrol waypoints
-        // ConnectPatrolWaypoints();
         // Connect the global waypoints into our local graph
-        ConnectGlobalWaypoints(glob);
+        // ConnectGlobalWaypoints(glob);
         // Connect waypoints from other enemies using the global waypoints reference
-        ConnectOtherEnemyWaypoints(glob);
+        // ConnectOtherEnemyWaypoints(glob);
         // Finalize the initialization: log info and set up pathfinder and movements
         FinalizeInitialization(glob);
-    }
-
-    private void ConnectPatrolWaypoints()
-    {
-        // THIS PART IS EXPERIMENTAL
-        if (patrolWaypoints == null || patrolWaypoints.Length < 1)
-            return;
-
-        // Merge connection graphs using the linker helper
-        this.connectionGraph = linker.LinkGraphs(
-            this.connectionGraph,
-            linker.GenerateConnections(patrolWaypoints),
-            this.exitWaypoints,
-            patrolWaypoints,
-            playerDetector.GetObstacleLayers()
-        );
-
-        // Add patrol waypoints to the current set and update the kd-tree accordingly
-        foreach (Vector2 node in patrolWaypoints)
-        {
-            this.exitWaypoints = Utils.Functions.AddToVector2Array(this.exitWaypoints, node, out _);
-            treeStructure.UpdateVectorSetOnInsert(node);
-        }
     }
 
     private GlobalWaypoints InitializeParameters()
@@ -165,23 +141,36 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         }
         */
 
-        // Merge connection graphs using the linker helper
-        this.connectionGraph = linker.LinkGraphs(
-            this.connectionGraph,
-            linker.GenerateConnections(glob.GetGlobalWaypointsNotRemappedVector()),
-            this.exitWaypoints,
-            glob.GetGlobalWaypointsNotRemappedVector(),
-            playerDetector.GetObstacleLayers()
-        );
-
-        // Add enemy waypoints to the current set and update the kd-tree accordingly
-        foreach (Vector2 node in glob.GetGlobalWaypointsNotRemappedVector())
+        if (glob.GetGlobalWaypointsVector().Length < 1)
         {
-            this.exitWaypoints = Utils.Functions.AddToVector2Array(this.exitWaypoints, node, out _);
-            treeStructure.UpdateVectorSetOnInsert(node);
+            return;
         }
 
-        Debug.Log(Utils.Functions.Vector2ArrayToString(this.exitWaypoints));
+        // 1) Create subgraphs
+        var subgraphs = linker.CreateSubgraphs(glob.GetGlobalWaypointsVector(), playerDetector.GetObstacleLayers());
+
+        // 2) For each subgraph: first merge, then add its nodes so next one can link to them
+        foreach (var sub in subgraphs)
+        {
+            // (a) Merge subgraph as a single component → adds one bridge edge
+            connectionGraph = linker.LinkGraphs(
+                connectionGraph,
+                sub.Graph,
+                exitWaypoints,
+                sub.Nodes,
+                playerDetector.GetObstacleLayers()
+            );
+
+            // (b) Now insert subgraph’s nodes into exitWaypoints
+            foreach (var node in sub.Nodes)
+            {
+                exitWaypoints = Utils.Functions.AddToVector2Array(exitWaypoints, node, out _);
+                treeStructure.UpdateVectorSetOnInsert(node);
+            }
+            Utils.Functions.PrintDictionary(sub.Graph);
+        }
+
+        //Debug.Log(Utils.Functions.Vector2ArrayToString(this.exitWaypoints));
         Utils.Functions.PrintDictionary(this.connectionGraph);
     }
 
@@ -224,7 +213,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
 
         // Create the BFS pathfinder using the finalized waypoint set and connection graph
         //Vector2[] join = Utils.Functions.CombineVector2Arrays(exitWaypoints, glob.GetGlobalWaypointsNotRemappedVector());
-        bfs = new BFSPathfinder(exitWaypoints, connectionGraph);
+        bfs = new PathFinder(exitWaypoints, connectionGraph);
 
         // Enemy Weapon manager
         weaponManager = transform.parent.GetComponentInChildren<EnemyWeaponManager>();
@@ -239,7 +228,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         findForAWeapon = gameObject.AddComponent<WeaponFinderMovement>()
             .New(treeStructure, bfs, typesThatCanBeEquipped, playerDetector, spawner, weaponManager, findAWaponSpeed);
         cowardMovement = gameObject.AddComponent<CowardMovement>()
-            .New(safeExitWaypointsCopy, glob.GetGlobalWaypointsNotRemappedVector(), patrolWaypoints, treeStructure, bfs, playerDetector, runAwaySpeed);
+            .New(safeExitWaypointsCopy, glob.GetGlobalWaypointsVector(), patrolWaypoints, treeStructure, bfs, playerDetector, runAwaySpeed);
 
         listOfMovements.Add(patrolMovement);
         listOfMovements.Add(chaseMovement);

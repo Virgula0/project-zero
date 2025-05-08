@@ -10,14 +10,14 @@ public class ChaseMovement : MonoBehaviour, IMovement
     private Rigidbody2D playerBody;
     private Detector playerDetector;
     private KdTree kdTree;
-    private BFSPathfinder bfs;
+    private PathFinder bfs;
     private Vector2 enemyLatestPosition;
     private bool busy = false;
     private float additionalSpeedWhenFollowingPath = 1.5f;
     private Coroutine _chaseCoroutine;
     private Func<float> getStoppingDistance;
 
-    public IMovement New(GameObject player, Detector detector, KdTree tree, BFSPathfinder bfs, float chaseSpeed, Func<float> getStoppingDistance)
+    public IMovement New(GameObject player, Detector detector, KdTree tree, PathFinder bfs, float chaseSpeed, Func<float> getStoppingDistance)
     {
         if (player == null || chaseSpeed < 1)
             throw new ArgumentException("Invalid argument passed to chase movement");
@@ -95,7 +95,7 @@ public class ChaseMovement : MonoBehaviour, IMovement
         // ---------------------------------------------------------------------------------------------
 
         //Vector2 playerBestWaypoint = kdTree.FindNearest(playerBody.position, out _);
-        Vector2[] path = bfs.PathToPoint(startPoint, playerBestWaypoint);
+        Vector2[] path = bfs.PathToPointBFS(startPoint, playerBestWaypoint);
 
         if (path == null || path.Length < 1)
         {
