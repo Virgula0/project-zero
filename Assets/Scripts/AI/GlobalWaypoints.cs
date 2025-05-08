@@ -14,12 +14,12 @@ public class GlobalWaypoints : MonoBehaviour
     * GlobalWaypoints could mantain remapped waypoints for all enemies in the scene . Then each enemy gets the full map from the global WayPoints.
     */
     [SerializeField] private Vector2[] globalWaypoints;
-    private Dictionary<int, int> globalWaypointsRemapped; // remapping with high indexes so they won't collide with real indexes of enemies graphs
     private int baseCounter = 100000; // starting from 100000
 
     private Dictionary<IEnemy, Vector2[]> enemyWaypointsMap;
-    private Dictionary<IEnemy, Dictionary<int, List<int>>> enemyConnectionMap;
+    private List<Dictionary<int, List<int>>> enemyConnectionMap;
     private List<IEnemy> enemies;
+    private GraphLinker linker;
 
     private bool isGlobalReady = false;
 
@@ -29,14 +29,14 @@ public class GlobalWaypoints : MonoBehaviour
 
     void Awake()
     {
-        this.globalWaypointsRemapped = GenerateMapping(); // for global waypoints
+        linker = new GraphLinker();
         StartCoroutine(this.PopulateEnemyWaypointsMap());
     }
 
     private IEnumerator PopulateEnemyWaypointsMap()
     {
         this.enemyWaypointsMap = new Dictionary<IEnemy, Vector2[]>();
-        this.enemyConnectionMap = new Dictionary<IEnemy, Dictionary<int, List<int>>>();
+        this.enemyConnectionMap = new List<Dictionary<int, List<int>>>();
         this.enemies = new List<IEnemy>();
                 
         IEnemy[] enemRef = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).
@@ -52,23 +52,17 @@ public class GlobalWaypoints : MonoBehaviour
             
             enemies.Add(enemy);
             enemyWaypointsMap.Add(enemy, enemy.GetEnemyWaypoints());
-            enemyConnectionMap.Add(enemy, enemy.GetEnemyConnections());
+            enemyConnectionMap.Add(enemy.GetEnemyConnections());
         }
-        isGlobalReady = true;
-    }
 
-    private Dictionary<int, int> GenerateMapping()
-    {
-        Dictionary<int, int> mapping = new Dictionary<int, int>();
+        // at this point we have all enemies internal graph
 
-        // Loop over each element in the waypoints array.
-        for (int i = 0; i < globalWaypoints.Length; i++)
+        foreach (Dictionary<int, List<int>> enemyInternalGraph in enemyConnectionMap)
         {
-            int generatedValue = baseCounter++;
-            mapping.Add(generatedValue, i);
+            
         }
 
-        return mapping;
+        isGlobalReady = true;
     }
 
     public List<IEnemy> GetEnemies(IEnemy toSkip){
@@ -86,18 +80,13 @@ public class GlobalWaypoints : MonoBehaviour
         return enemyConnectionMap[obj];
     }
 
-    public Dictionary<int, int> GetGlobalWaypointsRemapped()
-    {
-        return globalWaypointsRemapped;
-    }
-
-    public Vector2 GetElementFromRemappedIndex(int remappedIndex)
-    {
-        return globalWaypoints[globalWaypointsRemapped.GetValueOrDefault(remappedIndex, -1)];
-    }
-
-    public Vector2[] GetGlobalWaypointsNotRemappedVector(){
+    public Vector2[] GetGlobalWaypointsVector(){
         return globalWaypoints;
+    }
+
+    public Dictionary<int, List<int>> GetConnectionMap()
+    {
+        return null;
     }
 
     // Debugging purposes you can ignore this

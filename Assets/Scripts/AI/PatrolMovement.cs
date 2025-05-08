@@ -12,10 +12,10 @@ public class PatrolMovement : MonoBehaviour, IMovement
     private bool needsRepositioning = false;
     private Detector playerDetector;
     private KdTree kdTree;
-    private BFSPathfinder bfs;
+    private PathFinder bfs;
     private Coroutine _patrolCoroutine;
 
-    public PatrolMovement New(Vector2[] waypoints, Detector playerDetector, KdTree kdTree, BFSPathfinder bfs, float speed)
+    public PatrolMovement New(Vector2[] waypoints, Detector playerDetector, KdTree kdTree, PathFinder bfs, float speed)
     {
         this.waypoints = waypoints;
         patrolSpeed = speed;
@@ -101,7 +101,7 @@ public class PatrolMovement : MonoBehaviour, IMovement
             Debug.LogWarning("WARNING! Cannot find clearest closer waypoint while coward");
         }
 
-        Vector2[] path = bfs.PathToTheFirst(closestPoint);
+        Vector2[] path = bfs.PathToTheFirstBFS(closestPoint);
         Debug.Log("The path will be " + Utils.Functions.Vector2ArrayToString(path));
 
         foreach (Vector2 v in path)
