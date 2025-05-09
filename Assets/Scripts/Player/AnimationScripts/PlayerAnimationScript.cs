@@ -16,6 +16,7 @@ public class PlayerAnimationScript : MonoBehaviour
     private PlayerScript playerScript;
     private Sprite playerLastSprite;
     private Vector2 teleportTargetPosition;
+    private WeaponManager weaponManagerRef;
 
     void Start()
     {
@@ -25,6 +26,7 @@ public class PlayerAnimationScript : MonoBehaviour
         playerRef = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
         legsScriptRef = transform.parent.GetComponentInChildren<PlayerLegsAnimationScript>();
         playerScript = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponent<PlayerScript>();
+        weaponManagerRef = transform.parent.GetComponentInChildren<WeaponManager>();
         isAnimationScriptReady = true;
     }
 
@@ -40,6 +42,7 @@ public class PlayerAnimationScript : MonoBehaviour
     public void OnTeleportInAnimationStart()
     {   
         legsScriptRef.SetIsTeleporting(true);
+        weaponManagerRef.SetCanShoot(false);
         Utils.Functions.SetLayerRecursively(playerRef.gameObject, (int)Utils.Enums.ObjectLayers.Invulnerability);
 
         teleportTargetPosition = playerCameraRef.ScreenToWorldPoint(Input.mousePosition);
@@ -53,10 +56,12 @@ public class PlayerAnimationScript : MonoBehaviour
 
     public void OnTeleportOutEnd()
     {
-        if (playerLastSprite != null)
-        {
-            spriteRendererRef.sprite = playerLastSprite;
-            playerLastSprite = null;
+        if(weaponManagerRef.GetCurrentLoadedWeapon() != null){
+            if (playerLastSprite != null)
+            {
+                spriteRendererRef.sprite = playerLastSprite;
+                playerLastSprite = null;
+            }
         }
 
         animatorRef.enabled = false;
@@ -68,6 +73,7 @@ public class PlayerAnimationScript : MonoBehaviour
 
         playerRef.layer = (int)Utils.Enums.ObjectLayers.Player;
         legsScriptRef.SetIsTeleporting(false);
+        weaponManagerRef.SetCanShoot(true);
     }
 
     public void SetPlayerDeadSprite(IPrimary weapon)

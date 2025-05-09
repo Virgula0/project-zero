@@ -9,6 +9,7 @@ public class WeaponManager : MonoBehaviour
     private float secondaryTimer;
     private UIManager uiManager;
     private bool isReloading = false;
+    private bool canShoot = true;
     private Rigidbody2D playerBody;
     private WeaponSpawner spawner;
     private GameObject gunPrefab;
@@ -199,6 +200,10 @@ public class WeaponManager : MonoBehaviour
         if(!playerScript.IsPlayerAlive()){
             return;
         }
+
+        if(!canShoot){
+            return;
+        }
         
         ManagePrimary();
         ManageSecondary();
@@ -293,6 +298,14 @@ public class WeaponManager : MonoBehaviour
     public IPrimary GetCurrentLoadedWeapon()
     {
         return currentLoadedWeapon;
+    }
+
+    public bool GetCanShoot(){
+        return canShoot;
+    }
+
+    public void SetCanShoot(bool newBool){
+        canShoot = newBool;
     }
 
     public ISecondary GetCurrentLoadedSecondary(){
