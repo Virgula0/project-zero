@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +24,8 @@ public class GlobalWaypoints : MonoBehaviour
 
     private bool isGlobalReady = false;
 
-    public bool GetIsGlobalReady(){
+    public bool GetIsGlobalReady()
+    {
         return isGlobalReady;
     }
 
@@ -38,18 +40,24 @@ public class GlobalWaypoints : MonoBehaviour
         this.enemyWaypointsMap = new Dictionary<IEnemy, Vector2[]>();
         this.enemyConnectionMap = new Dictionary<IEnemy, Dictionary<int, List<int>>>();
         this.enemies = new List<IEnemy>();
-                
+
         IEnemy[] enemRef = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).
-                OfType<IEnemy>().
-                ToArray();
+                OfType<IEnemy>()
+                .OrderByDescending(e =>
+                {
+                    int num;
+                    string[] parts = ((MonoBehaviour)e).transform.parent.name.Split(" ");
+                    return Int32.TryParse(parts[1], out num) ? num : 0;
+                }).ToArray();
 
         foreach (IEnemy enemy in enemRef)
         {
 
-            while (!enemy.AwakeReady()){
+            while (!enemy.AwakeReady())
+            {
                 yield return null;
             }
-            
+
             enemies.Add(enemy);
             enemyWaypointsMap.Add(enemy, enemy.GetEnemyWaypoints());
             enemyConnectionMap.Add(enemy, enemy.GetEnemyConnections());
@@ -71,7 +79,8 @@ public class GlobalWaypoints : MonoBehaviour
         return mapping;
     }
 
-    public List<IEnemy> GetEnemies(IEnemy toSkip){
+    public List<IEnemy> GetEnemies(IEnemy toSkip)
+    {
         // Return all enemies except the one to skip.
         return enemies.Where(enemy => enemy != toSkip).ToList();
     }
@@ -96,7 +105,8 @@ public class GlobalWaypoints : MonoBehaviour
         return globalWaypoints[globalWaypointsRemapped.GetValueOrDefault(remappedIndex, -1)];
     }
 
-    public Vector2[] GetGlobalWaypointsNotRemappedVector(){
+    public Vector2[] GetGlobalWaypointsNotRemappedVector()
+    {
         return globalWaypoints;
     }
 
@@ -108,7 +118,7 @@ public class GlobalWaypoints : MonoBehaviour
 
         if (globalWaypoints == null)
             return;
-        
+
         float circleRadius = 0.8f;
         foreach (Vector2 point in globalWaypoints)
         {

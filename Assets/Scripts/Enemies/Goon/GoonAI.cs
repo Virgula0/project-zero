@@ -86,12 +86,8 @@ public class AI : MonoBehaviour, IEnemy, IPoints
             yield return null;
         }
 
-        // Add patrol waypoints
-        // ConnectPatrolWaypoints();
-        // Connect the global waypoints into our local graph
-        ConnectGlobalWaypoints(glob);
-        // Connect waypoints from other enemies using the global waypoints reference
         ConnectOtherEnemyWaypoints(glob);
+        ConnectGlobalWaypoints(glob);
         // Finalize the initialization: log info and set up pathfinder and movements
         FinalizeInitialization(glob);
     }
@@ -168,11 +164,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
                 exitWaypoints = Utils.Functions.AddToVector2Array(exitWaypoints, node, out _);
                 treeStructure.UpdateVectorSetOnInsert(node);
             }
-            Utils.Functions.PrintDictionary(sub.Graph);
         }
-
-        //Debug.Log(Utils.Functions.Vector2ArrayToString(this.exitWaypoints));
-        Utils.Functions.PrintDictionary(this.connectionGraph);
     }
 
     private void ConnectOtherEnemyWaypoints(GlobalWaypoints glob)
