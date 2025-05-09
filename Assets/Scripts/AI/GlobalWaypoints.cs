@@ -43,7 +43,7 @@ public class GlobalWaypoints : MonoBehaviour
 
         IEnemy[] enemRef = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).
                 OfType<IEnemy>()
-                .OrderByDescending(e =>
+                .OrderByDescending(e => // this is a workaround for the concurrency problems. who creates a graph first matters
                 {
                     int num;
                     string[] parts = ((MonoBehaviour)e).transform.parent.name.Split(" ");
