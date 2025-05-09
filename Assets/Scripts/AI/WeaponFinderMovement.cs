@@ -138,11 +138,11 @@ public class WeaponFinderMovement : MonoBehaviour, IMovement
 
         Vector2 closestPoint = ClosestWaypointRayCastinInBetween(enemyRB);
 
-        Debug.Log(closestPoint);
+        //Debug.Log(closestPoint);
 
         //Vector2 enemyCloserWaypoint = kdTree.FindNearest(enemyRB.position, out _);
         Vector2[] path = bfs.PathToPoint(closestPoint, targetWaypoint);
-        Debug.Log(Utils.Functions.Vector2ArrayToString(path));
+        //Debug.Log(Utils.Functions.Vector2ArrayToString(path));
         // walk the path
         foreach (Vector2 waypoint in path)
             yield return MoveToDestinationWithChecks(enemyRB, waypoint, closerEquippableWeapon);
