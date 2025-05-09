@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class CowardMovement : MonoBehaviour, IMovement
 {
-    private BFSPathfinder bfs;
+    private PathFinder bfs;
     private Vector2[] waypoints;
     private Vector2[] patrolWaypoints;
     private KdTree kdTree;
@@ -16,7 +16,7 @@ public class CowardMovement : MonoBehaviour, IMovement
     private Detector playerDetector;
     private Vector2[] originalWaypoints;
 
-    public IMovement New(Vector2[] waypoints, Vector2[] globalWaypoints, Vector2[] patrolWaypoints, KdTree treeStructure, BFSPathfinder bfs, Detector playerDetector, float speed)
+    public IMovement New(Vector2[] waypoints, Vector2[] globalWaypoints, Vector2[] patrolWaypoints, KdTree treeStructure, PathFinder bfs, Detector playerDetector, float speed)
     {
         this.patrolWaypoints = patrolWaypoints;
         this.waypoints = Utils.Functions.RemoveAll(waypoints, globalWaypoints); // remove global waypoints from waypoints
