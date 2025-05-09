@@ -1,23 +1,23 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PathFinder
+public class BFSPathfinder
 {
     private Vector2[] waypoints;
     private Dictionary<int, List<int>> adjacency; // Graph connections: key = waypoint index, value = list of neighbor indices
 
-    public PathFinder(Vector2[] waypoints, Dictionary<int, List<int>> adjacency)
+    public BFSPathfinder(Vector2[] waypoints, Dictionary<int, List<int>> adjacency)
     {
         this.waypoints = waypoints;
         this.adjacency = adjacency;
     }
 
-    public Vector2[] PathToTheFirstBFS(Vector2 start)
+    public Vector2[] PathToTheFirst(Vector2 start)
     {
-        return PathToPointBFS(start, waypoints[0]);
+        return PathToPoint(start, waypoints[0]);
     }
 
-    public Vector2[] PathToPointBFS(Vector2 start, Vector2 goal)
+    public Vector2[] PathToPoint(Vector2 start, Vector2 goal)
     {
         // Find index of the start point.
         int startIndex = -1;
@@ -115,96 +115,5 @@ public class PathFinder
             path[i] = waypoints[pathIndices[i]];
         }
         return path;
-    }
-
-    // New DFS methods
-    public Vector2[] PathToTheFirstDFS(Vector2 start)
-    {
-        return PathToPointDFS(start, waypoints[0]);
-    }
-
-    public Vector2[] PathToPointDFS(Vector2 start, Vector2 goal)
-    {
-        // Find index of the start and goal points.
-        int startIndex = IndexOf(start);
-        int goalIndex = IndexOf(goal);
-
-        if (startIndex == -1 || goalIndex == -1)
-        {
-            Debug.LogError("Start or goal point is not in the waypoints array!");
-            return null;
-        }
-
-        // Initialize DFS components.
-        Stack<int> stack = new Stack<int>();
-        bool[] visited = new bool[waypoints.Length];
-        int[] cameFrom = InitializeCameFrom();
-
-        stack.Push(startIndex);
-        visited[startIndex] = true;
-
-        bool found = false;
-        while (stack.Count > 0)
-        {
-            int current = stack.Pop();
-
-            if (current == goalIndex)
-            {
-                found = true;
-                break;
-            }
-
-            if (adjacency.ContainsKey(current))
-            {
-                foreach (int neighbor in adjacency[current])
-                {
-                    if (!visited[neighbor])
-                    {
-                        visited[neighbor] = true;
-                        cameFrom[neighbor] = current;
-                        stack.Push(neighbor);
-                    }
-                }
-            }
-        }
-
-        return found ? ReconstructPath(goalIndex, cameFrom) : null;
-    }
-
-    // Helper: initialize cameFrom array
-    private int[] InitializeCameFrom()
-    {
-        int[] cameFrom = new int[waypoints.Length];
-        for (int i = 0; i < cameFrom.Length; i++)
-            cameFrom[i] = -1;
-        return cameFrom;
-    }
-
-    private Vector2[] ReconstructPath(int goalIndex, int[] cameFrom)
-    {
-        List<int> pathIndices = new List<int>();
-        int currentIndex = goalIndex;
-        while (currentIndex != -1)
-        {
-            pathIndices.Add(currentIndex);
-            currentIndex = cameFrom[currentIndex];
-        }
-        pathIndices.Reverse();
-
-        Vector2[] path = new Vector2[pathIndices.Count];
-        for (int i = 0; i < pathIndices.Count; i++)
-            path[i] = waypoints[pathIndices[i]];
-
-        return path;
-    }
-    // Helper: get index of a point
-    private int IndexOf(Vector2 point)
-    {
-        for (int i = 0; i < waypoints.Length; i++)
-        {
-            if (waypoints[i] == point)
-                return i;
-        }
-        return -1;
     }
 }
