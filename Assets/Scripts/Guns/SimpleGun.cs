@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 
 // This class is associated directly to prefabs and defines the entire "GunType" behaviour
-public class SimpleGun : MonoBehaviour, IPrimary, IThrowable, IRanged
+public class SimpleGun : MonoBehaviour, IPrimary, IRestricted, IThrowable, IRanged
 {
     private readonly float fireRate = 0.5f; // in seconds, 0.5 seconds between each shot
     private readonly int magCap = 10;
@@ -20,7 +20,7 @@ public class SimpleGun : MonoBehaviour, IPrimary, IThrowable, IRanged
     [SerializeField] private AudioClip equipSound;
     [SerializeField] private AudioClip throwSound;
     [SerializeField] private GameObject throwablePrefab;
-
+    [SerializeField] private bool reservedToPlayer;
     private bool isGoingToBePickedUp = false;
     private GameObject shooterObject;
     private bool awakeExecuted = false;
@@ -170,5 +170,10 @@ public class SimpleGun : MonoBehaviour, IPrimary, IThrowable, IRanged
             audioSrc.PlayOneShot(throwSound);
             yield return new WaitForSeconds(clipLength);
         }
+    }
+
+    public bool IsEquippableByPlayerOnly()
+    {
+        return reservedToPlayer;
     }
 }

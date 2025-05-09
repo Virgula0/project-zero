@@ -13,7 +13,7 @@ public class ChaseMovement : MonoBehaviour, IMovement
     private BFSPathfinder bfs;
     private Vector2 enemyLatestPosition;
     private bool busy = false;
-    private float additionalSpeedWhenFollowingPath = 2f;
+    private float additionalSpeedWhenFollowingPath = 1.5f;
     private Coroutine _chaseCoroutine;
     private Func<float> getStoppingDistance;
 
@@ -107,7 +107,6 @@ public class ChaseMovement : MonoBehaviour, IMovement
             while (Vector2.Distance(enemyRB.position, waypoint) > 0.1f)
             {
                 // During each fixed update, check if a direct line of sight has opened up.
-                // You might recast a ray or use your detector to decide.
                 float distanceToPlayer = Vector2.Distance(enemyRB.position, playerBody.position);
                 RaycastHit2D hit = Physics2D.Raycast(enemyRB.position, (playerBody.position - enemyRB.position).normalized, distanceToPlayer, playerDetector.GetObstacleLayers());
                 bool clearLine = hit.collider == null;

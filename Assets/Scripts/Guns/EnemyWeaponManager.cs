@@ -24,6 +24,7 @@ public class EnemyWeaponManager : MonoBehaviour
     private int totalShotsDelivered;
     private IEnemy enemyRef;
     private Rigidbody2D playerBody;
+    private float initialDetectionTime = 0;
 
     void Start()
     {
@@ -67,6 +68,7 @@ public class EnemyWeaponManager : MonoBehaviour
         return currentLoadedWeapon;
     }
 
+
     // Update is called once per frame
     void Update()
     {
@@ -82,6 +84,11 @@ public class EnemyWeaponManager : MonoBehaviour
         }
 
         timer += Time.deltaTime;
+
+        if (Time.time - initialDetectionTime <= 0.5f ) // the player has 0.5 seconds after the detection
+        {
+            return;
+        }
 
         if (!isEnemyAlerted || isPlayerBehindAWall)
         {
@@ -135,8 +142,9 @@ public class EnemyWeaponManager : MonoBehaviour
         {
             throw new NullReferenceException("ENEMY LOAD CANNOT BE NULL, THE PASSED REFERENCE TO WEAPON MANAGER IS NULL");
         }
-        
-        if (this.currentLoadedWeapon != null){
+
+        if (this.currentLoadedWeapon != null)
+        {
             Debug.LogWarning("Enemy has already a weapon cannot load another one");
         }
 
@@ -186,6 +194,12 @@ public class EnemyWeaponManager : MonoBehaviour
 
     public void ChangeEnemyStatus(bool status)
     {
+        if (!status)
+            this.initialDetectionTime = 0;
+
+        if (status && this.initialDetectionTime == 0)
+            this.initialDetectionTime = Time.time;
+            
         this.isEnemyAlerted = status;
     }
 

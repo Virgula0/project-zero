@@ -1,4 +1,4 @@
-using System.Collections;
+using Assets.Scripts.Menu;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -12,8 +12,7 @@ public class MenuButtons : MonoBehaviour
     [SerializeField] private GameObject mainTitle;
     [SerializeField] AudioSource normalAudioSrc;
     [SerializeField] AudioSource hoverAudioSrc;
-
-    private const string loadingScene = "LoadingScene";
+    private const string loadingScene = Utils.Const.LOAD_MENU_SCENE;
 
     public void ClickSound()
     {
@@ -40,6 +39,7 @@ public class MenuButtons : MonoBehaviour
     public void ClickStart()
     {
         ClickSound();
+        StartMainMenu.Instance.BeginPlayTime();
         SceneManager.LoadScene(loadingScene);
     }
 
@@ -58,6 +58,12 @@ public class MenuButtons : MonoBehaviour
     {
         SwitchSubMenu(mainMenu);
         mainTitle.SetActive(true);
+    }
+
+    public void LoadMainMenuScene()
+    {
+        ClickSound();
+        SceneManager.LoadScene(Utils.Const.MAIN_MENU_SCENE);
     }
 
     public void ClickExit()

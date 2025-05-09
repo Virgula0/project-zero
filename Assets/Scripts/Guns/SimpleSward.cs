@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-public class SimpleSword : MonoBehaviour, IPrimary, IMelee
+public class SimpleSword : MonoBehaviour, IPrimary, IRestricted, IMelee
 {
     private readonly float fireRate = 1f; // 1 hit per second
     private readonly int magCap = int.MaxValue;
@@ -20,6 +20,7 @@ public class SimpleSword : MonoBehaviour, IPrimary, IMelee
     [SerializeField] private AudioClip swingSound;
     [SerializeField] private AudioClip equipSound;
     [SerializeField] private AudioClip parrySound;
+    [SerializeField] private bool reservedToPlayer;
 
     private GameObject wielder;
     private bool isGoingToBePickedUp = false;
@@ -97,5 +98,10 @@ public class SimpleSword : MonoBehaviour, IPrimary, IMelee
     public float MinDistanceForSwing()
     {
         return minDistanceForSwing;
+    }
+
+    public bool IsEquippableByPlayerOnly()
+    {
+        return reservedToPlayer;
     }
 }

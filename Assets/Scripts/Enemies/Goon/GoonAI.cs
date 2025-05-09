@@ -107,7 +107,8 @@ public class AI : MonoBehaviour, IEnemy, IPoints
             this.connectionGraph,
             linker.GenerateConnections(patrolWaypoints),
             this.exitWaypoints,
-            patrolWaypoints
+            patrolWaypoints,
+            playerDetector.GetObstacleLayers()
         );
 
         // Add patrol waypoints to the current set and update the kd-tree accordingly
@@ -181,7 +182,8 @@ public class AI : MonoBehaviour, IEnemy, IPoints
                 this.connectionGraph,
                 glob.GetConnectionMapForAnEnemy(enemy),
                 this.exitWaypoints,
-                enemyWaypoints
+                enemyWaypoints,
+                playerDetector.GetObstacleLayers()
             );
 
             // Add enemy waypoints to the current set and update the kd-tree accordingly
@@ -200,6 +202,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         // Utils.Functions.PrintDictionary(connectionGraph);
 
         // Create the BFS pathfinder using the finalized waypoint set and connection graph
+        //Vector2[] join = Utils.Functions.CombineVector2Arrays(exitWaypoints, glob.GetGlobalWaypointsNotRemappedVector());
         bfs = new BFSPathfinder(exitWaypoints, connectionGraph);
 
         // Enemy Weapon manager

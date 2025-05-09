@@ -59,6 +59,11 @@ public interface IThrowable {
     IEnumerator PlayThrowSfx(AudioSource src);
 }
 
+// defines if the gun is assigned to the player only or not
+public interface IRestricted{
+    bool IsEquippableByPlayerOnly();
+}
+
 // Full‐feature gun interface combining all individual aspects
 public interface IPrimary :
     IInitializableWeapon,
