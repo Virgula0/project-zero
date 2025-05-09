@@ -75,20 +75,22 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         awakeReady = true;
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     IEnumerator Start()
     {
-        // Perform initializations and get global waypoints
+        // 1) perform the usual Awake + component grabs
         GlobalWaypoints glob = InitializeParameters();
 
+        // 2) wait until our central graph is ready
         while (!glob.GetIsGlobalReady())
-        {
             yield return null;
-        }
 
-        ConnectGlobalWaypoints(glob);
-        ConnectOtherEnemyWaypoints(glob);
-        // Finalize the initialization: log info and set up pathfinder and movements
+        // 3) consume the fully‐built graph
+        Vector2[] allNodes = glob.GetAllNodes();
+        var allConns = glob.GetAllConnections();
+        bfs = new PathFinder(allNodes, allConns);
+        treeStructure = glob.GetKdTree();
+        
+        // 4) Set up your Movement‐objects just as before
         FinalizeInitialization(glob);
     }
 
@@ -108,8 +110,6 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         playerWeaponManager = player.GetComponentInChildren<WeaponManager>();
         audioSrc = transform.parent.GetComponent<AudioSource>();
 
-        treeStructure = new KdTree(exitWaypoints);
-
         // Get the global waypoints object locally (no new instance variable)
         GlobalWaypoints glob = GameObject.FindGameObjectWithTag(Utils.Const.GLOBAL_WAYPOINTS_TAG)
                                       .GetComponent<GlobalWaypoints>();
@@ -118,68 +118,8 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         return glob;
     }
 
-    private void ConnectGlobalWaypoints(GlobalWaypoints glob)
-    {
-        // 1) Create subgraphs
-        var subgraphs = linker.CreateSubgraphs(glob.GetGlobalWaypoints(), playerDetector.GetObstacleLayers());
-
-        // 2) For each subgraph: first merge, then add its nodes so next one can link to them
-        foreach (var sub in subgraphs)
-        {
-            // (a) Merge subgraph as a single component → adds one bridge edge
-            connectionGraph = linker.LinkGraphs(
-                connectionGraph,
-                sub.Graph,
-                exitWaypoints,
-                sub.Nodes,
-                playerDetector.GetObstacleLayers()
-            );
-
-            // (b) Now insert subgraph’s nodes into exitWaypoints
-            foreach (var node in sub.Nodes)
-            {
-                exitWaypoints = Utils.Functions.AddToVector2Array(exitWaypoints, node, out _);
-                treeStructure.UpdateVectorSetOnInsert(node);
-            }
-        }
-    }
-
-    private void ConnectOtherEnemyWaypoints(GlobalWaypoints glob)
-    {
-        // Get the waypoints of other enemies (excluding self)
-        List<IEnemy> otherEnemies = glob.GetEnemies(this);
-
-
-        // For each enemy, link their waypoint graph to our current graph
-        foreach (IEnemy enemy in otherEnemies)
-        {
-            Vector2[] enemyWaypoints = glob.GetWaypointMapForAnEnemy(enemy);
-
-            if (enemyWaypoints == null || enemyWaypoints.Length < 1)
-                continue;
-
-            // Merge connection graphs using the linker helper
-            this.connectionGraph = linker.LinkGraphs(
-                this.connectionGraph,
-                glob.GetConnectionMapForAnEnemy(enemy),
-                this.exitWaypoints,
-                enemyWaypoints,
-                playerDetector.GetObstacleLayers()
-            );
-
-            // Add enemy waypoints to the current set and update the kd-tree accordingly
-            foreach (Vector2 node in enemyWaypoints)
-            {
-                this.exitWaypoints = Utils.Functions.AddToVector2Array(this.exitWaypoints, node, out _);
-                treeStructure.UpdateVectorSetOnInsert(node);
-            }
-        }
-    }
-
     private void FinalizeInitialization(GlobalWaypoints glob)
     {
-        bfs = new PathFinder(exitWaypoints, connectionGraph);
-
         // Enemy Weapon manager
         weaponManager = transform.parent.GetComponentInChildren<EnemyWeaponManager>();
         weaponManager.SetWeaponThatCanBeEquipped(typesThatCanBeEquipped);
