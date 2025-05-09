@@ -15,6 +15,7 @@ public class PlayerAnimationScript : MonoBehaviour
     private GameObject playerRef;
     private PlayerScript playerScript;
     private Sprite playerLastSprite;
+    private Vector2 teleportTargetPosition;
 
     void Start()
     {
@@ -36,11 +37,17 @@ public class PlayerAnimationScript : MonoBehaviour
         SetEquippedWeponSprite(idleSwordSprite);
     }
 
+    public void OnTeleportInAnimationStart()
+    {   
+        legsScriptRef.SetIsTeleporting(true);
+        Utils.Functions.SetLayerRecursively(playerRef.gameObject, (int)Utils.Enums.ObjectLayers.Invulnerability);
+
+        teleportTargetPosition = playerCameraRef.ScreenToWorldPoint(Input.mousePosition);
+    }
+
     public void OnTeleportInAnimationEnd()
     {
-        legsScriptRef.SetIsTeleporting(true);
-        Vector2 mousePosition = playerCameraRef.ScreenToWorldPoint(Input.mousePosition);
-        playerRef.GetComponent<Rigidbody2D>().position = mousePosition;
+        playerRef.GetComponent<Rigidbody2D>().position = teleportTargetPosition;
         animatorRef.SetTrigger("teleport_end");
     }
 
@@ -59,6 +66,7 @@ public class PlayerAnimationScript : MonoBehaviour
             SetPlayerDeadSprite();
         }
 
+        playerRef.layer = (int)Utils.Enums.ObjectLayers.Player;
         legsScriptRef.SetIsTeleporting(false);
     }
 
