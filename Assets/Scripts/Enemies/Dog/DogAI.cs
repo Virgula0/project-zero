@@ -98,7 +98,8 @@ public class DogAI : MonoBehaviour, IEnemy, IPoints
             this.connectionGraph,
             linker.GenerateConnections(patrolWaypoints),
             this.exitWaypoints,
-            patrolWaypoints
+            patrolWaypoints,
+            playerDetector.GetObstacleLayers()
         );
 
         // Add patrol waypoints to the current set and update the kd-tree accordingly
@@ -171,7 +172,8 @@ public class DogAI : MonoBehaviour, IEnemy, IPoints
                 this.connectionGraph,
                 glob.GetConnectionMapForAnEnemy(enemy),
                 this.exitWaypoints,
-                enemyWaypoints
+                enemyWaypoints,
+                playerDetector.GetObstacleLayers()
             );
 
             // Add enemy waypoints to the current set and update the kd-tree accordingly
