@@ -86,33 +86,10 @@ public class AI : MonoBehaviour, IEnemy, IPoints
             yield return null;
         }
 
-        ConnectOtherEnemyWaypoints(glob);
         ConnectGlobalWaypoints(glob);
+        ConnectOtherEnemyWaypoints(glob);
         // Finalize the initialization: log info and set up pathfinder and movements
         FinalizeInitialization(glob);
-    }
-
-    private void ConnectPatrolWaypoints()
-    {
-        // THIS PART IS EXPERIMENTAL
-        if (patrolWaypoints == null || patrolWaypoints.Length < 1)
-            return;
-
-        // Merge connection graphs using the linker helper
-        this.connectionGraph = linker.LinkGraphs(
-            this.connectionGraph,
-            linker.GenerateConnections(patrolWaypoints),
-            this.exitWaypoints,
-            patrolWaypoints,
-            playerDetector.GetObstacleLayers()
-        );
-
-        // Add patrol waypoints to the current set and update the kd-tree accordingly
-        foreach (Vector2 node in patrolWaypoints)
-        {
-            this.exitWaypoints = Utils.Functions.AddToVector2Array(this.exitWaypoints, node, out _);
-            treeStructure.UpdateVectorSetOnInsert(node);
-        }
     }
 
     private GlobalWaypoints InitializeParameters()
@@ -144,7 +121,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     private void ConnectGlobalWaypoints(GlobalWaypoints glob)
     {
         // 1) Create subgraphs
-        var subgraphs = linker.CreateSubgraphs(glob.GetGlobalWaypointsNotRemappedVector(), playerDetector.GetObstacleLayers());
+        var subgraphs = linker.CreateSubgraphs(glob.GetGlobalWaypoints(), playerDetector.GetObstacleLayers());
 
         // 2) For each subgraph: first merge, then add its nodes so next one can link to them
         foreach (var sub in subgraphs)
@@ -171,6 +148,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     {
         // Get the waypoints of other enemies (excluding self)
         List<IEnemy> otherEnemies = glob.GetEnemies(this);
+
 
         // For each enemy, link their waypoint graph to our current graph
         foreach (IEnemy enemy in otherEnemies)
@@ -215,7 +193,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         findForAWeapon = gameObject.AddComponent<WeaponFinderMovement>()
             .New(treeStructure, bfs, typesThatCanBeEquipped, playerDetector, spawner, weaponManager, findAWaponSpeed);
         cowardMovement = gameObject.AddComponent<CowardMovement>()
-            .New(safeExitWaypointsCopy, glob.GetGlobalWaypointsNotRemappedVector(), patrolWaypoints, treeStructure, bfs, playerDetector, runAwaySpeed);
+            .New(safeExitWaypointsCopy, glob.GetGlobalWaypoints(), patrolWaypoints, treeStructure, bfs, playerDetector, runAwaySpeed);
 
         listOfMovements.Add(patrolMovement);
         listOfMovements.Add(chaseMovement);
