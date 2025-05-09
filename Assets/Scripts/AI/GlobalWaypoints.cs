@@ -1,91 +1,198 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+[RequireComponent(typeof(GraphLinker))]
 public class GlobalWaypoints : MonoBehaviour
 {
-    /*
-    * GLOBALWAYPOINTS defines global waypoints for each scene.
-    * They're used as waypoint from all enemies in the scane to understand "open spaces" which are common spaces between rooms
-    * and they're useful for an enemy to find the path to they're rooms
-    * The data vector is merged with each enemy waypointVector before to define structure and BFS searches...
-    * THIS CAN BE IMPROVED
-    * GlobalWaypoints could mantain remapped waypoints for all enemies in the scene . Then each enemy gets the full map from the global WayPoints.
-    */
     [SerializeField] private Vector2[] globalWaypoints;
+    [SerializeField] private LayerMask obstacleLayers;
 
+    private Vector2[] allNodes;
+    private Dictionary<int, List<int>> allConnections;
+    private KdTree kdTree;
+    private bool isGlobalReady = false;
     private Dictionary<IEnemy, Vector2[]> enemyWaypointsMap;
     private Dictionary<IEnemy, Dictionary<int, List<int>>> enemyConnectionMap;
-    private List<IEnemy> enemies;
-    private bool isGlobalReady = false;
 
-    public bool GetIsGlobalReady()
-    {
-        return isGlobalReady;
-    }
+    public bool GetIsGlobalReady() => isGlobalReady;
+    public Vector2[] GetAllNodes() => allNodes;
+    public Dictionary<int, List<int>> GetAllConnections() => allConnections;
+    public KdTree GetKdTree() => kdTree;
 
     void Awake()
     {
-        StartCoroutine(this.PopulateEnemyWaypointsMap());
+        StartCoroutine(PopulateAndBuildGraph());
     }
 
-    private IEnumerator PopulateEnemyWaypointsMap()
+    private IEnumerator PopulateAndBuildGraph()
     {
-        this.enemyWaypointsMap = new Dictionary<IEnemy, Vector2[]>();
-        this.enemyConnectionMap = new Dictionary<IEnemy, Dictionary<int, List<int>>>();
-        this.enemies = new List<IEnemy>();
+        var linker = new GraphLinker();
 
-        IEnemy[] enemRef = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).
-                OfType<IEnemy>()
-                .ToArray();
+        // 1) Gather every enemy’s own waypoints & conn-map
+        IEnemy[] enemies = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None)
+                             .OfType<IEnemy>()
+                             .OrderByDescending(e =>
+                             {
+                                 // keep your ordering hack
+                                 string[] parts = ((MonoBehaviour)e).transform.parent.name.Split(' ');
+                                 return int.TryParse(parts[1], out int n) ? n : 0;
+                             })
+                             .ToArray();
 
-        foreach (IEnemy enemy in enemRef)
+        enemyWaypointsMap = new Dictionary<IEnemy, Vector2[]>();
+        enemyConnectionMap = new Dictionary<IEnemy, Dictionary<int, List<int>>>();
+
+        foreach (var e in enemies)
         {
-
-            while (!enemy.AwakeReady())
-            {
+            while (!e.AwakeReady())
                 yield return null;
+
+            enemyWaypointsMap[e] = e.GetEnemyWaypoints();
+            enemyConnectionMap[e] = e.GetEnemyConnections();
+        }
+
+        // 2) Merge global + every enemy subgraph exactly once
+        BuildFullGraph(linker);
+
+        // 3) Build the master KD-tree over allNodes
+        kdTree = new KdTree(allNodes);
+
+        isGlobalReady = true;
+        yield break;
+    }
+
+    private void BuildFullGraph(GraphLinker linker)
+    {
+        // 1) Gather all components
+        var enemyComps = enemyWaypointsMap
+            .Select(kv => (graph: enemyConnectionMap[kv.Key], nodes: kv.Value, isGlobal: false))
+            .ToList();
+
+        var globalComps = linker
+            .CreateSubgraphs(globalWaypoints, obstacleLayers)
+            .Select(sub => (graph: sub.Graph, nodes: sub.Nodes, isGlobal: true))
+            .ToList();
+
+        // Combined list we’ll pull from
+        var allComps = new List<(Dictionary<int, List<int>> graph, Vector2[] nodes, bool isGlobal)>();
+        allComps.AddRange(enemyComps);
+        allComps.AddRange(globalComps);
+
+        if (allComps.Count == 0)
+        {
+            allNodes = new Vector2[0];
+            allConnections = new Dictionary<int, List<int>>();
+            return;
+        }
+
+        // 2) Initialize master graph from the very first component
+        var first = allComps[0];
+        var masterGraph = first.graph
+            .ToDictionary(kv => kv.Key, kv => new List<int>(kv.Value));
+        var nodeList = new List<Vector2>(first.nodes);
+
+        // Remove it from the pool
+        allComps.RemoveAt(0);
+
+        // Helper to compute the minimal squared distance between any point
+        // in `masterNodes` and any point in `compNodes`, *ignoring* obstacles.
+        float EuclideanSqrDist(Vector2 a, Vector2 b) => (a - b).sqrMagnitude;
+
+        // Copy of GraphLinker’s visibility test to ensure a valid link
+        bool IsVisible(Vector2 a, Vector2 b)
+        {
+            return !Physics2D.Linecast(a, b, obstacleLayers);
+        }
+
+        // Finds true minimal *visible* pair distance between our current master and comp.
+        // Returns sqrt‐distance (so we can compare globally).
+        float ComputeMinVisibleDistance(Vector2[] masterNodes, Vector2[] compNodes)
+        {
+            float best = float.MaxValue;
+            foreach (var a in masterNodes)
+            {
+                foreach (var b in compNodes)
+                {
+                    if (!IsVisible(a, b))
+                        continue;
+                    float d2 = EuclideanSqrDist(a, b);
+                    if (d2 < best)
+                        best = d2;
+                }
+            }
+            return best == float.MaxValue ? float.PositiveInfinity : Mathf.Sqrt(best);
+        }
+
+        // 3) Iteratively merge the “closest” remaining component
+        while (allComps.Count > 0)
+        {
+            // Precompute distances for each remaining comp
+            var masterArr = nodeList.ToArray();
+            float bestEnemyDist = float.PositiveInfinity, bestGlobalDist = float.PositiveInfinity;
+            int bestEnemyIdx = -1, bestGlobalIdx = -1;
+
+            for (int i = 0; i < allComps.Count; i++)
+            {
+                var (g, nodes, isG) = allComps[i];
+                float dist = ComputeMinVisibleDistance(masterArr, nodes);
+                if (isG)
+                {
+                    if (dist < bestGlobalDist)
+                    {
+                        bestGlobalDist = dist;
+                        bestGlobalIdx = i;
+                    }
+                }
+                else
+                {
+                    if (dist < bestEnemyDist)
+                    {
+                        bestEnemyDist = dist;
+                        bestEnemyIdx = i;
+                    }
+                }
             }
 
-            enemies.Add(enemy);
-            enemyWaypointsMap.Add(enemy, enemy.GetEnemyWaypoints());
-            enemyConnectionMap.Add(enemy, enemy.GetEnemyConnections());
-        }
-        isGlobalReady = true;
-    }
+            // Decide which to merge: prefer global on tie
+            int pickIdx;
+            if (bestGlobalIdx >= 0 && bestGlobalDist <= bestEnemyDist)
+                pickIdx = bestGlobalIdx;
+            else
+                pickIdx = bestEnemyIdx;
 
-    public List<IEnemy> GetEnemies(IEnemy toSkip)
-    {
-        // Return all enemies except the one to skip.
-        // the order matters
-        return enemies
-            .OrderByDescending(e => // this is a workaround for the concurrency problems. who creates a graph first matters
+            // If both are infinite, no visible link—break out
+            if (pickIdx < 0 || float.IsInfinity(
+                allComps[pickIdx].isGlobal ? bestGlobalDist : bestEnemyDist))
             {
-                int num;
-                string[] parts = ((MonoBehaviour)e).transform.parent.name.Split(" ");
-                return Int32.TryParse(parts[1], out num) ? num : 0;
-            })
-            .Where(e => e != toSkip)
-            .ToList();
-    }
+                Debug.LogWarning("Could not visibly link component → it remains disconnected.");
+                break;
+            }
 
-    public Vector2[] GetWaypointMapForAnEnemy(IEnemy obj)
-    {
-        return enemyWaypointsMap[obj];
-    }
+            // Merge the picked component
+            var comp = allComps[pickIdx];
+            masterGraph = linker.LinkGraphs(
+                masterGraph,
+                comp.graph,
+                nodeList.ToArray(),
+                comp.nodes,
+                obstacleLayers
+            );
+            nodeList.AddRange(comp.nodes);
 
-    public Dictionary<int, List<int>> GetConnectionMapForAnEnemy(IEnemy obj)
-    {
-        return enemyConnectionMap[obj];
+            allComps.RemoveAt(pickIdx);
+        }
+
+        // 4) Finalize
+        allNodes = nodeList.ToArray();
+        allConnections = masterGraph;
     }
 
     public Vector2[] GetGlobalWaypoints()
     {
-        return globalWaypoints;
+        return globalWaypoints.ToArray();
     }
-
 
     // Debugging purposes you can ignore this
     private void OnDrawGizmos()
