@@ -15,7 +15,6 @@ public class BiteScript : MonoBehaviour
     private GameObject player;
     private float biteTimer = 0f;
     private bool isBiting = false;
-    private float waitBeforeCallCameOver = 0.2f;
     private IPrimary biteRef;
 
     public void Initialize(GameObject wielder, AudioClip biteSound, IPrimary bite)
