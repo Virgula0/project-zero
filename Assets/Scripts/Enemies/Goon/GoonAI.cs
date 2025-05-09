@@ -34,7 +34,6 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     private PathFinder bfs;
     private GraphLinker linker;
     private Vector2[] safeExitWaypointsCopy;
-    private Dictionary<int, List<int>> connectionGraph;
     private Dictionary<int, List<int>> originalEnemyConnectionGraph;
     private WeaponSpawner spawner;
     private PlayerScript playerScript;
@@ -71,7 +70,6 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         this.safeExitWaypointsCopy = new Vector2[exitWaypoints.Length];
         Array.Copy(exitWaypoints, 0, safeExitWaypointsCopy, 0, exitWaypoints.Length);
         this.originalEnemyConnectionGraph = linker.GenerateConnections(exitWaypoints);
-        this.connectionGraph = originalEnemyConnectionGraph.ToDictionary(entry => entry.Key, entry => new List<int>(entry.Value)); // deep copy
         awakeReady = true;
     }
 

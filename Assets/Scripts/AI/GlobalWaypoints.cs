@@ -2,8 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-
-[RequireComponent(typeof(GraphLinker))]
 public class GlobalWaypoints : MonoBehaviour
 {
     [SerializeField] private Vector2[] globalWaypoints;
@@ -29,7 +27,6 @@ public class GlobalWaypoints : MonoBehaviour
     private IEnumerator PopulateAndBuildGraph()
     {
         var linker = new GraphLinker();
-
         // 1) Gather every enemy’s own waypoints & conn-map
         IEnemy[] enemies = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None)
                              .OfType<IEnemy>()
