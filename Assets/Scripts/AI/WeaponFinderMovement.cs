@@ -9,14 +9,14 @@ public class WeaponFinderMovement : MonoBehaviour, IMovement
     private WeaponSpawner spawner;
     private float speed;
     private KdTree kdTree;
-    private PathFinder bfs;
+    private BFSPathfinder bfs;
     private List<Type> typesThatCanBeEquipped;
     private EnemyWeaponManager enemyWeaponManager;
     private bool busy = false;
     private Coroutine _finderCoroutine;
     private Detector playerDetector;
 
-    public IMovement New(KdTree tree, PathFinder bfs, List<Type> typesThatCanBeEquipped, Detector playerDetector, WeaponSpawner spawner, EnemyWeaponManager enemyWeaponManager, float speed)
+    public IMovement New(KdTree tree, BFSPathfinder bfs, List<Type> typesThatCanBeEquipped, Detector playerDetector, WeaponSpawner spawner, EnemyWeaponManager enemyWeaponManager, float speed)
     {
         this.playerDetector = playerDetector;
         this.enemyWeaponManager = enemyWeaponManager;
@@ -138,10 +138,10 @@ public class WeaponFinderMovement : MonoBehaviour, IMovement
 
         Vector2 closestPoint = ClosestWaypointRayCastinInBetween(enemyRB);
 
-        Debug.Log(targetWaypoint);
+        Debug.Log(closestPoint);
 
         //Vector2 enemyCloserWaypoint = kdTree.FindNearest(enemyRB.position, out _);
-        Vector2[] path = bfs.PathToPointBFS(closestPoint, targetWaypoint);
+        Vector2[] path = bfs.PathToPoint(closestPoint, targetWaypoint);
         Debug.Log(Utils.Functions.Vector2ArrayToString(path));
         // walk the path
         foreach (Vector2 waypoint in path)
