@@ -1228,6 +1228,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SimpleGun
       objectReference: {fileID: 0}
+    - target: {fileID: 5829556277332518347, guid: 71b6dbee4d80f424cbeecc56a58ed163, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1642,6 +1646,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SimpleSword
       objectReference: {fileID: 0}
+    - target: {fileID: 9080737577432514750, guid: d1883f833176b6849a50f25c760cc8ff, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1652,6 +1660,99 @@ SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 8304945337948504477, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
   m_PrefabInstance: {fileID: 1382322577}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &1029235264
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 900764999012937705, guid: 83fab19f08a44c2428b27afeff9a8ed6, type: 3}
+      propertyPath: m_Name
+      value: DogEnemy
+      objectReference: {fileID: 0}
+    - target: {fileID: 900764999012937705, guid: 83fab19f08a44c2428b27afeff9a8ed6, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4208554675899625320, guid: 83fab19f08a44c2428b27afeff9a8ed6, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -19.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 4208554675899625320, guid: 83fab19f08a44c2428b27afeff9a8ed6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 32.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4208554675899625320, guid: 83fab19f08a44c2428b27afeff9a8ed6, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.04807981
+      objectReference: {fileID: 0}
+    - target: {fileID: 4208554675899625320, guid: 83fab19f08a44c2428b27afeff9a8ed6, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4208554675899625320, guid: 83fab19f08a44c2428b27afeff9a8ed6, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4208554675899625320, guid: 83fab19f08a44c2428b27afeff9a8ed6, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4208554675899625320, guid: 83fab19f08a44c2428b27afeff9a8ed6, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4208554675899625320, guid: 83fab19f08a44c2428b27afeff9a8ed6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4208554675899625320, guid: 83fab19f08a44c2428b27afeff9a8ed6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4208554675899625320, guid: 83fab19f08a44c2428b27afeff9a8ed6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5624905916995589256, guid: 83fab19f08a44c2428b27afeff9a8ed6, type: 3}
+      propertyPath: exitWaypoints.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5624905916995589256, guid: 83fab19f08a44c2428b27afeff9a8ed6, type: 3}
+      propertyPath: patrolWaypoints.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5624905916995589256, guid: 83fab19f08a44c2428b27afeff9a8ed6, type: 3}
+      propertyPath: exitWaypoints.Array.data[0].x
+      value: -19.91
+      objectReference: {fileID: 0}
+    - target: {fileID: 5624905916995589256, guid: 83fab19f08a44c2428b27afeff9a8ed6, type: 3}
+      propertyPath: exitWaypoints.Array.data[0].y
+      value: 32.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5624905916995589256, guid: 83fab19f08a44c2428b27afeff9a8ed6, type: 3}
+      propertyPath: patrolWaypoints.Array.data[0].x
+      value: 1.33
+      objectReference: {fileID: 0}
+    - target: {fileID: 5624905916995589256, guid: 83fab19f08a44c2428b27afeff9a8ed6, type: 3}
+      propertyPath: patrolWaypoints.Array.data[0].y
+      value: 32.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5624905916995589256, guid: 83fab19f08a44c2428b27afeff9a8ed6, type: 3}
+      propertyPath: patrolWaypoints.Array.data[1].x
+      value: -39.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 5624905916995589256, guid: 83fab19f08a44c2428b27afeff9a8ed6, type: 3}
+      propertyPath: patrolWaypoints.Array.data[1].y
+      value: 32.5
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 83fab19f08a44c2428b27afeff9a8ed6, type: 3}
 --- !u!82 &1119736646 stripped
 AudioSource:
   m_CorrespondingSourceObject: {fileID: 394443343449259241, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
@@ -1765,6 +1866,10 @@ PrefabInstance:
     - target: {fileID: 9080737577432514750, guid: d1883f833176b6849a50f25c760cc8ff, type: 3}
       propertyPath: m_Name
       value: SimpleSword (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 9080737577432514750, guid: d1883f833176b6849a50f25c760cc8ff, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1944,6 +2049,10 @@ PrefabInstance:
       propertyPath: enemySpriteRenderer
       value: 
       objectReference: {fileID: 1006128925}
+    - target: {fileID: 3965410167010162294, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
+      propertyPath: weaponTemplatePrefab
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 5895775542303761209, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
       propertyPath: m_LocalPosition.x
       value: -54.76
@@ -2950,3 +3059,4 @@ SceneRoots:
   - {fileID: 77906121}
   - {fileID: 181906117}
   - {fileID: 726271305}
+  - {fileID: 1029235264}

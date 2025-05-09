@@ -43,7 +43,7 @@ public class EnemyWeaponManager : MonoBehaviour
 
             if (templateMono == null)
                 throw new InvalidOperationException(
-                    $"Prefab {weaponTemplatePrefab.name} has no component implementing IGun");
+                    $"Prefab {weaponTemplatePrefab.name} has no component implementing IPrimary");
 
             // 2) Add a new empty component of that exact type to the enemy
             var compType = templateMono.GetType();
@@ -72,7 +72,6 @@ public class EnemyWeaponManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
         if (isReloading)
         {
             return;
@@ -121,7 +120,7 @@ public class EnemyWeaponManager : MonoBehaviour
 
         int beforeShootAmmo = currentLoadedWeapon.GetAmmoCount();
         if (timer >= currentLoadedWeapon.GetFireRate() && beforeShootAmmo > 0)
-        {
+        {   
             timer = 0;
             currentLoadedWeapon.Shoot();
             totalShotsDelivered += Mathf.Max(0, beforeShootAmmo - currentLoadedWeapon.GetAmmoCount()); // Mathf.Max avoid negative values
@@ -152,15 +151,19 @@ public class EnemyWeaponManager : MonoBehaviour
         Debug.Log("Enemy loaded a weapon");
         // must be done whatever a new gun gets loaded
         currentLoadedWeapon = weapon;
-        enemySpriteRenderer.sprite = weapon.GetEquippedSprite();
+        if(weapon.GetEquippedSprite() != null){
+            enemySpriteRenderer.sprite = weapon.GetEquippedSprite();
+        }
 
         // we're allowed to shoot at te beginning 
         timer = float.PositiveInfinity;
         currentLoadedWeapon.Setup(shooter);
 
-        enemySpriteRenderer.sprite = weapon.GetGoonEquippedSprite();
+        if(weapon.GetGoonEquippedSprite() != null){
+            enemySpriteRenderer.sprite = weapon.GetGoonEquippedSprite();
 
-        ResizeEnemyCollider();
+            ResizeEnemyCollider();
+        }
 
         needsToFindAWeapon = false; // enemy do not needs to find a weapon anymore
         if (needsToPLayOnLoad)
