@@ -56,6 +56,7 @@ public class UIManager : MonoBehaviour
         currentColor.a = 1f - secondaryIcon.color.a;
         secondaryIcon.color = currentColor;
         secondaryIcon.sprite = newSprite;
+        secondaryIcon.preserveAspect = true; //prevent stretching of the image
     }
 
     public void UpdatePoints(int points)
@@ -69,6 +70,7 @@ public class UIManager : MonoBehaviour
         currentColor.a = 1f - weaponIcon.color.a;
         weaponIcon.color = currentColor;
         weaponIcon.sprite = newSprite;
+        secondaryIcon.preserveAspect = true;
     }
 
     //TODO: add method for updating secondary sprite.
