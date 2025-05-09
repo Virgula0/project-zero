@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class GlobalWaypoints : MonoBehaviour
@@ -15,14 +14,12 @@ public class GlobalWaypoints : MonoBehaviour
     * GlobalWaypoints could mantain remapped waypoints for all enemies in the scene . Then each enemy gets the full map from the global WayPoints.
     */
     [SerializeField] private Vector2[] globalWaypoints;
-    [SerializeField] private LayerMask obstacles;
+    private Dictionary<int, int> globalWaypointsRemapped; // remapping with high indexes so they won't collide with real indexes of enemies graphs
+    private int baseCounter = 100000; // starting from 100000
+
     private Dictionary<IEnemy, Vector2[]> enemyWaypointsMap;
     private Dictionary<IEnemy, Dictionary<int, List<int>>> enemyConnectionMap;
     private List<IEnemy> enemies;
-    private GraphLinker linker;
-    private GraphLinker.Subgraph[] globalSubraphs;
-
-    private Dictionary<IEnemy, bool> startsReady = new Dictionary<IEnemy, bool>();
 
     private bool isGlobalReady = false;
 
@@ -32,7 +29,7 @@ public class GlobalWaypoints : MonoBehaviour
 
     void Awake()
     {
-        this.linker = new GraphLinker();
+        this.globalWaypointsRemapped = GenerateMapping(); // for global waypoints
         StartCoroutine(this.PopulateEnemyWaypointsMap());
     }
 
@@ -56,37 +53,22 @@ public class GlobalWaypoints : MonoBehaviour
             enemies.Add(enemy);
             enemyWaypointsMap.Add(enemy, enemy.GetEnemyWaypoints());
             enemyConnectionMap.Add(enemy, enemy.GetEnemyConnections());
-            startsReady.Add(enemy, false);
         }
-
-        GenerateGlobalSubgraphs();
         isGlobalReady = true;
     }
 
-    private void GenerateGlobalSubgraphs()
+    private Dictionary<int, int> GenerateMapping()
     {
-        // Create subgraphs
+        Dictionary<int, int> mapping = new Dictionary<int, int>();
 
-        if (obstacles.IsUnityNull()){
-            Debug.LogError("Obstacles masks in global waypoint is null");
-            return;
+        // Loop over each element in the waypoints array.
+        for (int i = 0; i < globalWaypoints.Length; i++)
+        {
+            int generatedValue = baseCounter++;
+            mapping.Add(generatedValue, i);
         }
 
-        this.globalSubraphs = linker.CreateSubgraphs(globalWaypoints, obstacles);
-    }
-
-    public void SetEnemyStartReady(IEnemy enemy){
-        startsReady[enemy] = true;
-    }
-
-    public bool GetAllEnemiesReady()
-    {
-        return startsReady.Values.All(x => x);
-    }
-
-    public GraphLinker.Subgraph[] GetGlobalSubgraphs()
-    {
-        return this.globalSubraphs;
+        return mapping;
     }
 
     public List<IEnemy> GetEnemies(IEnemy toSkip){
@@ -104,7 +86,17 @@ public class GlobalWaypoints : MonoBehaviour
         return enemyConnectionMap[obj];
     }
 
-    public Vector2[] GetGlobalWaypoints(){
+    public Dictionary<int, int> GetGlobalWaypointsRemapped()
+    {
+        return globalWaypointsRemapped;
+    }
+
+    public Vector2 GetElementFromRemappedIndex(int remappedIndex)
+    {
+        return globalWaypoints[globalWaypointsRemapped.GetValueOrDefault(remappedIndex, -1)];
+    }
+
+    public Vector2[] GetGlobalWaypointsNotRemappedVector(){
         return globalWaypoints;
     }
 

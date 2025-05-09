@@ -81720,11 +81720,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2387890322715784559, guid: 71b6dbee4d80f424cbeecc56a58ed163, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -44.55
+      value: -43.87
       objectReference: {fileID: 0}
     - target: {fileID: 2387890322715784559, guid: 71b6dbee4d80f424cbeecc56a58ed163, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -12.7
+      value: -13.85
       objectReference: {fileID: 0}
     - target: {fileID: 2387890322715784559, guid: 71b6dbee4d80f424cbeecc56a58ed163, type: 3}
       propertyPath: m_LocalPosition.z
@@ -119658,10 +119658,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2619267559082826673, guid: ab0dfd6748cb82cdf9e81af29c3e614a, type: 3}
-      propertyPath: obstacles.m_Bits
-      value: 64
-      objectReference: {fileID: 0}
     - target: {fileID: 2619267559082826673, guid: ab0dfd6748cb82cdf9e81af29c3e614a, type: 3}
       propertyPath: globalWaypoints.Array.size
       value: 9

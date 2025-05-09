@@ -53,7 +53,6 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     private int basePoint = 10;
     private float originalStoppingDistance;
     private float stunnedEndTime;
-    private GlobalWaypoints glob;
 
     public bool AwakeReady()
     {
@@ -67,7 +66,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
             Debug.LogError("ExitWaypoints is null or empty in Awake!");
             return;
         }
-        
+
         this.linker = new GraphLinker();
         this.safeExitWaypointsCopy = new Vector2[exitWaypoints.Length];
         Array.Copy(exitWaypoints, 0, safeExitWaypointsCopy, 0, exitWaypoints.Length);
@@ -80,7 +79,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     IEnumerator Start()
     {
         // Perform initializations and get global waypoints
-        InitializeParameters();
+        GlobalWaypoints glob = InitializeParameters();
 
         while (!glob.GetIsGlobalReady())
         {
@@ -90,12 +89,11 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         // Add patrol waypoints
         // ConnectPatrolWaypoints();
         // Connect the global waypoints into our local graph
-        ConnectGlobalWaypoints();
+        ConnectGlobalWaypoints(glob);
         // Connect waypoints from other enemies using the global waypoints reference
-        ConnectOtherEnemyWaypoints();
+        ConnectOtherEnemyWaypoints(glob);
         // Finalize the initialization: log info and set up pathfinder and movements
-        FinalizeInitialization();
-        glob.SetEnemyStartReady(this);
+        FinalizeInitialization(glob);
     }
 
     private void ConnectPatrolWaypoints()
@@ -121,7 +119,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         }
     }
 
-    private void InitializeParameters()
+    private GlobalWaypoints InitializeParameters()
     {
         // Update speeds and obtain components
         this.chaseSpeed = patrolSpeed * 3.5f + chaseSpeed;
@@ -140,16 +138,17 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         treeStructure = new KdTree(exitWaypoints);
 
         // Get the global waypoints object locally (no new instance variable)
-        glob = GameObject.FindGameObjectWithTag(Utils.Const.GLOBAL_WAYPOINTS_TAG)
+        GlobalWaypoints glob = GameObject.FindGameObjectWithTag(Utils.Const.GLOBAL_WAYPOINTS_TAG)
                                       .GetComponent<GlobalWaypoints>();
 
         // Debug.Log("before : " + Utils.Functions.Vector2ArrayToString(exitWaypoints));
+        return glob;
     }
 
-    private void ConnectGlobalWaypoints()
+    private void ConnectGlobalWaypoints(GlobalWaypoints glob)
     {
         // 1) Create subgraphs
-        var subgraphs = glob.GetGlobalSubgraphs();
+        var subgraphs = linker.CreateSubgraphs(glob.GetGlobalWaypointsNotRemappedVector(), playerDetector.GetObstacleLayers());
 
         // 2) For each subgraph: first merge, then add its nodes so next one can link to them
         foreach (var sub in subgraphs)
@@ -176,7 +175,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         Utils.Functions.PrintDictionary(this.connectionGraph);
     }
 
-    private void ConnectOtherEnemyWaypoints()
+    private void ConnectOtherEnemyWaypoints(GlobalWaypoints glob)
     {
         // Get the waypoints of other enemies (excluding self)
         List<IEnemy> otherEnemies = glob.GetEnemies(this);
@@ -207,7 +206,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         }
     }
 
-    private void FinalizeInitialization()
+    private void FinalizeInitialization(GlobalWaypoints glob)
     {
         bfs = new PathFinder(exitWaypoints, connectionGraph);
 
@@ -224,7 +223,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         findForAWeapon = gameObject.AddComponent<WeaponFinderMovement>()
             .New(treeStructure, bfs, typesThatCanBeEquipped, playerDetector, spawner, weaponManager, findAWaponSpeed);
         cowardMovement = gameObject.AddComponent<CowardMovement>()
-            .New(safeExitWaypointsCopy, glob.GetGlobalWaypoints(), patrolWaypoints, treeStructure, bfs, playerDetector, runAwaySpeed);
+            .New(safeExitWaypointsCopy, glob.GetGlobalWaypointsNotRemappedVector(), patrolWaypoints, treeStructure, bfs, playerDetector, runAwaySpeed);
 
         listOfMovements.Add(patrolMovement);
         listOfMovements.Add(chaseMovement);
@@ -239,16 +238,6 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     // Refactored for clarity and maintainability while preserving original logic
     void FixedUpdate()
     {
-
-        if (glob == null)
-        {
-            return;
-        }
-
-        if (!glob.GetAllEnemiesReady())
-        {
-            return;
-        }
 
         if (patrolWaypoints.Length < 1 || exitWaypoints.Length < 1)
         {
