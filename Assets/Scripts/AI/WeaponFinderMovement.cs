@@ -9,14 +9,14 @@ public class WeaponFinderMovement : MonoBehaviour, IMovement
     private WeaponSpawner spawner;
     private float speed;
     private KdTree kdTree;
-    private BFSPathfinder bfs;
+    private PathFinder bfs;
     private List<Type> typesThatCanBeEquipped;
     private EnemyWeaponManager enemyWeaponManager;
     private bool busy = false;
     private Coroutine _finderCoroutine;
     private Detector playerDetector;
 
-    public IMovement New(KdTree tree, BFSPathfinder bfs, List<Type> typesThatCanBeEquipped, Detector playerDetector, WeaponSpawner spawner, EnemyWeaponManager enemyWeaponManager, float speed)
+    public IMovement New(KdTree tree, PathFinder bfs, List<Type> typesThatCanBeEquipped, Detector playerDetector, WeaponSpawner spawner, EnemyWeaponManager enemyWeaponManager, float speed)
     {
         this.playerDetector = playerDetector;
         this.enemyWeaponManager = enemyWeaponManager;

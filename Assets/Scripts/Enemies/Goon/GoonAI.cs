@@ -31,7 +31,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     private Detector playerDetector;
     private Rigidbody2D body;
     private KdTree treeStructure;
-    private BFSPathfinder bfs;
+    private PathFinder bfs;
     private GraphLinker linker;
     private Vector2[] safeExitWaypointsCopy;
     private Dictionary<int, List<int>> connectionGraph;
@@ -147,41 +147,31 @@ public class AI : MonoBehaviour, IEnemy, IPoints
 
     private void ConnectGlobalWaypoints(GlobalWaypoints glob)
     {
-        /*
-        // Get the remapped global waypoints dictionary
-        Dictionary<int, int> dict = glob.GetGlobalWaypointsRemapped();
+        // 1) Create subgraphs
+        var subgraphs = linker.CreateSubgraphs(glob.GetGlobalWaypointsNotRemappedVector(), playerDetector.GetObstacleLayers());
 
-        // Connect each global waypoint to the nearest element of our current set
-        foreach (var item in dict)
+        // 2) For each subgraph: first merge, then add its nodes so next one can link to them
+        foreach (var sub in subgraphs)
         {
-            Vector2 elemToLink = glob.GetElementFromRemappedIndex(item.Key);
-            // Find the nearest element using the kd-tree
-            Vector2 _ = treeStructure.FindNearest(elemToLink, out int index);
-            // Add the global waypoint to our local set and update the connection graph
-            this.exitWaypoints = Utils.Functions.AddToVector2Array(this.exitWaypoints, elemToLink, out int addedIndex);
-            this.connectionGraph.Add(addedIndex, new List<int> { index });
-            this.connectionGraph[index].Add(addedIndex);
-            treeStructure.UpdateVectorSetOnInsert(elemToLink);
-        }
-        */
+            // (a) Merge subgraph as a single component → adds one bridge edge
+            connectionGraph = linker.LinkGraphs(
+                connectionGraph,
+                sub.Graph,
+                exitWaypoints,
+                sub.Nodes,
+                playerDetector.GetObstacleLayers()
+            );
 
-        // Merge connection graphs using the linker helper
-        this.connectionGraph = linker.LinkGraphs(
-            this.connectionGraph,
-            linker.GenerateConnections(glob.GetGlobalWaypointsNotRemappedVector()),
-            this.exitWaypoints,
-            glob.GetGlobalWaypointsNotRemappedVector(),
-            playerDetector.GetObstacleLayers()
-        );
-
-        // Add enemy waypoints to the current set and update the kd-tree accordingly
-        foreach (Vector2 node in glob.GetGlobalWaypointsNotRemappedVector())
-        {
-            this.exitWaypoints = Utils.Functions.AddToVector2Array(this.exitWaypoints, node, out _);
-            treeStructure.UpdateVectorSetOnInsert(node);
+            // (b) Now insert subgraph’s nodes into exitWaypoints
+            foreach (var node in sub.Nodes)
+            {
+                exitWaypoints = Utils.Functions.AddToVector2Array(exitWaypoints, node, out _);
+                treeStructure.UpdateVectorSetOnInsert(node);
+            }
+            Utils.Functions.PrintDictionary(sub.Graph);
         }
 
-        Debug.Log(Utils.Functions.Vector2ArrayToString(this.exitWaypoints));
+        //Debug.Log(Utils.Functions.Vector2ArrayToString(this.exitWaypoints));
         Utils.Functions.PrintDictionary(this.connectionGraph);
     }
 
@@ -218,13 +208,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
 
     private void FinalizeInitialization(GlobalWaypoints glob)
     {
-        // Debug.Log("after: " + Utils.Functions.Vector2ArrayToString(exitWaypoints));
-        // Debug.Log("connections after");
-        // Utils.Functions.PrintDictionary(connectionGraph);
-
-        // Create the BFS pathfinder using the finalized waypoint set and connection graph
-        //Vector2[] join = Utils.Functions.CombineVector2Arrays(exitWaypoints, glob.GetGlobalWaypointsNotRemappedVector());
-        bfs = new BFSPathfinder(exitWaypoints, connectionGraph);
+        bfs = new PathFinder(exitWaypoints, connectionGraph);
 
         // Enemy Weapon manager
         weaponManager = transform.parent.GetComponentInChildren<EnemyWeaponManager>();
