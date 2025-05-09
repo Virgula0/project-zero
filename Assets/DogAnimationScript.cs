@@ -30,11 +30,6 @@ public class DogAnimationScript : MonoBehaviour
 
     public void SetDogDeadSprite(IPrimary weapon)
     {
-        /*if (animatorRef.GetCurrentAnimatorStateInfo(0).IsName(Utils.Animations.ENEMY_SWORD_ATTACK))
-        {
-            animatorRef.enabled = false;
-        }*/
-
         animatorRef.enabled = false;
 
         // if weapon is null probably is because the object that hitted the enemy was not a bullet neither a swing

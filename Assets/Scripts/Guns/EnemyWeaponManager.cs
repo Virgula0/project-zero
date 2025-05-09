@@ -114,7 +114,6 @@ public class EnemyWeaponManager : MonoBehaviour
         int beforeShootAmmo = currentLoadedWeapon.GetAmmoCount();
         if (timer >= currentLoadedWeapon.GetFireRate() && beforeShootAmmo > 0)
         {   
-            Debug.Log("INSIDE THE WEAPON MANAGER SHOOT");
             timer = 0;
             currentLoadedWeapon.Shoot();
             totalShotsDelivered += Mathf.Max(0, beforeShootAmmo - currentLoadedWeapon.GetAmmoCount()); // Mathf.Max avoid negative values

@@ -68,7 +68,6 @@ public class BiteScript : MonoBehaviour
 
     public void Bite()
     {
-        Debug.Log("INSIDE BITE");
         if (!canBite) return;
 
         Vector2 dir;
@@ -127,24 +126,6 @@ public class BiteScript : MonoBehaviour
     // Initiates player hit logic with a delay before stunned check
     private void ProcessPlayerHit()
     {
-        // Delay the stunned check by 0.2 seconds
-        StartCoroutine(DelayedProcessPlayerHit());
-    }
-
-    private IEnumerator DelayedProcessPlayerHit()
-    {
-        if (waitBeforeCallCameOver >= fireRate)
-        {
-            Debug.LogError("WARNING! the waitBeforeCallCameOver seems to be >= of fireRate, which is not correct!");
-        }
-
-        yield return new WaitForSeconds(waitBeforeCallCameOver); // give 0.2 seconds of gap otherwise player will die even if parry was successfull
-
-        var wielderEnemy = wielder.transform.parent
-                                     .GetComponentInChildren<IEnemy>();
-        if (wielderEnemy == null || wielderEnemy.IsStunned())
-            yield break;
-
         Debug.Log("Hit player");
         logic.GameOver(biteRef);
     }
