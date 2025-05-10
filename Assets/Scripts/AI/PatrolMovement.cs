@@ -16,9 +16,9 @@ public class PatrolMovement : MonoBehaviour, IMovement
     private Coroutine _patrolCoroutine;
     private Vector2 basePoint;
 
-    public PatrolMovement New(Vector2[] waypoints, Detector playerDetector, KdTree kdTree, PathFinder bfs, float speed)
+    public PatrolMovement New(Vector2 basePoint, Vector2[] waypoints, Detector playerDetector, KdTree kdTree, PathFinder bfs, float speed)
     {
-        this.basePoint = waypoints[0];
+        this.basePoint = basePoint;
         this.waypoints = waypoints;
         patrolSpeed = speed;
         currentWaypoint = 0;

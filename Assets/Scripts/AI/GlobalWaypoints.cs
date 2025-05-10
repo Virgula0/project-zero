@@ -13,11 +13,10 @@ public class GlobalWaypoints : MonoBehaviour
     private bool isGlobalReady = false;
     private Dictionary<IEnemy, Vector2[]> enemyWaypointsMap;
     private Dictionary<IEnemy, Dictionary<int, List<int>>> enemyConnectionMap;
-
+    private PathFinder bfs;
     public bool GetIsGlobalReady() => isGlobalReady;
-    public Vector2[] GetAllNodes() => allNodes;
-    public Dictionary<int, List<int>> GetAllConnections() => allConnections;
     public KdTree GetKdTree() => kdTree;
+    public PathFinder GetPathFinder() => bfs;
 
     void Awake()
     {
@@ -55,6 +54,9 @@ public class GlobalWaypoints : MonoBehaviour
 
         // 3) Build the master KD-tree over allNodes
         kdTree = new KdTree(allNodes);
+        
+        // 4) Build PathFinder
+        bfs = new PathFinder(allNodes, allConnections);
 
         isGlobalReady = true;
         yield break;

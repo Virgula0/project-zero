@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
 using System.Collections;
 
 public class AI : MonoBehaviour, IEnemy, IPoints
@@ -82,12 +81,10 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         while (!glob.GetIsGlobalReady())
             yield return null;
 
-        // 3) consume the fully‐built graph
-        Vector2[] allNodes = glob.GetAllNodes();
-        var allConns = glob.GetAllConnections();
-        bfs = new PathFinder(allNodes, allConns);
+        // 3) get built structures
+        bfs = glob.GetPathFinder();
         treeStructure = glob.GetKdTree();
-        
+
         // 4) Set up your Movement‐objects just as before
         FinalizeInitialization(glob);
     }
@@ -125,13 +122,13 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         Func<float> getStoppingDistance = () => stoppingDistance;
         // Add movement components and initialize them
         patrolMovement = gameObject.AddComponent<PatrolMovement>()
-            .New(patrolWaypoints, playerDetector, treeStructure, bfs, patrolSpeed);
+            .New(exitWaypoints[0], patrolWaypoints, playerDetector, treeStructure, bfs, patrolSpeed);
         chaseMovement = gameObject.AddComponent<ChaseMovement>()
             .New(player, playerDetector, treeStructure, bfs, chaseSpeed, getStoppingDistance);
         findForAWeapon = gameObject.AddComponent<WeaponFinderMovement>()
             .New(treeStructure, bfs, typesThatCanBeEquipped, playerDetector, spawner, weaponManager, findAWaponSpeed);
         cowardMovement = gameObject.AddComponent<CowardMovement>()
-            .New(safeExitWaypointsCopy, glob.GetGlobalWaypoints(), patrolWaypoints, treeStructure, bfs, playerDetector, runAwaySpeed);
+            .New(exitWaypoints[0], safeExitWaypointsCopy, glob.GetGlobalWaypoints(), patrolWaypoints, treeStructure, bfs, playerDetector, runAwaySpeed);
 
         listOfMovements.Add(patrolMovement);
         listOfMovements.Add(chaseMovement);

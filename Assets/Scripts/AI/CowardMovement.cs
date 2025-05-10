@@ -17,9 +17,9 @@ public class CowardMovement : MonoBehaviour, IMovement
     private Vector2[] originalWaypoints;
     private Vector2 basePoint;
 
-    public IMovement New(Vector2[] waypoints, Vector2[] globalWaypoints, Vector2[] patrolWaypoints, KdTree treeStructure, PathFinder bfs, Detector playerDetector, float speed)
+    public IMovement New(Vector2 basePoint, Vector2[] waypoints, Vector2[] globalWaypoints, Vector2[] patrolWaypoints, KdTree treeStructure, PathFinder bfs, Detector playerDetector, float speed)
     {
-        this.basePoint = waypoints[0];
+        this.basePoint = basePoint;
         this.patrolWaypoints = patrolWaypoints;
         this.waypoints = Utils.Functions.RemoveAll(waypoints, globalWaypoints); // remove global waypoints from waypoints
         this.waypoints = Utils.Functions.RemoveAtIndex(this.waypoints, 0); // remove element 0 because we don't want to enter the room anymore
