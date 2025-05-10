@@ -81400,7 +81400,7 @@ CompositeCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 188c45b881c387941b8026d9e3db4a87, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
