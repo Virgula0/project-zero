@@ -1,22 +1,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BFSPathfinder
+public class PathFinder
 {
     private Vector2[] waypoints;
     private Dictionary<int, List<int>> adjacency; // Graph connections: key = waypoint index, value = list of neighbor indices
 
-    public BFSPathfinder(Vector2[] waypoints, Dictionary<int, List<int>> adjacency)
+    public PathFinder(Vector2[] waypoints, Dictionary<int, List<int>> adjacency)
     {
         this.waypoints = waypoints;
         this.adjacency = adjacency;
     }
-
-    public Vector2[] PathToTheFirst(Vector2 start)
-    {
-        return PathToPoint(start, waypoints[0]);
-    }
-
+    
     public Vector2[] PathToPoint(Vector2 start, Vector2 goal)
     {
         // Find index of the start point.

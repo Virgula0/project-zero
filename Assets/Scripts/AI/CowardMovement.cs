@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class CowardMovement : MonoBehaviour, IMovement
 {
-    private BFSPathfinder bfs;
+    private PathFinder bfs;
     private Vector2[] waypoints;
     private Vector2[] patrolWaypoints;
     private KdTree kdTree;
@@ -15,9 +15,11 @@ public class CowardMovement : MonoBehaviour, IMovement
     private Coroutine _cowardRoutine;
     private Detector playerDetector;
     private Vector2[] originalWaypoints;
+    private Vector2 basePoint;
 
-    public IMovement New(Vector2[] waypoints, Vector2[] globalWaypoints, Vector2[] patrolWaypoints, KdTree treeStructure, BFSPathfinder bfs, Detector playerDetector, float speed)
+    public IMovement New(Vector2 basePoint, Vector2[] waypoints, Vector2[] globalWaypoints, Vector2[] patrolWaypoints, KdTree treeStructure, PathFinder bfs, Detector playerDetector, float speed)
     {
+        this.basePoint = basePoint;
         this.patrolWaypoints = patrolWaypoints;
         this.waypoints = Utils.Functions.RemoveAll(waypoints, globalWaypoints); // remove global waypoints from waypoints
         this.waypoints = Utils.Functions.RemoveAtIndex(this.waypoints, 0); // remove element 0 because we don't want to enter the room anymore
@@ -45,12 +47,13 @@ public class CowardMovement : MonoBehaviour, IMovement
         return kdTree.FindNearestExcluding(enemyRigidbody.position, toExclude, out index);
     }
 
-    private Vector2 CalculateClosesPoint(Rigidbody2D rb)
+    private Vector2 CalculateClosestPoint(Rigidbody2D rb)
     {
+        // this method can be overwritten in future using kdtree.FindNearestRayCasting which should do the same
         busy = true;
         bool clearPath = false;
         Vector2 closestPoint = new();
-        int maxIterations = 200; // stop after 200 iterations
+        int maxIterations = kdTree.GetPoints().Length;
         int currentIteration = 0;
         List<Vector2> vectorsToExclude = new List<Vector2>();
         while (busy && !clearPath && ++currentIteration < maxIterations)
@@ -79,8 +82,8 @@ public class CowardMovement : MonoBehaviour, IMovement
 
     private IEnumerator MoveInCircleRoutine(Rigidbody2D rb)
     {
-        Vector2 closestPoint = CalculateClosesPoint(rb);
-        Vector2[] path = bfs.PathToTheFirst(closestPoint);
+        Vector2 closestPoint = CalculateClosestPoint(rb);
+        Vector2[] path = bfs.PathToPoint(closestPoint, basePoint);
 
         // Step 1: move to the nearest point first
 
@@ -95,7 +98,7 @@ public class CowardMovement : MonoBehaviour, IMovement
         // Step 3: loop forever (or until stopped), visiting each point in order
         while (busy)
         {
-            closestPoint = CalculateClosesPoint(rb);
+            closestPoint = CalculateClosestPoint(rb);
             circularPath = closestPoint == originalWaypoints[0] ? GetCircularTraversal(patrolWaypoints, 0)
                 : GetCircularTraversal(waypoints, 0);
             foreach (var point in circularPath)

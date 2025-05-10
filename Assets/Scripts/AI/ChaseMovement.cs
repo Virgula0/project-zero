@@ -10,14 +10,14 @@ public class ChaseMovement : MonoBehaviour, IMovement
     private Rigidbody2D playerBody;
     private Detector playerDetector;
     private KdTree kdTree;
-    private BFSPathfinder bfs;
+    private PathFinder bfs;
     private Vector2 enemyLatestPosition;
     private bool busy = false;
     private float additionalSpeedWhenFollowingPath = 1.5f;
     private Coroutine _chaseCoroutine;
     private Func<float> getStoppingDistance;
 
-    public IMovement New(GameObject player, Detector detector, KdTree tree, BFSPathfinder bfs, float chaseSpeed, Func<float> getStoppingDistance)
+    public IMovement New(GameObject player, Detector detector, KdTree tree, PathFinder bfs, float chaseSpeed, Func<float> getStoppingDistance)
     {
         if (player == null || chaseSpeed < 1)
             throw new ArgumentException("Invalid argument passed to chase movement");
@@ -52,10 +52,11 @@ public class ChaseMovement : MonoBehaviour, IMovement
 
     private Vector2 FindCloserClearWaypoint()
     {
+        // this method can be overwritten in future using kdtree.FindNearestRayCasting which should do the same
         bool clearPath = false;
         Vector2 playerBestWaypoint = new(float.PositiveInfinity, float.PositiveInfinity);
         List<Vector2> vectorsToExclude = new List<Vector2>();
-        int maxIterations = 200; // stop after 200 iterations
+        int maxIterations = kdTree.GetPoints().Length;
         int currentIteration = 0;
         while (!clearPath && ++currentIteration < maxIterations)
         {
@@ -134,7 +135,7 @@ public class ChaseMovement : MonoBehaviour, IMovement
             throw new InvalidOperationException("KdTree is not built. Make sure doorWayPoint array is assigned.");
         }
 
-        Vector2 enemyWaypoint = kdTree.FindNearest(enemyPos, out _);
+        Vector2 enemyWaypoint = kdTree.FindNearestRayCasting(enemyPos, playerDetector.GetObstacleLayers(), out _);
 
         return enemyWaypoint;
     }
