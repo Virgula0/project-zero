@@ -18,6 +18,7 @@ public class PatrolMovement : MonoBehaviour, IMovement
 
     public PatrolMovement New(Vector2 basePoint, Vector2[] waypoints, Detector playerDetector, KdTree kdTree, PathFinder bfs, float speed)
     {
+        this.basePoint = basePoint;
         this.waypoints = waypoints;
         patrolSpeed = speed;
         currentWaypoint = 0;
@@ -102,7 +103,7 @@ public class PatrolMovement : MonoBehaviour, IMovement
             Debug.LogWarning("WARNING! Cannot find clearest closer waypoint while coward");
         }
 
-        Vector2[] path = bfs.PathToPoint(closestPoint, waypoints[currentWaypoint]);
+        Vector2[] path = bfs.PathToPoint(closestPoint, basePoint);
         Debug.Log("The path will be " + Utils.Functions.Vector2ArrayToString(path));
 
         foreach (Vector2 v in path)
