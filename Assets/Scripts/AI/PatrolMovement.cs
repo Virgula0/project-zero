@@ -12,11 +12,13 @@ public class PatrolMovement : MonoBehaviour, IMovement
     private bool needsRepositioning = false;
     private Detector playerDetector;
     private KdTree kdTree;
-    private BFSPathfinder bfs;
+    private PathFinder bfs;
     private Coroutine _patrolCoroutine;
+    private Vector2 basePoint;
 
-    public PatrolMovement New(Vector2[] waypoints, Detector playerDetector, KdTree kdTree, BFSPathfinder bfs, float speed)
+    public PatrolMovement New(Vector2 basePoint, Vector2[] waypoints, Detector playerDetector, KdTree kdTree, PathFinder bfs, float speed)
     {
+        this.basePoint = basePoint;
         this.waypoints = waypoints;
         patrolSpeed = speed;
         currentWaypoint = 0;
@@ -71,10 +73,11 @@ public class PatrolMovement : MonoBehaviour, IMovement
 
     private IEnumerator MoveDoorWaypointsCoroutine(Rigidbody2D enemyTransform)
     {
+        // this method can be overwritten in future using kdtree.FindNearestRayCasting which should do the same
         bool clearPath = false;
         Vector2 closestPoint = new();
         List<Vector2> vectorsToExclude = new List<Vector2>();
-        int maxIterations = 200; // stop after 200 iterations
+        int maxIterations = kdTree.GetPoints().Length; // stop after 200 iterations
         int currentIteration = 0;
 
         // in patrol movement we can ignore the points behind the obstacles to find the way to get back to home
@@ -93,14 +96,14 @@ public class PatrolMovement : MonoBehaviour, IMovement
                 Debug.Log("Obstacle detected between enemy and closest waypoint while trying to come back to patrolling. Recalculating.");
             }
         }
-        
+
         if (currentIteration >= maxIterations)
         {
             StopCoroutines(true);
             Debug.LogWarning("WARNING! Cannot find clearest closer waypoint while coward");
         }
 
-        Vector2[] path = bfs.PathToTheFirst(closestPoint);
+        Vector2[] path = bfs.PathToPoint(closestPoint, basePoint);
         Debug.Log("The path will be " + Utils.Functions.Vector2ArrayToString(path));
 
         foreach (Vector2 v in path)
