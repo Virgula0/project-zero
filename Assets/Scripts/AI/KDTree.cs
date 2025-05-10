@@ -116,11 +116,6 @@ public class KdTree
         root = Build(indexedPoints, 0);
     }
 
-    public Vector2[] GetPoints()
-    {
-        return points;
-    }
-
     private Node Build(IndexedPoint[] points, int depth)
     {
         if (points == null || points.Length == 0)
@@ -348,26 +343,6 @@ public class KdTree
         }
     }
 
-    // Given a target point, this method returns an array of all points stored in the kd-tree,
-    // where the 0th index is the nearest and the last index is the farthest from the target.
-    public Vector2[] FindFromNearestToFarthest(Vector2 target)
-    {
-        // Use a list to hold each node's point and the computed squared distance.
-        List<NodeDistance> distances = new List<NodeDistance>();
-        CollectNodes(root, target, distances);
-
-        // Sort the list by distance in ascending order.
-        distances.Sort((a, b) => a.distanceSqr.CompareTo(b.distanceSqr));
-
-        // Build an array with the sorted points.
-        Vector2[] sortedPoints = new Vector2[distances.Count];
-        for (int i = 0; i < distances.Count; i++)
-        {
-            sortedPoints[i] = distances[i].point;
-        }
-        return sortedPoints;
-    }
-
     // Helper class to store a point along with its squared distance from the target.
     private class NodeDistance
     {
@@ -400,4 +375,58 @@ public class KdTree
         CollectNodes(node.Left, target, distances);
         CollectNodes(node.Right, target, distances);
     }
+
+    public Vector2[] GetPoints()
+    {
+        return this.points;
+    }
+
+    public Vector2 FindNearestRayCasting(Vector2 target, LayerMask obstacleMask, out int foundIndex)
+    {
+        // 1) Gather every waypoint + its squared distance to 'target'
+        List<NodeDistance> all = new List<NodeDistance>();
+        CollectNodes(root, target, all);
+
+        const float EPS = 0.05f;   // small inset to avoid self-hits
+
+        // 2) Filter to only those with an unobstructed raycast
+        var visible = new List<NodeDistance>();
+        foreach (var nd in all)
+        {
+            if (nd.distanceSqr == 0f)
+                continue;  // skip if exactly on top
+
+            Vector2 candidate = nd.point;
+            Vector2 dir = (candidate - target).normalized;
+            float fullDist = Mathf.Sqrt(nd.distanceSqr);
+
+            // nudge the origin/shorten the ray so you don't immediately hit your own collider
+            Vector2 origin = target + dir * EPS;
+            float rayDist = Mathf.Max(0f, fullDist - 2 * EPS);
+
+            RaycastHit2D hit = Physics2D.Raycast(
+                origin,
+                dir,
+                rayDist,
+                obstacleMask
+            );
+
+            if (hit.collider == null)
+                visible.Add(nd);
+        }
+
+        // 3) If none are visible, bail out
+        if (visible.Count == 0)
+        {
+            foundIndex = -1;
+            return Vector2.zero;
+        }
+
+        // 4) Otherwise, sort the *visible* ones by distance and return the very nearest
+        visible.Sort((a, b) => a.distanceSqr.CompareTo(b.distanceSqr));
+
+        foundIndex = visible[0].index;
+        return visible[0].point;
+    }
+
 }

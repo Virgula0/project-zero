@@ -103,7 +103,6 @@ public class WeaponManager : MonoBehaviour
 
         // we're allowed to shoot at te beginning 
         secondaryTimer = float.PositiveInfinity;
-        cursorChanger.ChangeToTargetCursor();
         currentLoadedSecondary.Setup(shooter);
         audioSrc.PlayOneShot(currentLoadedSecondary.GetEquipSfx());
 
@@ -129,7 +128,6 @@ public class WeaponManager : MonoBehaviour
         audioSrc.PlayOneShot(currentLoadedSecondary.GetEquipSfx());
 
         currentLoadedSecondary.PostSetup();
-        cursorChanger.ChangeToDefaultCursor();
         Destroy(this.secondaryPrefab);
         secondaryTimer = 0;
         currentLoadedSecondary = null;
