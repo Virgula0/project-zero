@@ -11,12 +11,7 @@ public class PathFinder
         this.waypoints = waypoints;
         this.adjacency = adjacency;
     }
-
-    public Vector2[] PathToTheFirst(Vector2 start)
-    {
-        return PathToPoint(start, waypoints[0]);
-    }
-
+    
     public Vector2[] PathToPoint(Vector2 start, Vector2 goal)
     {
         // Find index of the start point.

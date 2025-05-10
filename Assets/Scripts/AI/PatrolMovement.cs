@@ -14,9 +14,11 @@ public class PatrolMovement : MonoBehaviour, IMovement
     private KdTree kdTree;
     private PathFinder bfs;
     private Coroutine _patrolCoroutine;
+    private Vector2 basePoint;
 
     public PatrolMovement New(Vector2[] waypoints, Detector playerDetector, KdTree kdTree, PathFinder bfs, float speed)
     {
+        this.basePoint = waypoints[0];
         this.waypoints = waypoints;
         patrolSpeed = speed;
         currentWaypoint = 0;
@@ -94,14 +96,14 @@ public class PatrolMovement : MonoBehaviour, IMovement
                 Debug.Log("Obstacle detected between enemy and closest waypoint while trying to come back to patrolling. Recalculating.");
             }
         }
-        
+
         if (currentIteration >= maxIterations)
         {
             StopCoroutines(true);
             Debug.LogWarning("WARNING! Cannot find clearest closer waypoint while coward");
         }
 
-        Vector2[] path = bfs.PathToTheFirst(closestPoint);
+        Vector2[] path = bfs.PathToPoint(closestPoint, basePoint);
         Debug.Log("The path will be " + Utils.Functions.Vector2ArrayToString(path));
 
         foreach (Vector2 v in path)

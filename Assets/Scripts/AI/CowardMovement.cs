@@ -15,9 +15,11 @@ public class CowardMovement : MonoBehaviour, IMovement
     private Coroutine _cowardRoutine;
     private Detector playerDetector;
     private Vector2[] originalWaypoints;
+    private Vector2 basePoint;
 
     public IMovement New(Vector2[] waypoints, Vector2[] globalWaypoints, Vector2[] patrolWaypoints, KdTree treeStructure, PathFinder bfs, Detector playerDetector, float speed)
     {
+        this.basePoint = waypoints[0];
         this.patrolWaypoints = patrolWaypoints;
         this.waypoints = Utils.Functions.RemoveAll(waypoints, globalWaypoints); // remove global waypoints from waypoints
         this.waypoints = Utils.Functions.RemoveAtIndex(this.waypoints, 0); // remove element 0 because we don't want to enter the room anymore
@@ -81,7 +83,7 @@ public class CowardMovement : MonoBehaviour, IMovement
     private IEnumerator MoveInCircleRoutine(Rigidbody2D rb)
     {
         Vector2 closestPoint = CalculateClosestPoint(rb);
-        Vector2[] path = bfs.PathToTheFirst(closestPoint);
+        Vector2[] path = bfs.PathToPoint(closestPoint, basePoint);
 
         // Step 1: move to the nearest point first
 
