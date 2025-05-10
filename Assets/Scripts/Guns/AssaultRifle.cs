@@ -60,19 +60,16 @@ public class AssaultRifle : MonoBehaviour, IPrimary, IRestricted, IThrowable, IR
         GameObject bullet = Instantiate(bulletPrefab, shooterObject.transform.position, Quaternion.identity);
         SingleBulletScript bulletScript = bullet.GetComponent<SingleBulletScript>();
         bulletScript.Initialize(shooterObject, this);
-        Debug.Log("BAM!");
-        Debug.Log(ammoCount + "/" + magCap);
     }
 
     public void Reload()
     {
         if (this.ammoCount == this.magCap)
         {
-            Debug.Log("Already loaded");
+
             return;
         }
-        Debug.Log("Reloaded");
-        Debug.Log($"Number of reloads available -> {--this.numberOfReloads}");
+
         this.ammoCount = this.magCap;
     }
 
@@ -104,7 +101,6 @@ public class AssaultRifle : MonoBehaviour, IPrimary, IRestricted, IThrowable, IR
     public Sprite GetStaticWeaponSprite()
     {
         // this method returns the sprite of grounded weapon so that it can be used as an icon in the ui.
-        // return this.gameObject.GetComponentsInChildren<SpriteRenderer>()[1].sprite;
         return this.staticWeaponSprite.sprite;
     }
 
