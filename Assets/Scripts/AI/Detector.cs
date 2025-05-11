@@ -65,6 +65,7 @@ public class Detector : MonoBehaviour
         {
             case not null:
                 // Debug.Log("Player is hidden by an obstacle: " + sightHit.collider.gameObject.name);
+                
                 playerWasHiddenByObstacle = true;
                 return false;
             case null:

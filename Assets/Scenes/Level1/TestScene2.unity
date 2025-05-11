@@ -264,6 +264,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   globalWaypoints:
   - {x: -37.3, y: 38}
+  obstacleLayers:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!4 &149197036
 Transform:
   m_ObjectHideFlags: 0
@@ -1869,7 +1872,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5662470950873588059, guid: aba9230473b29874c86dcef7d2d169ed, type: 3}
       propertyPath: godMode
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
