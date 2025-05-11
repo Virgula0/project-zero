@@ -1834,7 +1834,7 @@ PrefabInstance:
     - target: {fileID: 3965410167010162294, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
       propertyPath: weaponTemplatePrefab
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 334151097}
     - target: {fileID: 5895775542303761209, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
       propertyPath: m_LocalPosition.x
       value: -54.76
@@ -2727,7 +2727,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3884041588852964277, guid: 71b6dbee4d80f424cbeecc56a58ed163, type: 3}
       propertyPath: reservedToPlayer
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5829556277332518347, guid: 71b6dbee4d80f424cbeecc56a58ed163, type: 3}
       propertyPath: m_Name

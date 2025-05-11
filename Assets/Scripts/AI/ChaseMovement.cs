@@ -53,35 +53,6 @@ public class ChaseMovement : MonoBehaviour, IMovement
 
     private Vector2 FindCloserClearWaypoint()
     {
-        // this method can be overwritten in future using kdtree.FindNearestRayCasting which should do the same
-        /*
-        bool clearPath = false;
-        Vector2 playerBestWaypoint = new(float.PositiveInfinity, float.PositiveInfinity);
-        List<Vector2> vectorsToExclude = new List<Vector2>();
-        int maxIterations = kdTree.GetPoints().Length;
-        int currentIteration = 0;
-        while (!clearPath && ++currentIteration < maxIterations)
-        {
-            playerBestWaypoint = FindClosestWayPoint(playerBody, vectorsToExclude.ToArray(), out _);
-            Vector2 directionToClosest = (playerBestWaypoint - playerBody.position).normalized;
-            float distanceToClosest = Vector2.Distance(playerBody.position, playerBestWaypoint);
-            RaycastHit2D hit = Physics2D.Raycast(playerBody.position, directionToClosest, distanceToClosest, playerDetector.GetObstacleLayers());
-            clearPath = hit.collider == null;
-
-            if (!clearPath)
-            {
-                vectorsToExclude.Add(playerBestWaypoint);
-                Debug.Log("Obstacle detected between player and closest waypoint while trying to chasing. Recalculating.");
-            }
-        }
-
-        if (currentIteration >= maxIterations)
-        {
-            StopCoroutines(true);
-            Debug.LogWarning("WARNING! Cannot find clearest closer waypoint while chasing");
-        }
-        */
-
         return kdTree.FindNearestRayCasting(playerBody.position, playerDetector.GetObstacleLayers(), out _);
     }
 

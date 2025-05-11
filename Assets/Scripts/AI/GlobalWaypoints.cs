@@ -69,6 +69,58 @@ public class GlobalWaypoints : MonoBehaviour
         yield break;
     }
 
+    /// <summary>
+    /// Constructs a unified navigation graph by combining per‐enemy waypoint/patrol subgraphs
+    /// and global waypoints, then linking them based on visibility and proximity.
+    /// </summary>
+    /// <remarks>
+    /// The overall process proceeds in five main phases:
+    /// 
+    /// 1) **Enemy Subgraph Assembly**  
+    ///    - For each enemy, retrieve its waypoint nodes and existing waypoint‐waypoint connections.  
+    ///    - If the enemy also has patrol points:  
+    ///      • Merge the waypoint and patrol subgraphs via <c>linker.LinkGraphs</c>, which automatically
+    ///        adds any visible cross‐links (i.e. line‐of‐sight connections not blocked by obstacles).  
+    ///      • Force a bidirectional link between the first waypoint and the first patrol point, ensuring
+    ///        scripted entry/exit between these loops.  
+    ///      • Concatenate the waypoint and patrol node arrays into one component.  
+    ///    - If no patrol points exist, treat the waypoint graph alone as the component.  
+    ///    - Store each component in <c>enemyComps</c> (marking them as non‐global).  
+    /// 
+    /// 2) **Global Subgraph Assembly**  
+    ///    - Call <c>linker.CreateSubgraphs(globalWaypoints, obstacleLayers)</c> to partition the global
+    ///      waypoint set into connected components (considering obstacle blocking).  
+    ///    - Store each resulting graph & node set in <c>globalComps</c> and flag them as global.  
+    /// 
+    /// 3) **Master Graph Initialization**  
+    ///    - Combine all components (enemy first, then global) into a single list <c>allComps</c>.  
+    ///    - If no components exist, initialize <c>allNodes</c> and <c>allConnections</c> to empty and return.  
+    ///    - Otherwise, take the first component as the “master” graph:  
+    ///      • Copy its adjacency map into <c>masterGraph</c>.  
+    ///      • Copy its node positions into <c>nodeList</c>.  
+    /// 
+    /// 4) **Iterative Merging of Remaining Components**  
+    ///    - Define helper functions:  
+    ///      • <c>EuclideanSqrDist</c>(a, b): squared distance between two points.  
+    ///      • <c>IsVisible</c>(a, b): true if no obstacle blocks the line segment.  
+    ///      • <c>ComputeMinVisibleDistance</c>: for a candidate component, finds the minimum straight‐line
+    ///        distance from any master node to any component node that is also visible.  
+    ///    - While there are still components to merge:  
+    ///      • Compute for each component the min visible distance to the current master.  
+    ///      • Track the best (smallest) distance among global and among enemy components separately.
+    ///      • Prefer merging the closest global component if its distance is ≤ the best enemy distance; otherwise,
+    ///        pick the closest enemy component.  
+    ///      • If no visible link exists (distance infinite), abort with a warning (component remains disconnected).  
+    ///      • Otherwise, merge the selected component into <c>masterGraph</c> via <c>linker.LinkGraphs</c>,
+    ///        then append its nodes to <c>nodeList</c> and remove it from the list.  
+    /// 
+    /// 5) **Finalize**  
+    ///    - Convert <c>nodeList</c> to <c>allNodes</c> (array of Vector2).  
+    ///    - Assign <c>allConnections</c> to the fully linked adjacency dictionary.  
+    /// 
+    /// The resulting <c>allNodes</c> and <c>allConnections</c> provide a complete, connected graph
+    /// suitable for pathfinding across all enemy and global waypoints, respecting visibility constraints.
+    /// </remarks>
     private void BuildFullGraph(GraphLinker linker)
     {
         // 1) Gather enemy subgraphs—merging each enemy’s waypoints + patrol points first
