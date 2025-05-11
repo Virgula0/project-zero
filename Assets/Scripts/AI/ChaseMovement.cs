@@ -16,6 +16,7 @@ public class ChaseMovement : MonoBehaviour, IMovement
     private float additionalSpeedWhenFollowingPath = 1.5f;
     private Coroutine _chaseCoroutine;
     private Func<float> getStoppingDistance;
+    const float kThresholdSqr = 0.1f * 0.1f;
 
     public IMovement New(GameObject player, Detector detector, KdTree tree, PathFinder bfs, float chaseSpeed, Func<float> getStoppingDistance)
     {
@@ -53,6 +54,7 @@ public class ChaseMovement : MonoBehaviour, IMovement
     private Vector2 FindCloserClearWaypoint()
     {
         // this method can be overwritten in future using kdtree.FindNearestRayCasting which should do the same
+        /*
         bool clearPath = false;
         Vector2 playerBestWaypoint = new(float.PositiveInfinity, float.PositiveInfinity);
         List<Vector2> vectorsToExclude = new List<Vector2>();
@@ -78,8 +80,9 @@ public class ChaseMovement : MonoBehaviour, IMovement
             StopCoroutines(true);
             Debug.LogWarning("WARNING! Cannot find clearest closer waypoint while chasing");
         }
+        */
 
-        return playerBestWaypoint;
+        return kdTree.FindNearestRayCasting(playerBody.position, playerDetector.GetObstacleLayers(), out _);
     }
 
 
@@ -161,7 +164,7 @@ public class ChaseMovement : MonoBehaviour, IMovement
         // Retrieve player detected positions only once
         // Use door waypoint if available (helpful when enemy is stuck on a wall)
         if (playerDetector.GetIsPlayerHiddenByObstacle() ||
-            Vector2.Distance(enemyPos, enemyLatestPosition) < 0.1f) // if the latest position is too small we may want to find an exit through a waypoint
+            (enemyPos - enemyLatestPosition).sqrMagnitude < kThresholdSqr) // if the latest position is too small we may want to find an exit through a waypoint
         {
             Vector2? bestWaypoint = FindClosestWayPoint(enemyPos);
             if (bestWaypoint == null)

@@ -31,7 +31,9 @@ public class DogAI : MonoBehaviour, IEnemy, IPoints
     private PathFinder bfs;
     private GraphLinker linker;
     private Vector2[] safeExitWaypointsCopy;
+    private Vector2[] safePatrolPoint;
     private Dictionary<int, List<int>> originalEnemyConnectionGraph;
+    private Dictionary<int, List<int>> originalEnemyConnectionGraphPatrolPoints;
     private PlayerScript playerScript;
     private WeaponManager playerWeaponManager;
     private AudioSource audioSrc;
@@ -56,8 +58,11 @@ public class DogAI : MonoBehaviour, IEnemy, IPoints
 
         this.linker = new GraphLinker();
         this.safeExitWaypointsCopy = new Vector2[exitWaypoints.Length];
+        this.safePatrolPoint = new Vector2[patrolWaypoints.Length];
+        Array.Copy(patrolWaypoints, 0, safePatrolPoint, 0, patrolWaypoints.Length);
         Array.Copy(exitWaypoints, 0, safeExitWaypointsCopy, 0, exitWaypoints.Length);
         this.originalEnemyConnectionGraph = linker.GenerateConnections(exitWaypoints);
+        this.originalEnemyConnectionGraphPatrolPoints = linker.GenerateCircularConnectionGraph(patrolWaypoints); // graph connection
         awakeReady = true;
     }
 
@@ -75,7 +80,7 @@ public class DogAI : MonoBehaviour, IEnemy, IPoints
         bfs = glob.GetPathFinder();
         treeStructure = glob.GetKdTree();
 
-        // 4) Set up your Movement‐objects just as before
+        // 4) Set up Movement‐objects
         FinalizeInitialization();
     }
 
@@ -321,5 +326,15 @@ public class DogAI : MonoBehaviour, IEnemy, IPoints
     public IMovement GetCurrentMovement()
     {
         return currentMovement;
+    }
+
+    public Vector2[] GetEnemyPatrolPoints()
+    {
+        return this.safePatrolPoint;
+    }
+
+    public Dictionary<int, List<int>> GetEnemyConnectionsPatrolPoints()
+    {
+        return this.originalEnemyConnectionGraphPatrolPoints;
     }
 }
