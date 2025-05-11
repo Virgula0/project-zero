@@ -8,7 +8,6 @@ public class EnemyScript : MonoBehaviour
     private SpriteRenderer sprite;
     private Rigidbody2D playerBody;
     private IEnemy enemyScript;
-    private bool canSeePlayer = false;
     private EnemyWeaponManager weaponManagerRef;
 
     void Start()
@@ -46,9 +45,5 @@ public class EnemyScript : MonoBehaviour
         }
 
         lastPosition = currentPosition;
-    }
-
-    public void SetCanSeePlayer(bool newBool){
-        canSeePlayer = newBool;
     }
 }
