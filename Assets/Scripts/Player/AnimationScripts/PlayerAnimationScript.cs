@@ -17,6 +17,7 @@ public class PlayerAnimationScript : MonoBehaviour
     private Sprite playerLastSprite;
     private Vector2 teleportTargetPosition;
     private WeaponManager weaponManagerRef;
+    private BoxCollider2D playerColliderRef;
 
     void Start()
     {
@@ -27,6 +28,7 @@ public class PlayerAnimationScript : MonoBehaviour
         legsScriptRef = transform.parent.GetComponentInChildren<PlayerLegsAnimationScript>();
         playerScript = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponent<PlayerScript>();
         weaponManagerRef = transform.parent.GetComponentInChildren<WeaponManager>();
+        playerColliderRef = transform.parent.GetComponent<BoxCollider2D>();
         isAnimationScriptReady = true;
     }
 
@@ -43,6 +45,7 @@ public class PlayerAnimationScript : MonoBehaviour
     {   
         legsScriptRef.SetIsTeleporting(true);
         weaponManagerRef.SetCanShoot(false);
+        playerColliderRef.enabled = false;
         Utils.Functions.SetLayerRecursively(playerRef.gameObject, (int)Utils.Enums.ObjectLayers.Invulnerability);
 
         teleportTargetPosition = playerCameraRef.ScreenToWorldPoint(Input.mousePosition);
@@ -72,6 +75,7 @@ public class PlayerAnimationScript : MonoBehaviour
         }
 
         playerRef.layer = (int)Utils.Enums.ObjectLayers.Player;
+        playerColliderRef.enabled = true;
         legsScriptRef.SetIsTeleporting(false);
         weaponManagerRef.SetCanShoot(true);
     }

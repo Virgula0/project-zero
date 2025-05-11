@@ -8,6 +8,8 @@ public class EnemyScript : MonoBehaviour
     private SpriteRenderer sprite;
     private Rigidbody2D playerBody;
     private IEnemy enemyScript;
+    private bool canSeePlayer = false;
+    private EnemyWeaponManager weaponManagerRef;
 
     void Start()
     {   
@@ -15,6 +17,7 @@ public class EnemyScript : MonoBehaviour
         body = GetComponentInChildren<Rigidbody2D>();
         playerBody = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponentInChildren<Rigidbody2D>();
         enemyScript = gameObject.GetComponentInChildren<IEnemy>();
+        weaponManagerRef = GetComponentInChildren<EnemyWeaponManager>();
         lastPosition = body.position;
     }
 
@@ -30,7 +33,7 @@ public class EnemyScript : MonoBehaviour
         Vector2 movement = currentPosition - lastPosition;
 
         bool followPlayer = false;
-        if (enemyScript.GetCurrentMovement() is ChaseMovement)
+        if (enemyScript.GetCurrentMovement() is ChaseMovement && weaponManagerRef.GetCurrentLoadedWeapon() is IRanged)
         {
             movement = playerBody.position - currentPosition;
             followPlayer = true;
@@ -43,5 +46,9 @@ public class EnemyScript : MonoBehaviour
         }
 
         lastPosition = currentPosition;
+    }
+
+    public void SetCanSeePlayer(bool newBool){
+        canSeePlayer = newBool;
     }
 }
