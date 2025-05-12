@@ -197,6 +197,11 @@ public class SwordScript : MonoBehaviour
 
     private void ProcessEnemyHit(Collider2D collider)
     {
+        if (!isPlayer)
+        {
+            // avoid an enemy to kill another enemy
+            return;
+        } 
         Debug.Log("Hit enemy");
         var enemy = collider.transform.parent
                              .GetComponentInChildren<IEnemy>();
