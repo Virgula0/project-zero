@@ -47,7 +47,6 @@ public class CowardMovement : MonoBehaviour, IMovement
     {
         busy = true;
         Vector2 closestPoint = CalculateClosestPoint(rb);
-        Debug.Log(closestPoint);
         Vector2[] path = bfs.PathToPoint(closestPoint, basePoint);
 
         // Step 1: move to the nearest point first
@@ -64,8 +63,9 @@ public class CowardMovement : MonoBehaviour, IMovement
         while (busy)
         {
             closestPoint = CalculateClosestPoint(rb);
-            circularPath = closestPoint == originalWaypoints[0] ? GetCircularTraversal(patrolWaypoints, 0)
-                : GetCircularTraversal(waypoints, 0);
+            circularPath = originalWaypoints.Contains(closestPoint)
+                            || patrolWaypoints.Contains(closestPoint) ? GetCircularTraversal(patrolWaypoints, 0)
+                                : GetCircularTraversal(waypoints, 0);
 
             circularPath.ForEach(p => Console.WriteLine(p));
             foreach (var point in circularPath)
