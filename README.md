@@ -2,6 +2,8 @@
 
 **Game developed for the Game Development course at Unifi.**
 
+![img](images/logo/logo.png)
+
 ## Brief Description:
 [Project Zero] is a top-down 2D shooter that focuses on parrying, shooting, and fast-paced gameplay. Similar games include *Hotline Miami 1 & 2*, *Door Kickers*, and *Nuclear Throne*.
 
