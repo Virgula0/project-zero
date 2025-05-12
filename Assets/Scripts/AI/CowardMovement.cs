@@ -66,8 +66,6 @@ public class CowardMovement : MonoBehaviour, IMovement
             circularPath = originalWaypoints.Contains(closestPoint)
                             || patrolWaypoints.Contains(closestPoint) ? GetCircularTraversal(patrolWaypoints, 0)
                                 : GetCircularTraversal(waypoints, 0);
-
-            circularPath.ForEach(p => Console.WriteLine(p));
             foreach (var point in circularPath)
             {
                 yield return MoveToWithChecks(rb, point);
