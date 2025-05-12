@@ -33,32 +33,19 @@ public class WeaponManager : MonoBehaviour
 
     private void Awake()
     {
-        // 1) find the Tilemap
         var gridLevel = GameObject.FindGameObjectWithTag(Utils.Const.GRID_LEVEL);
         floorTilemap = gridLevel.GetComponentInChildren<Tilemap>();
 
-        // 2) get the integer cell bounds
         var cellBounds = floorTilemap.cellBounds;
-        //    cellBounds.min is the bottom-left cell index,
-        //    cellBounds.max is one past the top-right cell index.
 
-        // 3) convert those to world positions
         Vector3 worldMin = floorTilemap.CellToWorld(cellBounds.min);
-        // add (1,1) to get the far corner of the last cell
         Vector3Int topRightCell = cellBounds.max - Vector3Int.one;
-        Vector3 worldMax = floorTilemap.CellToWorld(topRightCell)
-                         + (Vector3)floorTilemap.cellSize;
+        Vector3 worldMax = floorTilemap.CellToWorld(topRightCell) + floorTilemap.cellSize;
 
-        // 4) build an AABB
-        worldBounds = new Bounds(
-            (worldMin + worldMax) * 0.5f,
-            worldMax - worldMin
-        );
+        worldBounds = new Bounds((worldMin + worldMax) * 0.5f, worldMax - worldMin);
 
-        maxOffset = Mathf.Max(Mathf.Abs(forwardSpawnGunPrefabOffset),
-                      Mathf.Abs(upOffsetSpawnGunPrefab));
+        maxOffset = Mathf.Max(Mathf.Abs(forwardSpawnGunPrefabOffset), Mathf.Abs(upOffsetSpawnGunPrefab));
 
-        // inset the AABB by that margin on all sides:
         worldBounds.min += new Vector3(maxOffset, maxOffset, 0f);
         worldBounds.max -= new Vector3(maxOffset, maxOffset, 0f);
     }
@@ -217,11 +204,8 @@ public class WeaponManager : MonoBehaviour
         Vector2 origin = playerBody.position;
         Vector2 forward = (mouseWorld2D - origin).normalized;
         Vector2 up = new Vector2(-forward.y, forward.x);
-        Vector2 spawnPos = origin
-                                  + forward * forwardSpawnGunPrefabOffset
-                                  + up * upOffsetSpawnGunPrefab;
+        Vector2 spawnPos = origin + forward * forwardSpawnGunPrefabOffset + up * upOffsetSpawnGunPrefab;
 
-        // clamp into the inset bounds
         spawnPos.x = Mathf.Clamp(spawnPos.x, worldBounds.min.x, worldBounds.max.x);
         spawnPos.y = Mathf.Clamp(spawnPos.y, worldBounds.min.y, worldBounds.max.y);
 
