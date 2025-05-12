@@ -58,6 +58,7 @@ namespace Utils
         public const string UI_MANAGER_TAG = "UIManager";
         public const string MAIN_MENU_SCENE = "MainMenuScene";
         public const string LOAD_MENU_SCENE = "LoadingScene";
+        public const string GRID_LEVEL = "GridLevel";
     }
 
     public class Functions
