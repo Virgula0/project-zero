@@ -116,6 +116,11 @@ public class SingleBulletScript : MonoBehaviour
                 Debug.Log("Hit Wall");
                 break;
             case (int)Utils.Enums.ObjectLayers.Enemy or (int)Utils.Enums.ObjectLayers.ParriableLayer:
+                if (!isPlayer)
+                {
+                    // avoid an enemy to kill another enemy
+                    return;
+                }
                 Debug.Log("Hit Enemy");
                 if (collider.transform.parent.GetComponentInChildren<IEnemy>() is IEnemy enemy)
                 {
