@@ -15,16 +15,16 @@ public class LogicManager : MonoBehaviour
     private const string ScreenOverlay = "ScreenOverlay";
     private CursorChanger cursorChanger;
     private UIManager ui;
-    private Animator playerAnimatorRef;
     private PlayerAnimationScript playerspriteRef;
+    private GameObject uiGameObject;
 
     void Start()
     {
         this.playerReference = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponent<PlayerScript>();
-        this.ui = GameObject.FindGameObjectWithTag(Utils.Const.UI_MANAGER_TAG).GetComponent<UIManager>();
+        this.uiGameObject = GameObject.FindGameObjectWithTag(Utils.Const.UI_MANAGER_TAG);
+        this.ui = uiGameObject.GetComponent<UIManager>();
         this.cursorChanger = GameObject.FindGameObjectWithTag(Utils.Const.CURSOR_CHANGER_TAG).GetComponent<CursorChanger>();
         this.playerspriteRef = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponentInChildren<PlayerAnimationScript>();
-        playerAnimatorRef = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG).GetComponentInChildren<Animator>();
 
         if (SwitchScene.Instance != null)
         {
@@ -84,7 +84,7 @@ public class LogicManager : MonoBehaviour
         playerUI.SetActive(false);
         gameOverPrefab.SetActive(true);
         playerReference.SetIsPlayerAlive(false);
-        
+
         playerReference.PlayDeathSound();
         //playerAnimatorRef.enabled = false;
         playerspriteRef.SetPlayerDeadSprite();
@@ -134,6 +134,10 @@ public class LogicManager : MonoBehaviour
 
         // nobody left standing
         isTheRoomClear = true;
+
+        // spawn alert box
+        GameObject child = this.uiGameObject.GetComponentsInChildren<Transform>(true)[3].gameObject;
+        child.SetActive(true);
     }
 
     /* 
