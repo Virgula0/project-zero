@@ -37,51 +37,15 @@ public class CowardMovement : MonoBehaviour, IMovement
         _cowardRoutine = StartCoroutine(MoveInCircleRoutine(enemyRB));
     }
 
-    public Vector2 FindClosestWayPoint(Rigidbody2D enemyRigidbody, Vector2[] toExclude, out int index)
-    {
-        if (kdTree == null)
-        {
-            throw new InvalidOperationException("KdTree is not built. Make sure doorWayPoint array is assigned.");
-        }
-
-        return kdTree.FindNearestExcluding(enemyRigidbody.position, toExclude, out index);
-    }
-
     private Vector2 CalculateClosestPoint(Rigidbody2D rb)
     {
         // this method can be overwritten in future using kdtree.FindNearestRayCasting which should do the same
-        busy = true;
-        bool clearPath = false;
-        Vector2 closestPoint = new();
-        int maxIterations = kdTree.GetPoints().Length;
-        int currentIteration = 0;
-        List<Vector2> vectorsToExclude = new List<Vector2>();
-        while (busy && !clearPath && ++currentIteration < maxIterations)
-        {
-            closestPoint = FindClosestWayPoint(rb, vectorsToExclude.ToArray(), out _);
-            Vector2 directionToClosest = (closestPoint - rb.position).normalized;
-            float distanceToClosest = Vector2.Distance(rb.position, closestPoint);
-            RaycastHit2D hit = Physics2D.Raycast(rb.position, directionToClosest, distanceToClosest, playerDetector.GetObstacleLayers());
-            clearPath = hit.collider == null;
-
-            if (!clearPath)
-            {
-                vectorsToExclude.Add(closestPoint);
-                Debug.Log("Obstacle detected between enemy and closest waypoint while trying to coward. Recalculating.");
-            }
-        }
-
-        if (currentIteration >= maxIterations)
-        {
-            StopCoroutines(true);
-            Debug.LogWarning("WARNING! Cannot find clearest closer waypoint while coward");
-        }
-
-        return closestPoint;
+        return kdTree.FindNearestRayCasting(rb.position, playerDetector.GetObstacleLayers(), out _);
     }
 
     private IEnumerator MoveInCircleRoutine(Rigidbody2D rb)
     {
+        busy = true;
         Vector2 closestPoint = CalculateClosestPoint(rb);
         Vector2[] path = bfs.PathToPoint(closestPoint, basePoint);
 
@@ -99,8 +63,9 @@ public class CowardMovement : MonoBehaviour, IMovement
         while (busy)
         {
             closestPoint = CalculateClosestPoint(rb);
-            circularPath = closestPoint == originalWaypoints[0] ? GetCircularTraversal(patrolWaypoints, 0)
-                : GetCircularTraversal(waypoints, 0);
+            circularPath = originalWaypoints.Contains(closestPoint)
+                            || patrolWaypoints.Contains(closestPoint) ? GetCircularTraversal(patrolWaypoints, 0)
+                                : GetCircularTraversal(waypoints, 0);
             foreach (var point in circularPath)
             {
                 yield return MoveToWithChecks(rb, point);

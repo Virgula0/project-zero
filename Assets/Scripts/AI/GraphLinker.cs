@@ -74,6 +74,70 @@ public class GraphLinker
     }
 
     /// <summary>
+    /// Defines connections between Vector2 points with the following pattern:
+    /// - Index 0: connected to index 1.
+    /// - Index 1: connected to indices 0, 2 (if exists).
+    /// - For other elements (indexes 2 to n - 2): connected to the previous and next indexes.
+    /// - The last element (index n - 1): connected to the previous index (n - 2) and index 0.
+    /// </summary>
+    /// <param name="points">Array of 2D points.</param>
+    /// <returns>
+    /// A dictionary mapping each index to a list of its connected neighbor indices.
+    /// </returns>
+    public Dictionary<int, List<int>> GenerateCircularConnectionGraph(Vector2[] points)
+    {
+        var connections = new Dictionary<int, List<int>>();
+        int n = points.Length;
+
+        if (n == 0)
+        {
+            return connections;
+        }
+        if (n == 1)
+        {
+            // Single element: no neighbors.
+            connections.Add(0, new List<int>());
+            return connections;
+        }
+
+        for (int i = 0; i < n; i++)
+        {
+            var neighbors = new List<int>();
+
+            if (i == 0)
+            {
+                // Element 0 is connected to element 1.
+                neighbors.Add(1);
+            }
+            else if (i == 1)
+            {
+                // Element 1 is connected to 0, (if exists) 2.
+                neighbors.Add(0);
+                if (n > 2)
+                    neighbors.Add(2);
+            }
+            else if (i == n - 1)
+            {
+                // Last element: connected to its predecessor and to index 0.
+                neighbors.Add(n - 2);
+                // Avoid duplicate when n == 2 (then n-2 == 0).
+                if (n > 2)
+                    neighbors.Add(0);
+            }
+            else
+            {
+                // Middle elements: connected to previous and next.
+                neighbors.Add(i - 1);
+                neighbors.Add(i + 1);
+            }
+
+            connections.Add(i, neighbors);
+        }
+
+        return connections;
+    }
+
+    /// <summary>
     /// Finds the closest pair (one point from A, one from B) whose connecting segment
     /// is completely clear of colliders in the given obstacleMask.
     /// </summary>
