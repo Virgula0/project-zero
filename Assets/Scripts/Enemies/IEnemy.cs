@@ -4,7 +4,9 @@ using UnityEngine;
 public interface IEnemy
 {
     public Vector2[] GetEnemyWaypoints();
+    public Vector2[] GetEnemyPatrolPoints();
     public Dictionary<int, List<int>> GetEnemyConnections();
+     public Dictionary<int, List<int>> GetEnemyConnectionsPatrolPoints();
     bool AwakeReady();
     bool IsEnemyDead();
     void SetIsEnemyDead(bool cond);
