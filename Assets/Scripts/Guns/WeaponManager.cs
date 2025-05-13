@@ -1,8 +1,6 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 
 public class WeaponManager : MonoBehaviour
 {
@@ -166,11 +164,6 @@ public class WeaponManager : MonoBehaviour
         uiManager.UpdateBullets(0);
         uiManager.UpdateReloads(0);
         uiManager.UpdateWeaponIcon(null);
-    }
-
-    private Vector2 MouseWorld2D()
-    {
-        return (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
     }
 
     private void RecreatePrefab()
