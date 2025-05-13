@@ -204,6 +204,7 @@ MonoBehaviour:
   equipSound: {fileID: 8300000, guid: fe7ebb81a58a3b54c81cb1093485c0c6, type: 3}
   throwSound: {fileID: 8300000, guid: fc9c0f1b1876c7ca6b0e35882d586b69, type: 3}
   throwablePrefab: {fileID: 4521634595782343921, guid: 0aa04aadfe3081f09aa42e893aeaa8db, type: 3}
+  reservedToPlayer: 0
 --- !u!82 &114100989245069762
 AudioSource:
   m_ObjectHideFlags: 0
@@ -376,7 +377,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 0.22745097, g: 0.94509804, b: 0.800171, a: 1}
   m_FlipX: 0

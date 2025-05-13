@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -28,26 +29,18 @@ public class WeaponManager : MonoBehaviour
     private GameObject secondaryPrefab;
 
     private Tilemap floorTilemap;
-    private Bounds worldBounds;
-    private float maxOffset;
+    private List<Vector3Int> floorCells = new List<Vector3Int>();
 
     private void Awake()
     {
         var gridLevel = GameObject.FindGameObjectWithTag(Utils.Const.GRID_LEVEL);
         floorTilemap = gridLevel.GetComponentInChildren<Tilemap>();
-
-        var cellBounds = floorTilemap.cellBounds;
-
-        Vector3 worldMin = floorTilemap.CellToWorld(cellBounds.min);
-        Vector3Int topRightCell = cellBounds.max - Vector3Int.one;
-        Vector3 worldMax = floorTilemap.CellToWorld(topRightCell) + floorTilemap.cellSize;
-
-        worldBounds = new Bounds((worldMin + worldMax) * 0.5f, worldMax - worldMin);
-
-        maxOffset = Mathf.Max(Mathf.Abs(forwardSpawnGunPrefabOffset), Mathf.Abs(upOffsetSpawnGunPrefab));
-
-        worldBounds.min += new Vector3(maxOffset, maxOffset, 0f);
-        worldBounds.max -= new Vector3(maxOffset, maxOffset, 0f);
+        var bounds = floorTilemap.cellBounds;
+        foreach (var cellPos in bounds.allPositionsWithin)
+        {
+            if (floorTilemap.HasTile(cellPos))
+                floorCells.Add(cellPos);
+        }
     }
 
     IEnumerator Start()
@@ -200,23 +193,32 @@ public class WeaponManager : MonoBehaviour
 
     private void RecreatePrefab()
     {
+        // A) Compute your raw spawn point based on mouse & player
         Vector2 mouseWorld2D = MouseWorld2D();
         Vector2 origin = playerBody.position;
         Vector2 forward = (mouseWorld2D - origin).normalized;
         Vector2 up = new Vector2(-forward.y, forward.x);
-        Vector2 spawnPos = origin + forward * forwardSpawnGunPrefabOffset + up * upOffsetSpawnGunPrefab;
+        Vector2 rawSpawnPos = origin + forward * forwardSpawnGunPrefabOffset + up * upOffsetSpawnGunPrefab;
 
-        spawnPos.x = Mathf.Clamp(spawnPos.x, worldBounds.min.x, worldBounds.max.x);
-        spawnPos.y = Mathf.Clamp(spawnPos.y, worldBounds.min.y, worldBounds.max.y);
+        Vector3Int idealCell = floorTilemap.WorldToCell(rawSpawnPos);
 
-        var cell = floorTilemap.WorldToCell(spawnPos);
-        if (!floorTilemap.HasTile(cell))
-            spawnPos = floorTilemap.GetCellCenterWorld(cell);
+        Vector3Int nearestCell = floorCells[0];
+        float bestSqrDist = float.MaxValue;
+        foreach (var cell in floorCells)
+        {
+            float sqrDist = (cell - idealCell).sqrMagnitude;
+            if (sqrDist < bestSqrDist)
+            {
+                bestSqrDist = sqrDist;
+                nearestCell = cell;
+            }
+        }
 
-        GameObject newPrefab = Instantiate(gunPrefab, spawnPos, Quaternion.identity);
+        Vector3 spawnWorldPos = floorTilemap.GetCellCenterWorld(nearestCell);
+        GameObject newPrefab = Instantiate(gunPrefab, spawnWorldPos, Quaternion.identity);
         StartCoroutine(newPrefab.GetComponent<IPrimary>().SaveStatus(currentLoadedWeapon)); // will save the status after awaked, that's why a coroutine
         newPrefab.SetActive(true);
-        spawner.AddAvailableGunOnTheGroundPosition(spawnPos, currentLoadedWeapon);
+        spawner.AddAvailableGunOnTheGroundPosition(spawnWorldPos, currentLoadedWeapon);
     }
 
     // Update is called once per frame

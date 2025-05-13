@@ -7,6 +7,7 @@ public class WeaponFinder : MonoBehaviour
     private IPrimary weapon;
     private GameObject gameObjectRef;
     private WeaponSpawner spawner;
+    private float timer = 0f; // when unequipped from player, ensures to not pick up again in the same frame again
 
     // Better to use awake since it is called before Start
     void Awake()
@@ -17,10 +18,20 @@ public class WeaponFinder : MonoBehaviour
         this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER_TAG).GetComponent<WeaponSpawner>();
     }
 
+    void Update()
+    {
+        timer += Time.deltaTime;
+    }
+
     // In Player rigidbody -> continuous detections must be set for detecing mouse interactively
     // use stay instead of enter for this goal
     private void OnTriggerStay2D(Collider2D collision)
     {
+        if (timer <= 0.5f)
+        {
+            return;
+        }
+
         if (weapon == null)
         {
             return;
