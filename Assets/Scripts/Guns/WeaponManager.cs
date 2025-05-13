@@ -14,12 +14,8 @@ public class WeaponManager : MonoBehaviour
     private WeaponSpawner spawner;
     private GameObject gunPrefab;
     private CursorChanger cursorChanger;
-
     PlayerAnimationScript playerAnimCtrl;
     [SerializeField] AudioSource audioSrc;
-
-    private float forwardSpawnGunPrefabOffset = 5f;
-    private float upOffsetSpawnGunPrefab = 2f;
     private PlayerScript playerScript;
     private float loadTime = 0;
     private BoxCollider2D playerCollider;
@@ -170,59 +166,57 @@ public class WeaponManager : MonoBehaviour
         uiManager.UpdateWeaponIcon(null);
     }
 
-    private Vector2 MouseWorld2D()
-    {
-        return (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
-    }
-
     private void RecreatePrefab()
     {
-        Vector2 mouseWorld2D = MouseWorld2D();
         Vector2 origin = playerBody.position;
-        Vector2 forward = (mouseWorld2D - origin).normalized;
-        Vector2 up = new Vector2(-forward.y, forward.x); // rotate forward by 90° CCW
-        Vector2 spawnPos = origin + forward * forwardSpawnGunPrefabOffset + up * upOffsetSpawnGunPrefab;
-        GameObject newPrefab = Instantiate(gunPrefab, spawnPos, Quaternion.identity);
+        GameObject newPrefab = Instantiate(gunPrefab, origin, Quaternion.identity);
         StartCoroutine(newPrefab.GetComponent<IPrimary>().SaveStatus(currentLoadedWeapon)); // will save the status after awaked, that's why a coroutine
         newPrefab.SetActive(true);
-        spawner.AddAvailableGunOnTheGroundPosition(spawnPos, currentLoadedWeapon);
+        spawner.AddAvailableGunOnTheGroundPosition(origin, currentLoadedWeapon);
     }
 
     // Update is called once per frame
     void Update()
-    {   
-        if(playerScript == null){
-            return;
-        }
-        
-        if(!playerScript.IsPlayerAlive()){
+    {
+        if (playerScript == null)
+        {
             return;
         }
 
-        if(!canShoot){
+        if (!playerScript.IsPlayerAlive())
+        {
             return;
         }
-        
+
+        if (!canShoot)
+        {
+            return;
+        }
+
         ManagePrimary();
         ManageSecondary();
     }
 
-    private void ManageSecondary(){
-        if(currentLoadedSecondary == null){
+    private void ManageSecondary()
+    {
+        if (currentLoadedSecondary == null)
+        {
             return;
         }
 
         secondaryTimer += Time.deltaTime;
 
-        if(currentLoadedSecondary.GetAmmoCount() < 1){
+        if (currentLoadedSecondary.GetAmmoCount() < 1)
+        {
             UnloadCurrentSecondary();
             return;
         }
 
-        if(Input.GetKeyDown(KeyCode.Q) && secondaryTimer >= currentLoadedSecondary.GetFireRate() 
+        if (Input.GetKeyDown(KeyCode.Q) && secondaryTimer >= currentLoadedSecondary.GetFireRate()
         && currentLoadedSecondary.GetAmmoCount() > 0)
         {
-            if(currentLoadedWeapon != null){
+            if (currentLoadedWeapon != null)
+            {
                 playerAnimCtrl.SetPlayerLastSprite(currentLoadedWeapon.GetEquippedSprite());
             }
             secondaryTimer = 0;
@@ -234,7 +228,8 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
-    private void ManagePrimary(){
+    private void ManagePrimary()
+    {
         // we do nothing if we do not have a loaded weapon already
         if (currentLoadedWeapon == null)
         {
@@ -298,15 +293,18 @@ public class WeaponManager : MonoBehaviour
         return currentLoadedWeapon;
     }
 
-    public bool GetCanShoot(){
+    public bool GetCanShoot()
+    {
         return canShoot;
     }
 
-    public void SetCanShoot(bool newBool){
+    public void SetCanShoot(bool newBool)
+    {
         canShoot = newBool;
     }
 
-    public ISecondary GetCurrentLoadedSecondary(){
+    public ISecondary GetCurrentLoadedSecondary()
+    {
         return currentLoadedSecondary;
     }
 
