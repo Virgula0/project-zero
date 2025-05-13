@@ -18,30 +18,12 @@ public class WeaponManager : MonoBehaviour
     private CursorChanger cursorChanger;
     PlayerAnimationScript playerAnimCtrl;
     [SerializeField] AudioSource audioSrc;
-
-    private float forwardSpawnGunPrefabOffset = 5f;
-    private float upOffsetSpawnGunPrefab = 2f;
     private PlayerScript playerScript;
     private float loadTime = 0;
     private BoxCollider2D playerCollider;
     private bool isThrown = false;
     private ISecondary currentLoadedSecondary;
     private GameObject secondaryPrefab;
-
-    private Tilemap floorTilemap;
-    private List<Vector3Int> floorCells = new List<Vector3Int>();
-
-    private void Awake()
-    {
-        var gridLevel = GameObject.FindGameObjectWithTag(Utils.Const.GRID_LEVEL);
-        floorTilemap = gridLevel.GetComponentInChildren<Tilemap>();
-        var bounds = floorTilemap.cellBounds;
-        foreach (var cellPos in bounds.allPositionsWithin)
-        {
-            if (floorTilemap.HasTile(cellPos))
-                floorCells.Add(cellPos);
-        }
-    }
 
     IEnumerator Start()
     {
@@ -193,32 +175,11 @@ public class WeaponManager : MonoBehaviour
 
     private void RecreatePrefab()
     {
-        // A) Compute your raw spawn point based on mouse & player
-        Vector2 mouseWorld2D = MouseWorld2D();
         Vector2 origin = playerBody.position;
-        Vector2 forward = (mouseWorld2D - origin).normalized;
-        Vector2 up = new Vector2(-forward.y, forward.x);
-        Vector2 rawSpawnPos = origin + forward * forwardSpawnGunPrefabOffset + up * upOffsetSpawnGunPrefab;
-
-        Vector3Int idealCell = floorTilemap.WorldToCell(rawSpawnPos);
-
-        Vector3Int nearestCell = floorCells[0];
-        float bestSqrDist = float.MaxValue;
-        foreach (var cell in floorCells)
-        {
-            float sqrDist = (cell - idealCell).sqrMagnitude;
-            if (sqrDist < bestSqrDist)
-            {
-                bestSqrDist = sqrDist;
-                nearestCell = cell;
-            }
-        }
-
-        Vector3 spawnWorldPos = floorTilemap.GetCellCenterWorld(nearestCell);
-        GameObject newPrefab = Instantiate(gunPrefab, spawnWorldPos, Quaternion.identity);
+        GameObject newPrefab = Instantiate(gunPrefab, origin, Quaternion.identity);
         StartCoroutine(newPrefab.GetComponent<IPrimary>().SaveStatus(currentLoadedWeapon)); // will save the status after awaked, that's why a coroutine
         newPrefab.SetActive(true);
-        spawner.AddAvailableGunOnTheGroundPosition(spawnWorldPos, currentLoadedWeapon);
+        spawner.AddAvailableGunOnTheGroundPosition(origin, currentLoadedWeapon);
     }
 
     // Update is called once per frame
