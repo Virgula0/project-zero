@@ -601,7 +601,7 @@ GameObject:
   - component: {fileID: 1547532991361578869}
   - component: {fileID: 54909421008517244}
   - component: {fileID: 874703496485419676}
-  - component: {fileID: 3315205958772578668}
+  - component: {fileID: 7344297391289474837}
   m_Layer: 5
   m_Name: Alert
   m_TagString: Untagged
@@ -665,8 +665,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278571248
-  m_fontColor: {r: 0.93962264, g: 0.8159822, b: 0.019501582, a: 1}
+    rgba: 4278579286
+  m_fontColor: {r: 0.3386261, g: 0.9411765, b: 0.019607825, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -727,7 +727,7 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!95 &3315205958772578668
+--- !u!95 &7344297391289474837
 Animator:
   serializedVersion: 7
   m_ObjectHideFlags: 0
@@ -844,7 +844,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &4766221210718916846
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1319,7 +1319,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &104558772589998274
 RectTransform:
   m_ObjectHideFlags: 0
