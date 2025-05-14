@@ -30,10 +30,10 @@ EditorBuildSettings:
     path: Assets/Scenes/PointsRecap.unity
     guid: 6fdf98d0cfd250c478f4ae3c9d5b0733
   - enabled: 0
-    path: Assets/Scenes/Level1/TestScene.unity
+    path: Assets/Scenes/TestScene.unity
     guid: 6776c4d43fa598f4fbed106795199079
   - enabled: 0
-    path: Assets/Scenes/Level1/TestScene2.unity
+    path: Assets/Scenes/TestScene2.unity
     guid: d547d8073b05c9648af7c063f472c6dc
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 8164c4a0993099c36802e48f45a6ac95, type: 2}
