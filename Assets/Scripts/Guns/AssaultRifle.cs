@@ -66,10 +66,10 @@ public class AssaultRifle : MonoBehaviour, IPrimary, IRestricted, IThrowable, IR
     {
         if (this.ammoCount == this.magCap)
         {
-
             return;
         }
 
+        this.numberOfReloads--;
         this.ammoCount = this.magCap;
     }
 
@@ -152,6 +152,7 @@ public class AssaultRifle : MonoBehaviour, IPrimary, IRestricted, IThrowable, IR
     public void ThrowWhereMousePoints()
     {
         this.throwable = Instantiate(throwablePrefab, shooterObject.transform.position, Quaternion.identity);
+        this.throwable.GetComponentInChildren<SpriteRenderer>().transform.localScale = this.throwable.transform.localScale * 4;
         ThrowableScript throwableScript = this.throwable.GetComponent<ThrowableScript>();
         throwableScript.Initialize(staticWeaponSprite);
     }

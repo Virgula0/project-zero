@@ -71,8 +71,7 @@ public class SimpleGun : MonoBehaviour, IPrimary, IRestricted, IThrowable, IRang
             Debug.Log("Already loaded");
             return;
         }
-        Debug.Log("Reloaded");
-        Debug.Log($"Number of reloads available -> {--this.numberOfReloads}");
+        --this.numberOfReloads;
         this.ammoCount = this.magCap;
     }
 
