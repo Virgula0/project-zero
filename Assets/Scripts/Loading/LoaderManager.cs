@@ -8,6 +8,8 @@ public class LoaderManager : MonoBehaviour
     private GameObject vicaGameObject;
     private loadingtext script;
     public static LoaderManager Instance { get; private set; }
+    [SerializeField] private AudioSource backgroundSource;
+    [SerializeField] private AudioClip clip;
 
     private void Awake()
     {
@@ -20,6 +22,11 @@ public class LoaderManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    private void PlayMainMusic()
+    {
+        backgroundSource.PlayOneShot(clip);
+    }
+
     private IEnumerator Start()
     {
         script = vicaGameObject.GetComponent<loadingtext>();
@@ -29,6 +36,9 @@ public class LoaderManager : MonoBehaviour
 
     public void ActivateNextScene()
     {
+        if (SceneManager.GetActiveScene().buildIndex + 1 == 2) { // if first game scene rnu the audio
+            PlayMainMusic();
+        }
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1, LoadSceneMode.Single);
     }
 
