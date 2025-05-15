@@ -1,11 +1,18 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class ChaseMovement : MonoBehaviour, IMovement
 {
-    private float chaseSpeed;
+    [Tooltip("Base speed when directly chasing the player")]
+    [SerializeField] private float chaseSpeed = 3f;
+
+    [Tooltip("Additional multiplier when following a path of waypoints")]
+    [SerializeField] private float additionalSpeedWhenFollowingPath = 1.5f;
+
+    [Tooltip("Approximately how long it takes to reach target speed on the first segment")]
+    private float smoothTime = 0.15f;
+
     private float stoppingDistance;
     private Rigidbody2D playerBody;
     private Detector playerDetector;
@@ -13,9 +20,12 @@ public class ChaseMovement : MonoBehaviour, IMovement
     private PathFinder bfs;
     private Vector2 enemyLatestPosition;
     private bool busy = false;
-    private float additionalSpeedWhenFollowingPath = 1.5f;
     private Coroutine _chaseCoroutine;
     private Func<float> getStoppingDistance;
+
+    // Velocity tracker for the one SmoothDamp call
+    private Vector2 pathVelocity = Vector2.zero;
+
     const float kThresholdSqr = 0.1f * 0.1f;
 
     public IMovement New(GameObject player, Detector detector, KdTree tree, PathFinder bfs, float chaseSpeed, Func<float> getStoppingDistance)
@@ -33,11 +43,26 @@ public class ChaseMovement : MonoBehaviour, IMovement
         return this;
     }
 
-    // Helper method to move enemy towards a target position
-    private void MoveTowardsTarget(Rigidbody2D enemyRB, Vector2 targetPosition, float additionalSpeed = 1)
+    // Helper method: smooth movement (only used on the very first waypoint)
+    private void MoveSmooth(Rigidbody2D enemyRB, Vector2 targetPosition, ref Vector2 velocityTracker, float speedMultiplier = 1f)
+    {
+        Vector2 newPos = Vector2.SmoothDamp(
+            current: enemyRB.position,
+            target: targetPosition,
+            currentVelocity: ref velocityTracker,
+            smoothTime: smoothTime,
+            maxSpeed: chaseSpeed * speedMultiplier);
+        enemyRB.MovePosition(newPos);
+    }
+
+    // Your original direct movement helper
+    private void MoveDirect(Rigidbody2D enemyRB, Vector2 targetPosition, float speedMultiplier = 1f)
     {
         Vector2 enemyPos = enemyRB.position;
-        Vector2 newPos = Vector2.MoveTowards(enemyPos, targetPosition, chaseSpeed * additionalSpeed * Time.fixedDeltaTime);
+        Vector2 newPos = Vector2.MoveTowards(
+            enemyPos,
+            targetPosition,
+            chaseSpeed * speedMultiplier * Time.fixedDeltaTime);
         enemyRB.MovePosition(newPos);
     }
 
@@ -55,7 +80,6 @@ public class ChaseMovement : MonoBehaviour, IMovement
     {
         return kdTree.FindNearestRayCasting(playerBody.position, playerDetector.GetObstacleLayers(), out _);
     }
-
 
     private IEnumerator MoveDoorWaypointsCoroutine(Rigidbody2D enemyRB, Vector2 startPoint)
     {
@@ -77,24 +101,45 @@ public class ChaseMovement : MonoBehaviour, IMovement
             yield break;
         }
 
+        bool firstSegment = true;
         foreach (Vector2 waypoint in path)
         {
             while (Vector2.Distance(enemyRB.position, waypoint) > 0.1f)
             {
                 // During each fixed update, check if a direct line of sight has opened up.
                 float distanceToPlayer = Vector2.Distance(enemyRB.position, playerBody.position);
-                RaycastHit2D hit = Physics2D.Raycast(enemyRB.position, (playerBody.position - enemyRB.position).normalized, distanceToPlayer, playerDetector.GetObstacleLayers());
+                RaycastHit2D hit = Physics2D.Raycast(
+                    enemyRB.position,
+                    (playerBody.position - enemyRB.position).normalized,
+                    distanceToPlayer,
+                    playerDetector.GetObstacleLayers());
                 bool clearLine = hit.collider == null;
 
-                if ((clearLine && distanceToPlayer <= stoppingDistance * 1.5f) || !playerDetector.GetIsEnemyAwareOfPlayer())
+                if ((clearLine && distanceToPlayer <= stoppingDistance * 1.5f)
+                    || !playerDetector.GetIsEnemyAwareOfPlayer())
                 {
                     // Player is now directly approachable or movement changed
                     busy = false;
                     yield break;
                 }
 
-                MoveTowardsTarget(enemyRB, waypoint, additionalSpeedWhenFollowingPath);
+                if (firstSegment)
+                {
+                    MoveSmooth(enemyRB, waypoint, ref pathVelocity, additionalSpeedWhenFollowingPath);
+                }
+                else
+                {
+                    MoveDirect(enemyRB, waypoint, additionalSpeedWhenFollowingPath);
+                }
+
                 yield return new WaitForFixedUpdate();
+            }
+
+            // after we finish the first waypoint, switch off smoothing
+            if (firstSegment)
+            {
+                firstSegment = false;
+                pathVelocity = Vector2.zero;
             }
         }
 
@@ -110,16 +155,13 @@ public class ChaseMovement : MonoBehaviour, IMovement
         }
 
         Vector2 enemyWaypoint = kdTree.FindNearestRayCasting(enemyPos, playerDetector.GetObstacleLayers(), out _);
-
         return enemyWaypoint;
     }
 
     public void Move(Rigidbody2D enemyRB)
     {
         if (busy)
-        {
             return;
-        }
 
         this.stoppingDistance = getStoppingDistance();
         Vector2 enemyPos = enemyRB.position;
@@ -139,9 +181,8 @@ public class ChaseMovement : MonoBehaviour, IMovement
         {
             Vector2? bestWaypoint = FindClosestWayPoint(enemyPos);
             if (bestWaypoint == null)
-            {
                 return;
-            }
+
             Debug.Log("Using DoorWayPoint to find an exit");
             busy = true;
             _chaseCoroutine = StartCoroutine(MoveDoorWaypointsCoroutine(enemyRB, bestWaypoint.Value));
@@ -152,7 +193,7 @@ public class ChaseMovement : MonoBehaviour, IMovement
 
         // Normal chasing when no waypoint and no historic player positions are available
         // Debug.Log("Chasing the player normally");
-        MoveTowardsTarget(enemyRB, playerBody.position);
+        MoveDirect(enemyRB, playerBody.position);
     }
 
     public void NeedsRepositioning(bool reposition)

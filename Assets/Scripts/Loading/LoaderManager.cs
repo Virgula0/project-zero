@@ -9,7 +9,6 @@ public class LoaderManager : MonoBehaviour
     private loadingtext script;
     public static LoaderManager Instance { get; private set; }
     [SerializeField] private AudioSource backgroundSource;
-    [SerializeField] private AudioClip clip;
 
     private void Awake()
     {
@@ -24,7 +23,7 @@ public class LoaderManager : MonoBehaviour
 
     private void PlayMainMusic()
     {
-        backgroundSource.PlayOneShot(clip);
+        backgroundSource.Play();
     }
 
     private IEnumerator Start()

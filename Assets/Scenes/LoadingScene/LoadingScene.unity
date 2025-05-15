@@ -628,7 +628,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   vicaGameObject: {fileID: 763286021}
   backgroundSource: {fileID: 1342652380}
-  clip: {fileID: 8300000, guid: 4c7f853428b35486ebae7e1a5e4b0eae, type: 3}
 --- !u!4 &1342652379
 Transform:
   m_ObjectHideFlags: 0
@@ -654,10 +653,10 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: 4c7f853428b35486ebae7e1a5e4b0eae, type: 3}
+  m_Resource: {fileID: 8300000, guid: 4c7f853428b35486ebae7e1a5e4b0eae, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.85
   m_Pitch: 1
   Loop: 1
   Mute: 0
