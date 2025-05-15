@@ -26,6 +26,11 @@ public class LoaderManager : MonoBehaviour
         backgroundSource.Play();
     }
 
+    public void StopMainMusic()
+    {
+        backgroundSource.Stop();
+    }
+
     private IEnumerator Start()
     {
         script = vicaGameObject.GetComponent<loadingtext>();
