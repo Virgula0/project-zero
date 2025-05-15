@@ -25,6 +25,8 @@ public class EnemyWeaponManager : MonoBehaviour
     private IEnemy enemyRef;
     private Rigidbody2D playerBody;
     private float initialDetectionTime = 0;
+    private float unhideTimestamp = -Mathf.Infinity;
+
 
     void Start()
     {
@@ -85,12 +87,17 @@ public class EnemyWeaponManager : MonoBehaviour
 
         timer += Time.deltaTime;
 
-        if (Time.time - initialDetectionTime <= 0.5f ) // the player has 0.5 seconds after the detection
+        if (Time.time - initialDetectionTime <= 0.5f) // the player has 0.5 seconds after the detection
         {
             return;
         }
 
         if (!isEnemyAlerted || isPlayerBehindAWall)
+        {
+            return;
+        }
+
+        if (Time.time - unhideTimestamp <= 0.5f) // if the player ws behind an obstacle the enemy has been repositioned and we give 0.5f of seconds
         {
             return;
         }
@@ -120,7 +127,7 @@ public class EnemyWeaponManager : MonoBehaviour
 
         int beforeShootAmmo = currentLoadedWeapon.GetAmmoCount();
         if (timer >= currentLoadedWeapon.GetFireRate() && beforeShootAmmo > 0)
-        {   
+        {
             timer = 0;
             currentLoadedWeapon.Shoot();
             totalShotsDelivered += Mathf.Max(0, beforeShootAmmo - currentLoadedWeapon.GetAmmoCount()); // Mathf.Max avoid negative values
@@ -151,7 +158,8 @@ public class EnemyWeaponManager : MonoBehaviour
         Debug.Log("Enemy loaded a weapon");
         // must be done whatever a new gun gets loaded
         currentLoadedWeapon = weapon;
-        if(weapon.GetEquippedSprite() != null){
+        if (weapon.GetEquippedSprite() != null)
+        {
             enemySpriteRenderer.sprite = weapon.GetEquippedSprite();
         }
 
@@ -159,7 +167,8 @@ public class EnemyWeaponManager : MonoBehaviour
         timer = float.PositiveInfinity;
         currentLoadedWeapon.Setup(shooter);
 
-        if(weapon.GetGoonEquippedSprite() != null){
+        if (weapon.GetGoonEquippedSprite() != null)
+        {
             enemySpriteRenderer.sprite = weapon.GetGoonEquippedSprite();
 
             ResizeEnemyCollider();
@@ -199,7 +208,7 @@ public class EnemyWeaponManager : MonoBehaviour
 
         if (status && this.initialDetectionTime == 0)
             this.initialDetectionTime = Time.time;
-            
+
         this.isEnemyAlerted = status;
     }
 
@@ -213,9 +222,15 @@ public class EnemyWeaponManager : MonoBehaviour
         this.weaponTypesThatCanBeEquipped = list;
     }
 
-    public void SetIsPlayerBehindAWall(bool condition)
+    public void SetIsPlayerBehindAWall(bool isHidden)
     {
-        this.isPlayerBehindAWall = condition;
+        // Detect the *moment* they come out of cover
+        if (isPlayerBehindAWall && !isHidden)
+        {
+            unhideTimestamp = Time.time;
+        }
+
+        isPlayerBehindAWall = isHidden;
     }
 
     public bool CanWeaponBeEquipped(IPrimary weapon)
