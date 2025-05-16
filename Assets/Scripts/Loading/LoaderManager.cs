@@ -7,16 +7,14 @@ public class LoaderManager : MonoBehaviour
     [SerializeField] private GameObject vicaGameObject;
     private loadingtext script;
     public static LoaderManager Instance { get; private set; }
-    [SerializeField] private AudioSource backgroundSource;
-
-    private void PlayMainMusic()
-    {
-        backgroundSource.volume = 0.2f;
-        backgroundSource.Play();
-    }
 
     public void DestroyThis()
     {
+        if (Instance == null || gameObject == null)
+        {
+            return;
+        }
+
         Destroy(gameObject);
     }
 
@@ -39,10 +37,6 @@ public class LoaderManager : MonoBehaviour
 
     public void ActivateNextScene()
     {
-        if (SceneManager.GetActiveScene().buildIndex + 1 == 2)
-        { // if first game scene rnu the audio
-            PlayMainMusic();
-        }
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1, LoadSceneMode.Single);
     }
 
