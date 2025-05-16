@@ -38,6 +38,10 @@ public class MenuButtons : MonoBehaviour
 
     public void ClickStart()
     {
+        if (SwitchScene.Instance != null)
+        {
+            SwitchScene.Instance.ResetSavedData();
+        }
         ClickSound();
         StartMainMenu.Instance.BeginPlayTime();
         SceneManager.LoadScene(loadingScene);

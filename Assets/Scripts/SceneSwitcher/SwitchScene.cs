@@ -1,12 +1,22 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SwitchScene : MonoBehaviour
 {
     private SavedData saver;
     public static SwitchScene Instance { get; private set; }
+    [SerializeField] private AudioSource backgroundSource;
+    private bool needsReset = false;
 
     void Awake()
     {
+        if (SceneManager.GetActiveScene().buildIndex == 2
+            && Instance != null
+            && !Instance.backgroundSource.isPlaying) // if first game scene run the audio
+        {
+            PlayMainMusic();
+        }
+
         if (Instance != null && Instance != this)
         {
             // Another instance already exists, destroy this one
@@ -19,6 +29,16 @@ public class SwitchScene : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    public void StopMainMusic()
+    {
+        backgroundSource.Stop();
+    }
+
+    private void PlayMainMusic()
+    {
+        backgroundSource.volume = 0.2f;
+        Instance.backgroundSource.Play();
+    }
 
     void Start()
     {
@@ -30,6 +50,23 @@ public class SwitchScene : MonoBehaviour
         saver.Save();
         LoaderManager.Instance.DestroyThis();
         LoaderManager.Instance.ActivateNextScene();
+    }
+
+    public void ResetSavedData()
+    {
+        Instance.needsReset = true;
+        saver.SaveCustom(0);
+    }
+
+    public bool NeedsReset()
+    {
+        if (Instance.needsReset)
+        {
+            Instance.needsReset = false;
+            return true;
+        }
+
+        return false;
     }
 
     public int GetCurrentSavedData()

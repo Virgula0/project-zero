@@ -30,6 +30,7 @@ public class PointsRecap : MonoBehaviour
                      {"Time", ((Time.time - obj.GetStartPlayTime())/60).ToString()}
          });
 
+        SwitchScene.Instance.StopMainMusic();
         animationTotalTime = machineSound.length;
         StartCoroutine(PlaySound());
         StartCoroutine(SlotAnimation());

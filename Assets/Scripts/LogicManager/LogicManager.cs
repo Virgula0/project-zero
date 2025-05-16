@@ -32,7 +32,7 @@ public class LogicManager : MonoBehaviour
             {
                 int pointsSaved = SwitchScene.Instance.GetCurrentSavedData();
 
-                if (this.totalPoints < pointsSaved)
+                if (this.totalPoints < pointsSaved || SwitchScene.Instance.NeedsReset())
                 {
                     this.totalPoints = pointsSaved;
                 }

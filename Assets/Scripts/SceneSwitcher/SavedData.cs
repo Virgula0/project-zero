@@ -16,6 +16,11 @@ public class SavedData : MonoBehaviour
         this.currentTotalPoints = logic.GetTotalPoints();
     }
 
+    public void SaveCustom(int current)
+    {
+        this.currentTotalPoints = current;
+    }
+
     public int GetSavedPoints()
     {
         return currentTotalPoints;
