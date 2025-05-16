@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
@@ -6,6 +5,8 @@ using System.Linq;
 // Finds the pair of Vector2 (one from each array) with the minimum squared distance.
 public class GraphLinker
 {
+    private const float DefaultWaypointRadius = 0.8f;
+    private const float DefaultClearance = 0.8f;
     /// <summary>
     /// Defines connections between Vector2 points with the following pattern:
     /// - Index 0: connected to index 1.
@@ -71,18 +72,23 @@ public class GraphLinker
     }
 
     /// <summary>
-    /// Finds every pair (one point from A, one from B) whose connecting segment
-    /// is completely clear of colliders in the given obstacleMask.
+    /// Finds every pair (one point from A, one point from B) whose connecting
+    /// “tube” of radius (waypointRadius + clearance) is completely clear of colliders.
     /// </summary>
-    /// <returns>
-    /// A list of index‑pairs (i,j) where A[i] can see B[j].
-    /// </returns>
+    /// <param name="waypointRadius">the nominal radius of each waypoint</param>
+    /// <param name="clearance">
+    /// extra safety margin you want around each circle (so total radius = waypointRadius + clearance)
+    /// </param>
     private static List<(int aIndex, int bIndex)> FindAllVisiblePairs(
         Vector2[] arrayA,
         Vector2[] arrayB,
-        LayerMask obstacleMask)
+        LayerMask obstacleMask,
+        float waypointRadius = DefaultWaypointRadius,
+        float clearance = DefaultClearance)
     {
         var result = new List<(int, int)>();
+        // total “sweep” radius
+        float sweepR = waypointRadius + clearance;
 
         for (int i = 0; i < arrayA.Length; i++)
         {
@@ -90,18 +96,40 @@ public class GraphLinker
             for (int j = 0; j < arrayB.Length; j++)
             {
                 Vector2 b = arrayB[j];
+                Vector2 delta = b - a;
+                float fullDist = delta.magnitude;
 
-                // Line‐of‐sight check: Physics2D.Linecast returns true if something is hit
-                if (Physics2D.Linecast(a, b, obstacleMask))
+                // if the grown circles actually overlap, we can consider them mutually visible
+                if (fullDist <= 2f * sweepR)
+                {
+                    result.Add((i, j));
                     continue;
+                }
 
-                // No obstacle between a and b → record this pair
-                result.Add((i, j));
+                // direction from A→B
+                Vector2 dir = delta / fullDist;
+
+                // start the cast just outside A’s grown circle, 
+                // and only sweep the middle segment (so we don't double-cast the endpoints)
+                Vector2 castStart = a + dir * sweepR;
+                float castDist = fullDist - 2f * sweepR;
+
+                // cast a circle of radius=sweepR
+                RaycastHit2D hit = Physics2D.CircleCast(
+                    castStart,     // origin
+                    sweepR,        // radius
+                    dir,           // direction
+                    castDist,      // max distance
+                    obstacleMask);
+
+                if (hit.collider == null)
+                    result.Add((i, j));
             }
         }
 
         return result;
     }
+
 
     /// <summary>
     /// Merges two adjacency‐list graphs and links them by adding edges between
@@ -166,11 +194,48 @@ public class GraphLinker
         public Vector2[] Nodes;
     }
 
-    public Subgraph[] CreateSubgraphs(Vector2[] points, LayerMask obstacleMask)
+
+    /// <summary>
+    /// Returns true if the “tube” of radius (waypointRadius+clearance)
+    /// between a and b is completely obstacle‑free.
+    /// </summary>
+    public static bool IsVisible(
+        Vector2 a,
+        Vector2 b,
+        LayerMask obstacleMask,
+        float waypointRadius = DefaultWaypointRadius,
+        float clearance = DefaultClearance)
+    {
+        float sweepR = waypointRadius + clearance;
+        Vector2 delta = b - a;
+        float fullDist = delta.magnitude;
+
+        // if the two grown circles overlap, it's trivially clear
+        if (fullDist <= 2f * sweepR)
+            return true;
+
+        Vector2 dir = delta / fullDist;
+        Vector2 castStart = a + dir * sweepR;
+        float castDist = fullDist - 2f * sweepR;
+
+        // sweep the middle segment
+        RaycastHit2D hit = Physics2D.CircleCast(
+            castStart,
+            sweepR,
+            dir,
+            castDist,
+            obstacleMask);
+
+        return hit.collider == null;
+    }
+
+    public Subgraph[] CreateSubgraphs(
+        Vector2[] points,
+        LayerMask obstacleMask)
     {
         int n = points.Length;
 
-        // 1) Build the full visibility graph: check each unordered pair (i<j)
+        // 1) Build the full visibility graph using our clearance‐aware check
         var fullAdj = new List<int>[n];
         for (int i = 0; i < n; i++)
             fullAdj[i] = new List<int>();
@@ -179,8 +244,7 @@ public class GraphLinker
         {
             for (int j = i + 1; j < n; j++)
             {
-                // if there’s no obstacle between points[i] and points[j], link them
-                if (!Physics2D.Linecast(points[i], points[j], obstacleMask))
+                if (IsVisible(points[i], points[j], obstacleMask))
                 {
                     fullAdj[i].Add(j);
                     fullAdj[j].Add(i);
@@ -188,7 +252,7 @@ public class GraphLinker
             }
         }
 
-        // 2) Find connected components via BFS
+        // 2) BFS to extract connected components
         var seen = new bool[n];
         var subs = new List<Subgraph>();
 
@@ -216,49 +280,35 @@ public class GraphLinker
                 }
             }
 
-            // 3) Re‐index locally and build the Subgraph
+            // 3) build the Subgraph for this component
             int m = comp.Count;
             var mapGlobalToLocal = new Dictionary<int, int>(m);
-            for (int k = 0; k < m; k++)
-                mapGlobalToLocal[comp[k]] = k;
-
-            // local node positions
             var localNodes = new Vector2[m];
             for (int k = 0; k < m; k++)
+            {
+                mapGlobalToLocal[comp[k]] = k;
                 localNodes[k] = points[comp[k]];
+            }
 
-            // local adjacency
             var localGraph = new Dictionary<int, List<int>>(m);
             for (int k = 0; k < m; k++)
             {
                 int gi = comp[k];
                 localGraph[k] = fullAdj[gi]
+                    .Where(gj => mapGlobalToLocal.ContainsKey(gj))
                     .Select(gj => mapGlobalToLocal[gj])
                     .ToList();
             }
 
-            subs.Add(new Subgraph
-            {
-                Nodes = localNodes,
-                Graph = localGraph
-            });
+            subs.Add(new Subgraph { Nodes = localNodes, Graph = localGraph });
         }
 
         return subs.ToArray();
     }
 
-    /// <summary>
-    /// Builds and returns the Subgraph of all points reachable from the first point in the array,
-    /// taking obstacles into account (using Physics2D.Linecast).
-    /// </summary>
-    /// <param name="points">Array of all waypoint positions, with the start point at index 0.</param>
-    /// <param name="obstacleMask">LayerMask indicating obstacles.</param>
-    /// <returns>
-    /// A Subgraph struct containing:
-    /// - Nodes: Vector2[] of the reachable points, in original order as they appeared in the 'points' array.
-    /// - Graph: Dictionary mapping local indices (0..m-1) to lists of local neighbor indices.
-    /// </returns>
-    public Subgraph CreateGraph(Vector2[] points, LayerMask obstacleMask)
+    public Subgraph CreateGraph(
+        Vector2[] points,
+        LayerMask obstacleMask)
     {
         int n = points.Length;
         if (n == 0)
@@ -273,18 +323,14 @@ public class GraphLinker
             fullAdj[i] = new List<int>();
 
         for (int i = 0; i < n; i++)
-        {
             for (int j = i + 1; j < n; j++)
-            {
-                if (!Physics2D.Linecast(points[i], points[j], obstacleMask))
+                if (IsVisible(points[i], points[j], obstacleMask))
                 {
                     fullAdj[i].Add(j);
                     fullAdj[j].Add(i);
                 }
-            }
-        }
 
-        // 2) BFS from index 0 to collect reachable component indices
+        // 2) BFS from index 0
         var seen = new bool[n];
         var queue = new Queue<int>();
         var globalComponent = new List<int>();
@@ -297,21 +343,18 @@ public class GraphLinker
             int u = queue.Dequeue();
             globalComponent.Add(u);
             foreach (int v in fullAdj[u])
-            {
                 if (!seen[v])
                 {
                     seen[v] = true;
                     queue.Enqueue(v);
                 }
-            }
         }
 
-        // 3) Prepare local mapping and Nodes array in original order
+        // 3) Local remapping
         globalComponent.Sort();
         int m = globalComponent.Count;
         var mapGlobalToLocal = new Dictionary<int, int>(m);
         var localNodes = new Vector2[m];
-
         for (int k = 0; k < m; k++)
         {
             int gi = globalComponent[k];
@@ -319,7 +362,7 @@ public class GraphLinker
             localNodes[k] = points[gi];
         }
 
-        // 4) Build local adjacency graph
+        // 4) Build local adjacency
         var localGraph = new Dictionary<int, List<int>>(m);
         foreach (int gi in globalComponent)
         {
@@ -330,10 +373,6 @@ public class GraphLinker
                 .ToList();
         }
 
-        return new Subgraph
-        {
-            Nodes = localNodes,
-            Graph = localGraph
-        };
+        return new Subgraph { Nodes = localNodes, Graph = localGraph };
     }
 }
