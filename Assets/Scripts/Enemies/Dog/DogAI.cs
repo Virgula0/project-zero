@@ -57,11 +57,14 @@ public class DogAI : MonoBehaviour, IEnemy, IPoints
         }
 
         this.linker = new GraphLinker();
+        playerDetector = gameObject.GetComponent<Detector>();
         this.safeExitWaypointsCopy = new Vector2[exitWaypoints.Length];
         this.safePatrolPoint = new Vector2[patrolWaypoints.Length];
         Array.Copy(patrolWaypoints, 0, safePatrolPoint, 0, patrolWaypoints.Length);
         Array.Copy(exitWaypoints, 0, safeExitWaypointsCopy, 0, exitWaypoints.Length);
-        this.originalEnemyConnectionGraph = linker.GenerateConnections(exitWaypoints);
+        GraphLinker.Subgraph s = linker.CreateGraph(exitWaypoints,playerDetector.GetObstacleLayers()); // graph connection
+        this.originalEnemyConnectionGraph = s.Graph;
+        this.exitWaypoints = s.Nodes;
         this.originalEnemyConnectionGraphPatrolPoints = linker.GenerateCircularConnectionGraph(patrolWaypoints); // graph connection
         awakeReady = true;
     }

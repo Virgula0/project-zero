@@ -67,12 +67,15 @@ public class AI : MonoBehaviour, IEnemy, IPoints
             return;
         }
 
+        playerDetector = gameObject.GetComponent<Detector>();
         this.linker = new GraphLinker();
         this.safeExitWaypointsCopy = new Vector2[exitWaypoints.Length];
         this.safePatrolPoint = new Vector2[patrolWaypoints.Length];
         Array.Copy(patrolWaypoints, 0, safePatrolPoint, 0, patrolWaypoints.Length);
         Array.Copy(exitWaypoints, 0, safeExitWaypointsCopy, 0, exitWaypoints.Length);
-        this.originalEnemyConnectionGraph = linker.GenerateConnections(exitWaypoints); // graph connection
+        GraphLinker.Subgraph s = linker.CreateGraph(exitWaypoints,playerDetector.GetObstacleLayers()); // graph connection
+        this.originalEnemyConnectionGraph = s.Graph;
+        this.exitWaypoints = s.Nodes;
         this.originalEnemyConnectionGraphPatrolPoints = linker.GenerateCircularConnectionGraph(patrolWaypoints); // graph connection
         awakeReady = true;
     }
@@ -104,7 +107,6 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER_TAG).GetComponent<WeaponSpawner>();
         this.body = transform.parent.GetComponentInChildren<Rigidbody2D>();
         player = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
-        playerDetector = gameObject.GetComponent<Detector>();
         playerScript = player.GetComponent<PlayerScript>();
         this.goonAnimationScript = transform.parent.GetComponentInChildren<GoonAnimationScript>();
         playerWeaponManager = player.GetComponentInChildren<WeaponManager>();
