@@ -6,6 +6,7 @@ public class SwitchScene : MonoBehaviour
     private SavedData saver;
     public static SwitchScene Instance { get; private set; }
     [SerializeField] private AudioSource backgroundSource;
+    private bool needsReset = false;
 
     void Awake()
     {
@@ -49,6 +50,23 @@ public class SwitchScene : MonoBehaviour
         saver.Save();
         LoaderManager.Instance.DestroyThis();
         LoaderManager.Instance.ActivateNextScene();
+    }
+
+    public void ResetSavedData()
+    {
+        Instance.needsReset = true;
+        saver.SaveCustom(0);
+    }
+
+    public bool NeedsReset()
+    {
+        if (Instance.needsReset)
+        {
+            Instance.needsReset = false;
+            return true;
+        }
+
+        return false;
     }
 
     public int GetCurrentSavedData()
