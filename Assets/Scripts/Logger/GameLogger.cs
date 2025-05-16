@@ -1,56 +1,60 @@
 using System;
 using System.IO;
 using UnityEngine;
+
 public class GameLogger : MonoBehaviour
 {
-    private StreamWriter logWriter;
-    private string logFilePath;
+    private StreamWriter _logWriter;
+    private string _logFilePath;
+    public static GameLogger Instance { get; private set; }
 
-    void Awake()
+    private void Awake()
     {
-        // Create Logs folder if it doesn't exist
-        // Application.persistentDataPath
-        // WINDOWS: C:/Users/Username/AppData/LocalLow/ProductName
-        // OSX: ~/Library/Application Support/CompanyName/ProductName
-        string folderPath = Path.Combine(Application.persistentDataPath, "Logs");
-        if (!Directory.Exists(folderPath))
+        // If another instance already exists, destroy this duplicate
+        if (Instance != null && Instance != this)
         {
-            Directory.CreateDirectory(folderPath);
+            Destroy(gameObject);
+            return;
         }
 
-        // Generate unique log file name with timestamp
+        // This is the one true logger
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        // Prepare log file
+        string folderPath = Path.Combine(Application.persistentDataPath, "Logs");
+        if (!Directory.Exists(folderPath))
+            Directory.CreateDirectory(folderPath);
+
         string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
-        logFilePath = Path.Combine(folderPath, $"log_{timestamp}.txt");
+        _logFilePath = Path.Combine(folderPath, $"log_{timestamp}.txt");
 
-        logWriter = new StreamWriter(logFilePath);
-        logWriter.AutoFlush = true;
+        _logWriter = new StreamWriter(_logFilePath) { AutoFlush = true };
 
-        // Hook into Unity's log system
+        // Hook into Unity’s log system
         Application.logMessageReceived += HandleLog;
     }
 
-    void HandleLog(string logString, string stackTrace, LogType type)
+    private void HandleLog(string logString, string stackTrace, LogType type)
     {
-        logWriter.WriteLine($"{DateTime.Now:HH:mm:ss} [{type}] {logString}");
+        var time = DateTime.Now.ToString("HH:mm:ss");
+        _logWriter.WriteLine($"{time} [{type}] {logString}");
         if (type == LogType.Exception || type == LogType.Error)
-        {
-            logWriter.WriteLine(stackTrace);
-        }
+            _logWriter.WriteLine(stackTrace);
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
-        Application.logMessageReceived -= HandleLog;
+        // Only the singleton instance should tear down the subscription
+        if (Instance == this)
+            Application.logMessageReceived -= HandleLog;
 
-        if (logWriter != null)
-        {
-            logWriter.Close();
-        }
+        _logWriter?.Close();
     }
 
-    // persist across the scenes
-    void Start()
+    // Optional public method for manual logging
+    public void Log(string message)
     {
-        DontDestroyOnLoad(gameObject);
+        Debug.Log(message);
     }
 }
