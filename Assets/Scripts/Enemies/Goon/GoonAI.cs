@@ -32,7 +32,6 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     private KdTree treeStructure;
     private PathFinder bfs;
     private GraphLinker linker;
-    private Vector2[] safeExitWaypointsCopy;
     private Vector2[] safePatrolPoint;
     private Dictionary<int, List<int>> originalEnemyConnectionGraph;
     private Dictionary<int, List<int>> originalEnemyConnectionGraphPatrolPoints;
@@ -67,12 +66,13 @@ public class AI : MonoBehaviour, IEnemy, IPoints
             return;
         }
 
+        playerDetector = gameObject.GetComponent<Detector>();
         this.linker = new GraphLinker();
-        this.safeExitWaypointsCopy = new Vector2[exitWaypoints.Length];
         this.safePatrolPoint = new Vector2[patrolWaypoints.Length];
         Array.Copy(patrolWaypoints, 0, safePatrolPoint, 0, patrolWaypoints.Length);
-        Array.Copy(exitWaypoints, 0, safeExitWaypointsCopy, 0, exitWaypoints.Length);
-        this.originalEnemyConnectionGraph = linker.GenerateConnections(exitWaypoints); // graph connection
+        GraphLinker.Subgraph s = linker.CreateGraph(exitWaypoints, playerDetector.GetObstacleLayers()); // graph connection
+        this.originalEnemyConnectionGraph = s.Graph;
+        this.exitWaypoints = s.Nodes;
         this.originalEnemyConnectionGraphPatrolPoints = linker.GenerateCircularConnectionGraph(patrolWaypoints); // graph connection
         awakeReady = true;
     }
@@ -91,7 +91,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         treeStructure = glob.GetKdTree();
 
         // 4) Set up Movement‐objects just as before
-        FinalizeInitialization(glob);
+        FinalizeInitialization();
     }
 
     private GlobalWaypoints InitializeParameters()
@@ -104,7 +104,6 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         this.spawner = GameObject.FindGameObjectWithTag(Utils.Const.WEAPON_SPAWNER_TAG).GetComponent<WeaponSpawner>();
         this.body = transform.parent.GetComponentInChildren<Rigidbody2D>();
         player = GameObject.FindGameObjectWithTag(Utils.Const.PLAYER_TAG);
-        playerDetector = gameObject.GetComponent<Detector>();
         playerScript = player.GetComponent<PlayerScript>();
         this.goonAnimationScript = transform.parent.GetComponentInChildren<GoonAnimationScript>();
         playerWeaponManager = player.GetComponentInChildren<WeaponManager>();
@@ -118,7 +117,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         return glob;
     }
 
-    private void FinalizeInitialization(GlobalWaypoints glob)
+    private void FinalizeInitialization()
     {
         // Enemy Weapon manager
         weaponManager = transform.parent.GetComponentInChildren<EnemyWeaponManager>();
@@ -133,7 +132,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         findForAWeapon = gameObject.AddComponent<WeaponFinderMovement>()
             .New(treeStructure, bfs, typesThatCanBeEquipped, playerDetector, spawner, weaponManager, findAWaponSpeed);
         cowardMovement = gameObject.AddComponent<CowardMovement>()
-            .New(exitWaypoints[0], safeExitWaypointsCopy, glob.GetGlobalWaypoints(), patrolWaypoints, treeStructure, bfs, playerDetector, runAwaySpeed);
+            .New(exitWaypoints[0], patrolWaypoints, treeStructure, bfs, playerDetector, runAwaySpeed);
 
         listOfMovements.Add(patrolMovement);
         listOfMovements.Add(chaseMovement);
@@ -288,7 +287,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
 
     public Vector2[] GetEnemyWaypoints()
     {
-        return this.safeExitWaypointsCopy;
+        return this.exitWaypoints;
     }
 
     public Dictionary<int, List<int>> GetEnemyConnections()
