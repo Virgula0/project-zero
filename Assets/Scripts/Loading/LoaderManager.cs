@@ -11,6 +11,7 @@ public class LoaderManager : MonoBehaviour
 
     private void PlayMainMusic()
     {
+        backgroundSource.volume = 0.2f;
         backgroundSource.Play();
     }
 
