@@ -55,7 +55,7 @@ public class ChaseMovement : MonoBehaviour, IMovement
         enemyRB.MovePosition(newPos);
     }
 
-    // Your original direct movement helper
+    // Direct movement helper
     private void MoveDirect(Rigidbody2D enemyRB, Vector2 targetPosition, float speedMultiplier = 1f)
     {
         Vector2 enemyPos = enemyRB.position;

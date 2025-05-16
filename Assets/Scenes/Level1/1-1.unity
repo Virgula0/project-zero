@@ -1105,6 +1105,10 @@ PrefabInstance:
       propertyPath: patrolWaypoints.Array.data[9].y
       value: 9.87
       objectReference: {fileID: 0}
+    - target: {fileID: 3965410167010162294, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
+      propertyPath: weaponTemplatePrefab
+      value: 
+      objectReference: {fileID: 432423148}
     - target: {fileID: 5895775542303761209, guid: 445241bdff855e7419e4386f2e6a3910, type: 3}
       propertyPath: m_LocalPosition.x
       value: -32.165936
@@ -3626,6 +3630,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5558654136914332310, guid: d1883f833176b6849a50f25c760cc8ff, type: 3}
+      propertyPath: reservedToPlayer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5562937059206801165, guid: d1883f833176b6849a50f25c760cc8ff, type: 3}
       propertyPath: m_LocalPosition.x
       value: -43.97836

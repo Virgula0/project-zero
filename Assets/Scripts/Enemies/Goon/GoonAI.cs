@@ -95,7 +95,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         treeStructure = glob.GetKdTree();
 
         // 4) Set up Movement‐objects just as before
-        FinalizeInitialization(glob);
+        FinalizeInitialization();
     }
 
     private GlobalWaypoints InitializeParameters()
@@ -121,7 +121,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         return glob;
     }
 
-    private void FinalizeInitialization(GlobalWaypoints glob)
+    private void FinalizeInitialization()
     {
         // Enemy Weapon manager
         weaponManager = transform.parent.GetComponentInChildren<EnemyWeaponManager>();
@@ -136,7 +136,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         findForAWeapon = gameObject.AddComponent<WeaponFinderMovement>()
             .New(treeStructure, bfs, typesThatCanBeEquipped, playerDetector, spawner, weaponManager, findAWaponSpeed);
         cowardMovement = gameObject.AddComponent<CowardMovement>()
-            .New(exitWaypoints[0], safeExitWaypointsCopy, glob.GetGlobalWaypoints(), patrolWaypoints, treeStructure, bfs, playerDetector, runAwaySpeed);
+            .New(exitWaypoints[0], patrolWaypoints, treeStructure, bfs, playerDetector, runAwaySpeed);
 
         listOfMovements.Add(patrolMovement);
         listOfMovements.Add(chaseMovement);
