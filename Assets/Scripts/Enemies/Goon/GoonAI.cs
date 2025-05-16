@@ -32,7 +32,6 @@ public class AI : MonoBehaviour, IEnemy, IPoints
     private KdTree treeStructure;
     private PathFinder bfs;
     private GraphLinker linker;
-    private Vector2[] safeExitWaypointsCopy;
     private Vector2[] safePatrolPoint;
     private Dictionary<int, List<int>> originalEnemyConnectionGraph;
     private Dictionary<int, List<int>> originalEnemyConnectionGraphPatrolPoints;
@@ -69,14 +68,11 @@ public class AI : MonoBehaviour, IEnemy, IPoints
 
         playerDetector = gameObject.GetComponent<Detector>();
         this.linker = new GraphLinker();
-        this.safeExitWaypointsCopy = new Vector2[exitWaypoints.Length];
         this.safePatrolPoint = new Vector2[patrolWaypoints.Length];
         Array.Copy(patrolWaypoints, 0, safePatrolPoint, 0, patrolWaypoints.Length);
-        Array.Copy(exitWaypoints, 0, safeExitWaypointsCopy, 0, exitWaypoints.Length);
         GraphLinker.Subgraph s = linker.CreateGraph(exitWaypoints, playerDetector.GetObstacleLayers()); // graph connection
         this.originalEnemyConnectionGraph = s.Graph;
         this.exitWaypoints = s.Nodes;
-        this.safeExitWaypointsCopy = s.Nodes;
         this.originalEnemyConnectionGraphPatrolPoints = linker.GenerateCircularConnectionGraph(patrolWaypoints); // graph connection
         awakeReady = true;
     }
@@ -291,7 +287,7 @@ public class AI : MonoBehaviour, IEnemy, IPoints
 
     public Vector2[] GetEnemyWaypoints()
     {
-        return this.safeExitWaypointsCopy;
+        return this.exitWaypoints;
     }
 
     public Dictionary<int, List<int>> GetEnemyConnections()
