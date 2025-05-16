@@ -28,6 +28,7 @@ public class SwitchScene : MonoBehaviour
     public void SaveAndGoNext()
     {
         saver.Save();
+        LoaderManager.Instance.DestroyThis();
         LoaderManager.Instance.ActivateNextScene();
     }
 
