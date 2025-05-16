@@ -71,24 +71,18 @@ public class GraphLinker
     }
 
     /// <summary>
-    /// Finds the closest pair (one point from A, one from B) whose connecting segment
+    /// Finds every pair (one point from A, one from B) whose connecting segment
     /// is completely clear of colliders in the given obstacleMask.
     /// </summary>
     /// <returns>
-    /// True if at least one unblocked pair was found (and bestFromA/B set);
-    /// false if every pair was blocked, in which case bestFromA/B remain Vector2.zero.
+    /// A list of index‑pairs (i,j) where A[i] can see B[j].
     /// </returns>
-    private static bool FindClosestVisiblePair(
+    private static List<(int aIndex, int bIndex)> FindAllVisiblePairs(
         Vector2[] arrayA,
         Vector2[] arrayB,
-        LayerMask obstacleMask,
-        out Vector2 bestFromA,
-        out Vector2 bestFromB)
+        LayerMask obstacleMask)
     {
-        float minSqrDist = float.MaxValue;
-        bestFromA = Vector2.zero;
-        bestFromB = Vector2.zero;
-        bool found = false;
+        var result = new List<(int, int)>();
 
         for (int i = 0; i < arrayA.Length; i++)
         {
@@ -96,36 +90,29 @@ public class GraphLinker
             for (int j = 0; j < arrayB.Length; j++)
             {
                 Vector2 b = arrayB[j];
-                // 1) Quick distance check
-                float d2 = (a - b).sqrMagnitude;
-                if (d2 >= minSqrDist)
-                    continue;
 
-                // 2) Line‐of‐sight check: Physics2D.Linecast returns true if something is hit
+                // Line‐of‐sight check: Physics2D.Linecast returns true if something is hit
                 if (Physics2D.Linecast(a, b, obstacleMask))
                     continue;
 
-                // This pair is both closer and unobstructed
-                minSqrDist = d2;
-                bestFromA = a;
-                bestFromB = b;
-                found = true;
+                // No obstacle between a and b → record this pair
+                result.Add((i, j));
             }
         }
 
-        return found;
+        return result;
     }
 
     /// <summary>
-    /// Merges two adjacency‐list graphs and links them by adding one edge between
-    /// their closest mutually visible nodes.
+    /// Merges two adjacency‐list graphs and links them by adding edges between
+    /// *every* mutually visible node‐pair (instead of just the single closest).
     /// </summary>
     /// <param name="graph1">First graph (indices match points1).</param>
     /// <param name="graph2">Second graph (indices match points2).</param>
     /// <param name="points1">Positions of graph1’s nodes.</param>
     /// <param name="points2">Positions of graph2’s nodes.</param>
     /// <param name="obstacleMask">LayerMask indicating which layers count as obstacles.</param>
-    /// <returns>The merged graph (with graph2’s indices offset, plus one new connection).</returns>
+    /// <returns>The merged graph (with graph2’s indices offset, plus new connections).</returns>
     public Dictionary<int, List<int>> LinkGraphs(
         Dictionary<int, List<int>> graph1,
         Dictionary<int, List<int>> graph2,
@@ -143,32 +130,32 @@ public class GraphLinker
         foreach (var kv in graph2)
         {
             int key2 = kv.Key + offset;
-            var neigh = new List<int>();
-            foreach (int n in kv.Value)
-                neigh.Add(n + offset);
-            merged[key2] = neigh;
+            merged[key2] = kv.Value.Select(n => n + offset).ToList();
         }
 
-        // 3) Find closest *visible* pair
-        Vector2 aPos, bPos;
-        bool ok = FindClosestVisiblePair(points1, points2, obstacleMask, out aPos, out bPos);
+        // 3) Find all visible pairs
+        var visiblePairs = FindAllVisiblePairs(points1, points2, obstacleMask);
 
-        if (!ok)
+        if (visiblePairs.Count == 0)
         {
-            Debug.LogWarning("GraphLinker: no unobstructed link found—sub‐graphs remain disconnected.");
+            Debug.LogWarning("LinkAllVisible: no unobstructed links found—sub‐graphs remain disconnected.");
             return merged;
         }
 
-        // 4) Get their original indices
-        int idx1 = Array.IndexOf(points1, aPos);
-        int idx2 = Array.IndexOf(points2, bPos) + offset;
+        // 4) Add bidirectional edges for each visible pair
+        foreach (var (i, j) in visiblePairs)
+        {
+            int idx1 = i;
+            int idx2 = j + offset;
 
-        // 5) Add the bidirectional edge
-        if (!merged[idx1].Contains(idx2))
-            merged[idx1].Add(idx2);
+            // Link idx1 → idx2
+            if (!merged[idx1].Contains(idx2))
+                merged[idx1].Add(idx2);
 
-        if (!merged[idx2].Contains(idx1))
-            merged[idx2].Add(idx1);
+            // Link idx2 → idx1
+            if (!merged[idx2].Contains(idx1))
+                merged[idx2].Add(idx1);
+        }
 
         return merged;
     }

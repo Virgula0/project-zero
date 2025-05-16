@@ -73,9 +73,10 @@ public class AI : MonoBehaviour, IEnemy, IPoints
         this.safePatrolPoint = new Vector2[patrolWaypoints.Length];
         Array.Copy(patrolWaypoints, 0, safePatrolPoint, 0, patrolWaypoints.Length);
         Array.Copy(exitWaypoints, 0, safeExitWaypointsCopy, 0, exitWaypoints.Length);
-        GraphLinker.Subgraph s = linker.CreateGraph(exitWaypoints,playerDetector.GetObstacleLayers()); // graph connection
+        GraphLinker.Subgraph s = linker.CreateGraph(exitWaypoints, playerDetector.GetObstacleLayers()); // graph connection
         this.originalEnemyConnectionGraph = s.Graph;
         this.exitWaypoints = s.Nodes;
+        this.safeExitWaypointsCopy = s.Nodes;
         this.originalEnemyConnectionGraphPatrolPoints = linker.GenerateCircularConnectionGraph(patrolWaypoints); // graph connection
         awakeReady = true;
     }
