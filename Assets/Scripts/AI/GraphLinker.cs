@@ -6,7 +6,7 @@ using System.Linq;
 public class GraphLinker
 {
     private const float DefaultWaypointRadius = 0.8f;
-    private const float DefaultClearance = 0.8f;
+    private const float DefaultClearance = 0.5f;
     /// <summary>
     /// Defines connections between Vector2 points with the following pattern:
     /// - Index 0: connected to index 1.
