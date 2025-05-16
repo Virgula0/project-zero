@@ -102,7 +102,7 @@ public class GlobalWaypoints : MonoBehaviour
     /// 4) **Iterative Merging of Remaining Components**  
     ///    - Define helper functions:  
     ///      • <c>EuclideanSqrDist</c>(a, b): squared distance between two points.  
-    ///      • <c>IsVisible</c>(a, b): true if no obstacle blocks the line segment.  
+    ///      • <c>IsVisible</c>(a, b): true if no obstacle blocks the tube of radius (waypointRadius+clearance).  
     ///      • <c>ComputeMinVisibleDistance</c>: for a candidate component, finds the minimum straight‐line
     ///        distance from any master node to any component node that is also visible.  
     ///    - While there are still components to merge:  
@@ -193,20 +193,23 @@ public class GlobalWaypoints : MonoBehaviour
 
         // Helpers for merging
         float EuclideanSqrDist(Vector2 a, Vector2 b) => (a - b).sqrMagnitude;
-        bool IsVisible(Vector2 a, Vector2 b) => !Physics2D.Linecast(a, b, obstacleLayers);
+        bool Visible(Vector2 a, Vector2 b) =>
+            GraphLinker.IsVisible(a, b, obstacleLayers);
 
         float ComputeMinVisibleDistance(Vector2[] masterNodes, Vector2[] compNodes)
         {
-            float best = float.MaxValue;
+            float best = float.PositiveInfinity;
             foreach (var a in masterNodes)
                 foreach (var b in compNodes)
-                    if (IsVisible(a, b))
+                    if (Visible(a, b))
                     {
                         float d2 = EuclideanSqrDist(a, b);
                         if (d2 < best) best = d2;
                     }
 
-            return best == float.MaxValue ? float.PositiveInfinity : Mathf.Sqrt(best);
+            return best < float.PositiveInfinity
+                ? Mathf.Sqrt(best)
+                : float.PositiveInfinity;
         }
 
         // 4) Iteratively merge the remaining comps (preferring globals on ties)

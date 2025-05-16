@@ -400,7 +400,7 @@ public class KdTree
             Vector2 dir = (candidate - target).normalized;
             float fullDist = Mathf.Sqrt(nd.distanceSqr);
 
-            // nudge the origin/shorten the ray so you don't immediately hit your own collider
+            // nudge the origin/shorten the ray so you don't immediately hit the collider
             Vector2 origin = target + dir * EPS;
             float rayDist = Mathf.Max(0f, fullDist - 2 * EPS);
 

@@ -7,23 +7,18 @@ using UnityEngine;
 public class CowardMovement : MonoBehaviour, IMovement
 {
     private PathFinder bfs;
-    private Vector2[] waypoints;
     private Vector2[] patrolWaypoints;
     private KdTree kdTree;
     private float speed;
     private bool busy;
     private Coroutine _cowardRoutine;
     private Detector playerDetector;
-    private Vector2[] originalWaypoints;
     private Vector2 basePoint;
 
-    public IMovement New(Vector2 basePoint, Vector2[] waypoints, Vector2[] globalWaypoints, Vector2[] patrolWaypoints, KdTree treeStructure, PathFinder bfs, Detector playerDetector, float speed)
+    public IMovement New(Vector2 basePoint, Vector2[] patrolWaypoints, KdTree treeStructure, PathFinder bfs, Detector playerDetector, float speed)
     {
         this.basePoint = basePoint;
         this.patrolWaypoints = patrolWaypoints;
-        this.waypoints = Utils.Functions.RemoveAll(waypoints, globalWaypoints); // remove global waypoints from waypoints
-        this.waypoints = Utils.Functions.RemoveAtIndex(this.waypoints, 0); // remove element 0 because we don't want to enter the room anymore
-        this.originalWaypoints = waypoints;
         this.kdTree = treeStructure;
         this.speed = speed;
         this.bfs = bfs;
@@ -51,21 +46,17 @@ public class CowardMovement : MonoBehaviour, IMovement
 
         // Step 1: move to the nearest point first
 
-        foreach (Vector2 v in path.Take(path.Length - 1))
+        foreach (Vector2 v in path.Take(path.Length))
         {
             yield return MoveToWithChecks(rb, v);
         }
 
-        List<Vector2> circularPath;
         // Step 2: build the circular path (elements after the start index, then wrap)
+        List<Vector2> circularPath = GetCircularTraversal(patrolWaypoints, 0);
 
         // Step 3: loop forever (or until stopped), visiting each point in order
         while (busy)
         {
-            closestPoint = CalculateClosestPoint(rb);
-            circularPath = originalWaypoints.Contains(closestPoint)
-                            || patrolWaypoints.Contains(closestPoint) ? GetCircularTraversal(patrolWaypoints, 0)
-                                : GetCircularTraversal(waypoints, 0);
             foreach (var point in circularPath)
             {
                 yield return MoveToWithChecks(rb, point);
@@ -79,7 +70,7 @@ public class CowardMovement : MonoBehaviour, IMovement
         List<Vector2> circularPath = new List<Vector2>();
 
         // Add the waypoints starting from startIndex + 1 to the end of the list
-        for (int i = startIndex + 1; i < count; i++)
+        for (int i = startIndex; i < count; i++)
         {
             circularPath.Add(points[i]);
         }

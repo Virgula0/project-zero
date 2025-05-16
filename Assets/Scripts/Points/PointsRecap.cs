@@ -25,7 +25,7 @@ public class PointsRecap : MonoBehaviour
          obj.GetCursorChangerScript().ChangeToDefaultCursor();
 
          repo.InsertData(Repository.Tables.Stats.ToString(), new Dictionary<string, object>{
-                     { "PlayerName", "test" },
+                     { "PlayerName", System.Environment.MachineName },
                      { "Score",points },
                      {"Time", ((Time.time - obj.GetStartPlayTime())/60).ToString()}
          });
