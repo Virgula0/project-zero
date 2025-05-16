@@ -391,7 +391,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 353351261}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Forniture
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -445,7 +445,7 @@ GameObject:
   - component: {fileID: 527368280}
   - component: {fileID: 527368282}
   - component: {fileID: 527368281}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: HDesk 0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -579,7 +579,7 @@ GameObject:
   - component: {fileID: 605360503}
   - component: {fileID: 605360505}
   - component: {fileID: 605360504}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: HCupboard 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1169,7 +1169,7 @@ GameObject:
   - component: {fileID: 996851968}
   - component: {fileID: 996851970}
   - component: {fileID: 996851969}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: HCupboard 0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1360,7 +1360,7 @@ GameObject:
   - component: {fileID: 1183143322}
   - component: {fileID: 1183143324}
   - component: {fileID: 1183143323}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: HCupboard 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2837,7 +2837,7 @@ GameObject:
   - component: {fileID: 1919899262}
   - component: {fileID: 1919899264}
   - component: {fileID: 1919899263}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: HCouch 5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3361,7 +3361,7 @@ GameObject:
   - component: {fileID: 1979114970}
   - component: {fileID: 1979114972}
   - component: {fileID: 1979114971}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: HCupboard 3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3495,7 +3495,7 @@ GameObject:
   - component: {fileID: 2008737195}
   - component: {fileID: 2008737197}
   - component: {fileID: 2008737196}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: HTable
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4204,7 +4204,7 @@ GameObject:
   - component: {fileID: 2089086593}
   - component: {fileID: 2089086595}
   - component: {fileID: 2089086594}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: HMicrowave
   m_TagString: Untagged
   m_Icon: {fileID: 0}
