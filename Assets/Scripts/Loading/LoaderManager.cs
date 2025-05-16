@@ -4,43 +4,42 @@ using UnityEngine.SceneManagement;
 
 public class LoaderManager : MonoBehaviour
 {
-    [SerializeField]
-    private GameObject vicaGameObject;
+    [SerializeField] private GameObject vicaGameObject;
     private loadingtext script;
     public static LoaderManager Instance { get; private set; }
     [SerializeField] private AudioSource backgroundSource;
-
-    private void Awake()
-    {
-        if (Instance != null)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
-    }
 
     private void PlayMainMusic()
     {
         backgroundSource.Play();
     }
 
-    public void StopMainMusic()
+    public void DestroyThis()
     {
-        backgroundSource.Stop();
+        Destroy(gameObject);
     }
 
-    private IEnumerator Start()
+    private IEnumerator SwitchAndWait()
     {
-        script = vicaGameObject.GetComponent<loadingtext>();
         yield return StartCoroutine(ShowLoadingProgress());
         ActivateNextScene();
     }
 
+    private IEnumerator Start()
+    {
+        if (Instance == null)
+        {
+            DontDestroyOnLoad(gameObject);
+            Instance = this;
+        }
+        script = vicaGameObject.GetComponent<loadingtext>();
+        yield return SwitchAndWait();
+    }
+
     public void ActivateNextScene()
     {
-        if (SceneManager.GetActiveScene().buildIndex + 1 == 2) { // if first game scene rnu the audio
+        if (SceneManager.GetActiveScene().buildIndex + 1 == 2)
+        { // if first game scene rnu the audio
             PlayMainMusic();
         }
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1, LoadSceneMode.Single);
