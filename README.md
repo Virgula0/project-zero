@@ -12,8 +12,8 @@
   - Main Menu
   - Points management and gameplay logic 
 - _Roberto Magrini_ 
-  - Tilemaps
-  - Arts and sprites
+  - Level Design
+  - Enemies and weapons prefabs
   - Animations
   - Gameplay UI
 
@@ -56,6 +56,7 @@ Ranged weapons are effective at long range but have limited ammunition.
 
 ##### Melee Weapons:
 Melee weapons are effective only at close range, don’t require ammunition, and can parry enemy melee attacks with [Left Click].  
+
 **Parry mechanic:** Timing is key. If you successfully parry, the enemy becomes stunned for a short period, then if you swing again in that period and the enemy gets hit, it dies.
 
 **List of Melee Weapons:**
