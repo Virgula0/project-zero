@@ -133,4 +133,4 @@ The main menu has an animated background and three buttons:
 
 # Video gameplay
 
-[![](media/video/gameplay.mp4)](media/video/gameplay.mp4)
+[![media/video/gameplay.mp4](media/video/gameplay.mp4)](media/video/gameplay.mp4)
