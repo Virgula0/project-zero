@@ -91,7 +91,7 @@ before to start shooting and the same amount of time is used each time the enemy
 
 - **Weapon Finder Movement**
 
-> If an enemy starts unequipped or an enemy finishes its ammo, it tries to reequip the closest equipable weapon based on its list of equipable weapon types. Weapons left on the ground by the player are equippable by the enemies too. Some certain weapons can be marked as `Available to the player only` and those weapons are equippable by the player only at the first time. Then, if the player leaves the same gun on the ground, it will be available to the enemies too. If an enemy is trying to reach a weapon spot and the player is detected nearby, the player gets ignores. If instead, there is no available weapon on the ground equipable, the coward movement is activated wheter the player is detectet or not.
+> If an enemy starts unequipped or an enemy finishes its ammo, it tries to reequip the closest equipable weapon based on its list of equipable weapon types. Weapons left on the ground by the player are equippable by the enemies too. Some certain weapons can be marked as `Available to the player only` and those weapons are equippable by the player only at the first time. Then, if the player leaves the same gun on the ground, it will be available to the enemies too. If an enemy is trying to reach a weapon spot and the player is detected nearby, the player is ignored. If instead, there is no available weapon on the ground equipable, the coward movement is activated wheter the player is detectet or not.
 
 - **Coward Movement**
 
