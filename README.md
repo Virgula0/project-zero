@@ -87,7 +87,7 @@ Levels are handcrafted and consist of multiple areas (scenes). Each area contain
 - **Chase Movement**
 
 > Chases the enemy and handles repositioning using waypoints for avoiding obstacles. The chase lasts until the maximum time of chasing is reached. When the alert status of an enemy is disposed, the movement switches to the patrol one, which eventually handles repositioning. When the player is detected, the enemies leaves `0.5s` of time
-before to start shooting and the same amount of time is used each time the enemy was using patrol waypoint for repositioning.
+before to start shooting and the same amount of time is used each time the enemy was using chase waypoint for repositioning.
 
 - **Weapon Finder Movement**
 
