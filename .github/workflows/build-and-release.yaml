@@ -93,7 +93,7 @@ jobs:
           draft: false
           prerelease: true
           body: |
-            ![Release Banner](images/logo/logo.png)
+            ![Release Banner](media/logo/logo.png)
 
           artifacts: |
             StandaloneOSX.zip
