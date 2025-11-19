@@ -40,7 +40,7 @@ public class BiteWeaponScript : MonoBehaviour, IPrimary, IMelee
     public float GetFireRate() => fireRate;
     public int GetMegCap() => magCap;
     public int GetAmmoCount() => ammoCount;
-    public Sprite GetEquippedSprite() => null;
+    public Sprite GetEquippedSprite(string equipper) => null;
     public Sprite GetStaticWeaponSprite() => null;
     public AudioClip GetShotSfx() => biteSound;
     public AudioClip GetReloadSfx() => null;

@@ -71,7 +71,7 @@ public class WeaponManager : MonoBehaviour
         currentLoadedWeapon.Setup(shooter);
         audioSrc.PlayOneShot(currentLoadedWeapon.GetEquipSfx());
 
-        playerAnimCtrl.SetEquippedWeponSprite(weapon.GetEquippedSprite());
+        playerAnimCtrl.SetEquippedWeponSprite(weapon.GetEquippedSprite("player"));
         ResizePlayerCollider();
 
         uiManager.UpdateWeaponIcon(currentLoadedWeapon.GetStaticWeaponSprite());
@@ -217,7 +217,7 @@ public class WeaponManager : MonoBehaviour
         {
             if (currentLoadedWeapon != null)
             {
-                playerAnimCtrl.SetPlayerLastSprite(currentLoadedWeapon.GetEquippedSprite());
+                playerAnimCtrl.SetPlayerLastSprite(currentLoadedWeapon.GetEquippedSprite("player"));
             }
             secondaryTimer = 0;
             currentLoadedSecondary.Shoot();

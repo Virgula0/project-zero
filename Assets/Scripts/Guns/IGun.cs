@@ -41,8 +41,7 @@ public interface IPickupable
 // Supplies sprites for UI and world display
 public interface IVisualWeapon
 {
-    Sprite GetEquippedSprite();
-    Sprite GetGoonEquippedSprite();
+    Sprite GetEquippedSprite(string equipper);
     Sprite GetStaticWeaponSprite();
 }
 
