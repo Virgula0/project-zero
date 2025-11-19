@@ -97,9 +97,8 @@ public class AssaultRifle : MonoBehaviour, IPrimary, IRestricted, IThrowable, IR
     {
         if(equipper.Equals("player")){
             return this.equippedSprite;
-        }else{
-            return this.goonEquippedSprite;
         }
+        return this.goonEquippedSprite;
     }
 
     public Sprite GetStaticWeaponSprite()

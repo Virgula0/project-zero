@@ -152,11 +152,6 @@ public class SimpleGun : MonoBehaviour, IPrimary, IRestricted, IThrowable, IRang
         return;
     }
 
-    /*public Sprite GetGoonEquippedSprite()
-    {
-        return this.goonEquippedSprite;
-    }*/
-
     public void ThrowWhereMousePoints()
     {
         this.throwable = Instantiate(throwablePrefab, shooterObject.transform.position, Quaternion.identity);

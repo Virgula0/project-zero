@@ -106,8 +106,7 @@ public class SimpleSword : MonoBehaviour, IPrimary, IRestricted, IMelee
     public Sprite GetEquippedSprite(string equipper){
         if (equipper.Equals("player")){
             return this.equippedSprite;
-        }else{
-            return this.goonEquippedSprite;
         }
+        return this.goonEquippedSprite;
     }
 }
