@@ -158,18 +158,18 @@ public class EnemyWeaponManager : MonoBehaviour
         Debug.Log("Enemy loaded a weapon");
         // must be done whatever a new gun gets loaded
         currentLoadedWeapon = weapon;
-        if (weapon.GetEquippedSprite() != null)
+        if (weapon.GetEquippedSprite("goon") != null)
         {
-            enemySpriteRenderer.sprite = weapon.GetEquippedSprite();
+            enemySpriteRenderer.sprite = weapon.GetEquippedSprite("goon");
         }
 
         // we're allowed to shoot at te beginning 
         timer = float.PositiveInfinity;
         currentLoadedWeapon.Setup(shooter);
 
-        if (weapon.GetGoonEquippedSprite() != null)
+        if (weapon.GetEquippedSprite("goon") != null)
         {
-            enemySpriteRenderer.sprite = weapon.GetGoonEquippedSprite();
+            enemySpriteRenderer.sprite = weapon.GetEquippedSprite("goon");
 
             ResizeEnemyCollider();
         }

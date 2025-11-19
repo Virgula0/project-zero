@@ -93,9 +93,13 @@ public class AssaultRifle : MonoBehaviour, IPrimary, IRestricted, IThrowable, IR
         return this.ammoCount;
     }
 
-    public Sprite GetEquippedSprite()
+    public Sprite GetEquippedSprite(string equipper)
     {
-        return this.equippedSprite;
+        if(equipper.Equals("player")){
+            return this.equippedSprite;
+        }else{
+            return this.goonEquippedSprite;
+        }
     }
 
     public Sprite GetStaticWeaponSprite()
@@ -144,10 +148,12 @@ public class AssaultRifle : MonoBehaviour, IPrimary, IRestricted, IThrowable, IR
         return;
     }
 
+/*
     public Sprite GetGoonEquippedSprite()
     {
         return this.goonEquippedSprite;
     }
+*/
 
     public void ThrowWhereMousePoints()
     {

@@ -71,7 +71,6 @@ public class SimpleSword : MonoBehaviour, IPrimary, IRestricted, IMelee
     public float GetFireRate() => fireRate;
     public int GetMegCap() => magCap;
     public int GetAmmoCount() => ammoCount;
-    public Sprite GetEquippedSprite() => equippedSprite;
     public Sprite GetStaticWeaponSprite() => staticWeaponSprite.sprite;
     public AudioClip GetShotSfx() => swingSound;
     public AudioClip GetReloadSfx() => null;
@@ -103,5 +102,12 @@ public class SimpleSword : MonoBehaviour, IPrimary, IRestricted, IMelee
     public bool IsEquippableByPlayerOnly()
     {
         return reservedToPlayer;
+    }
+    public Sprite GetEquippedSprite(string equipper){
+        if (equipper.Equals("player")){
+            return this.equippedSprite;
+        }else{
+            return this.goonEquippedSprite;
+        }
     }
 }

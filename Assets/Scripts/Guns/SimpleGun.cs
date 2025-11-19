@@ -95,9 +95,14 @@ public class SimpleGun : MonoBehaviour, IPrimary, IRestricted, IThrowable, IRang
         return this.ammoCount;
     }
 
-    public Sprite GetEquippedSprite()
+    public Sprite GetEquippedSprite(string equipper)
     {
-        return this.equippedSprite;
+        if(equipper.Equals("player")){
+            return this.equippedSprite;
+        }else{
+            return this.goonEquippedSprite;
+        }
+        // ADD OTHER ENEMIES TYPES HERE
     }
 
     public Sprite GetStaticWeaponSprite()
@@ -147,10 +152,10 @@ public class SimpleGun : MonoBehaviour, IPrimary, IRestricted, IThrowable, IRang
         return;
     }
 
-    public Sprite GetGoonEquippedSprite()
+    /*public Sprite GetGoonEquippedSprite()
     {
         return this.goonEquippedSprite;
-    }
+    }*/
 
     public void ThrowWhereMousePoints()
     {

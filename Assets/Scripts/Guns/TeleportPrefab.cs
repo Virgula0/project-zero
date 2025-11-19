@@ -49,7 +49,7 @@ public class TeleportPrefab : MonoBehaviour, ISecondary
         }
     }
 
-    public Sprite GetEquippedSprite()
+    public Sprite GetEquippedSprite(string equipper)
     {
         return null;
     }
